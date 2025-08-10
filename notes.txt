@@ -1,0 +1,4 @@
+flex lexer.l          # Compilar o arquivo Flex (lexer.l)
+gcc lex.yy.c -o lexer -lfl  # Compilar o código C gerado
+./lexer arquivo.tny    # Executar o analisador léxico no arquivo de entrada
+
