@@ -1,5 +1,5 @@
-#include "include/global.h"
-#include "include/syntax_tree.h"
+#include "globals.h"
+#include "syntax_tree.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

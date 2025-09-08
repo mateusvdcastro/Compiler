@@ -73,7 +73,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include "global.h"
+#include "globals.h"
 #include "syntax_tree.h"
 
 #define YYSTYPE NODEPOINTER
