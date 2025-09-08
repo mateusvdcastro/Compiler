@@ -12,6 +12,8 @@ extern int yyparse(void);
 extern FILE *yyin;
 
 int main(int argc, char *argv[]) {
+    printf("Simple Compiler Frontend\n");
+
     if (argc > 2) {
         printf("Usage: %s [filename]\n", argv[0]);
         return 1;
@@ -34,32 +36,32 @@ int main(int argc, char *argv[]) {
         fileINPUT = stdin;
     }
     
-    // Parse the input
-    yyparse();
-    NODEPOINTER tree = syntax_tree;
+    // // Parse the input
+    // yyparse();
+    // NODEPOINTER tree = syntax_tree;
     
-    // Display results
-    if (syntax_errors == 0) {
-        printf("\nParsing completed successfully!\n");
-        if (tree != NULL) {
-            printf("\nSyntax Tree:\n");
-            printf("=============\n");
-            showTree(tree, 0);
-        }
-    } else {
-        printf("\nParsing completed with %d error(s).\n", syntax_errors);
-    }
+    // // Display results
+    // if (syntax_errors == 0) {
+    //     printf("\nParsing completed successfully!\n");
+    //     if (tree != NULL) {
+    //         printf("\nSyntax Tree:\n");
+    //         printf("=============\n");
+    //         showTree(tree, 0);
+    //     }
+    // } else {
+    //     printf("\nParsing completed with %d error(s).\n", syntax_errors);
+    // }
     
-    // Cleanup
-    if (fileINPUT != stdin && fileINPUT != NULL) {
-        fclose(fileINPUT);
-    }
-    if (fileCOPY != NULL) {
-        fclose(fileCOPY);
-    }
-    if (tree != NULL) {
-        freeTree(tree);
-    }
+    // // Cleanup
+    // if (fileINPUT != stdin && fileINPUT != NULL) {
+    //     fclose(fileINPUT);
+    // }
+    // if (fileCOPY != NULL) {
+    //     fclose(fileCOPY);
+    // }
+    // if (tree != NULL) {
+    //     freeTree(tree);
+    // }
     
-    return syntax_errors > 0 ? 1 : 0;
+    // return syntax_errors > 0 ? 1 : 0;
 }
