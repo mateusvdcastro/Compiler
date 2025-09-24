@@ -12,6 +12,7 @@ extern int flagVerbose; // Flag to activate verbose mode
 extern int indStack; // lexeme stack index
 extern int lineNum; // line number
 extern int lineCount; // line counter
+extern int lexical_errors; // lexical errors counter
 extern char* yytext; // lexeme text
 extern char stack[4][MAXLEXEME]; // lexeme stack
 extern FILE * fileINPUT; // input file

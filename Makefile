@@ -18,8 +18,11 @@ clean_output:
 	rm -f $(OUTPUT_DIR)/*.txt
 
 
-compiler: $(BUILD_DIR)/lex.yy.o $(BUILD_DIR)/syntax_tree.o
+compiler: $(BUILD_DIR)/main.o $(BUILD_DIR)/lex.yy.o $(BUILD_DIR)/syntax_tree.o
 	$(CC) $(CFLAGS) -o $@ $^ -lfl
+
+$(BUILD_DIR)/main.o: $(SRC_DIR)/main.c
+	$(CC) $(CFLAGS) -c $< -o $@
 
 $(BUILD_DIR)/syntax_tree.o: $(SRC_DIR)/syntax_tree.c
 	$(CC) $(CFLAGS) -c $< -o $@

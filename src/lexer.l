@@ -20,7 +20,7 @@ DIGIT    [0-9]
 NUMBER    {DIGIT}+
 LETTER     [a-zA-Z]
 IDENT     {LETTER}({LETTER}|{DIGIT})*
-NEWLINE   \n
+NEWLINE   \r?\n
 WHITESPACE [ \t]+
 
 %%
@@ -145,28 +145,12 @@ WHITESPACE [ \t]+
 
 %%
 
-int main(int argc, char *argv[]) {
-    if (argc != 2) {
-        printf("Uso: %s arquivo.*\n", argv[0]);
-        return 1;
-    }
+enum yytokentype getToken(void){
+    yyin = fileINPUT;
 
-    FILE *file = fopen(argv[1], "r");
-    
-    if (file == NULL) {
-        printf("Erro ao abrir o arquivo %s\n", argv[1]);
-        return 1;
-    }
+    enum yytokentype currentToken;
 
-    yyin = file;
-    
-    int token;
-    while ((token = yylex()) != 0) {
-        // Continue processando todos os tokens
-        // Erros já são tratados na função yylex()
-        printf("Token: %d\n", token); // Apenas para demonstração
-    }
+    currentToken = yylex();
 
-    fclose(file);
-    return 0;
+    return currentToken;
 }
