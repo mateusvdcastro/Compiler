@@ -17,8 +17,7 @@ clean_output:
 	rm -f $(OUTPUT_DIR)/logs/*.log
 	rm -f $(OUTPUT_DIR)/*.txt
 
-
-compiler: $(BUILD_DIR)/main.o $(BUILD_DIR)/lex.yy.o $(BUILD_DIR)/syntax_tree.o
+compiler: $(BUILD_DIR)/main.o $(BUILD_DIR)/parser.tab.o $(BUILD_DIR)/lex.yy.o $(BUILD_DIR)/syntax_tree.o
 	$(CC) $(CFLAGS) -o $@ $^ -lfl
 
 $(BUILD_DIR)/main.o: $(SRC_DIR)/main.c
@@ -32,6 +31,9 @@ $(BUILD_DIR)/lex.yy.o: $(BUILD_DIR)/lex.yy.c
 
 $(BUILD_DIR)/lex.yy.c: $(SRC_DIR)/lexer.l
 	flex -o $@ $<
+
+$(BUILD_DIR)/parser.tab.c $(BUILD_DIR)/parser.tab.h: $(SRC_DIR)/parser.y
+	bison -d -v -t -Wcounterexamples $< -o $(BUILD_DIR)/parser.tab.c
 
 test: compiler
 	@if [ -z "$(file)" ]; then \

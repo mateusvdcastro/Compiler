@@ -4,19 +4,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-// Global variables definitions
-FILE *fileINPUT = NULL;
-FILE *fileCOPY = NULL;
-FILE *fileOUTPUT = NULL;
-
-int flagVerbose = 0;
-extern int indStack;
-extern int lineNum;
-int lineCount = 0;
-extern char stack[4][MAXLEXEME];
-
-extern int syntax_errors;
-
 // Function to create a new tree node
 NODEPOINTER createNode(char lexeme[MAXLEXEME], int lineNum, NodeKind nodeKind, StmtKind stmtKind, ExpKind expKind) {
     NODEPOINTER newnode = (NODEPOINTER) malloc(sizeof(TreeNode));
@@ -45,6 +32,7 @@ NODEPOINTER createNode(char lexeme[MAXLEXEME], int lineNum, NodeKind nodeKind, S
 // Function to create a new tree node with default values
 NODEPOINTER newNode() {
     NODEPOINTER newnode = (NODEPOINTER) malloc(sizeof(TreeNode));
+
     if (newnode == NULL) {
         printf("Error: out of memory\n");
         exit(1);
@@ -54,6 +42,7 @@ NODEPOINTER newNode() {
     for (int i = 0; i < 3; i++) {
         newnode->child[i] = NULL;
     }
+
     newnode->sibling = NULL;
     newnode->nodeKind = NullK;
     newnode->stmtKind = NullDecl;
@@ -96,12 +85,36 @@ NODEPOINTER addChild(NODEPOINTER root, NODEPOINTER node) {
         }
     }
     
-    // If all child slots are taken, add as sibling to the last child
-    if (root->child[2] != NULL) {
-        root->child[2] = addSibling(root->child[2], node);
-    }
+    // // If all child slots are taken, add as sibling to the last child
+    // if (root->child[2] != NULL) {
+    //     root->child[2] = addSibling(root->child[2], node);
+    // }
     
     return root;
+}
+
+//Mostra a árvore
+int flagMA = 0; //Flag para mostrar o primeiro print apenas uma vez.
+void mostraArvore(NODEPOINTER root, int num){
+    if(flagMA == 0){
+        flagMA = 1;
+        fprintf(fileOUTPUT, "\n========== Arvore de Analise Sintatica ========== \n");
+    }
+    
+    if(root == NULL){
+        return;
+    }
+
+    for(int i = 0; i < num; i++){
+        fprintf(fileOUTPUT, "\t");
+    }
+    fprintf(fileOUTPUT, "%s\n", root->lexeme);
+    
+    for(int i = 0; i < 3; i++){
+        mostraArvore(root->child[i], num + 1);
+    }
+    mostraArvore(root->sibling, num);
+    
 }
 
 // Function to display the syntax tree
