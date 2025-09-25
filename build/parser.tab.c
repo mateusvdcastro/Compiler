@@ -74,9 +74,20 @@
 #include "globals.h"
 #include "syntax_tree.h"
 
+#define YYSTYPE NODEPOINTER
+#define MAX_NODES 1000
+
+static int yylex(void);
+
+NODEPOINTER nodes[MAX_NODES];
+NODEPOINTER syntaxTree;
+
 enum yytokentype auxError;
 
-#line 80 "./build/parser.tab.c"
+int nodeCount = 0;
+int syntax_errors = 0;
+
+#line 91 "./build/parser.tab.c"
 
 # ifndef YY_CAST
 #  ifdef __cplusplus
@@ -137,7 +148,8 @@ enum yysymbol_kind_t
   YYSYMBOL_ERRO = 30,                      /* ERRO  */
   YYSYMBOL_YYACCEPT = 31,                  /* $accept  */
   YYSYMBOL_program = 32,                   /* program  */
-  YYSYMBOL_statement = 33                  /* statement  */
+  YYSYMBOL_declaration_list = 33,          /* declaration_list  */
+  YYSYMBOL_declaration = 34                /* declaration  */
 };
 typedef enum yysymbol_kind_t yysymbol_kind_t;
 
@@ -463,18 +475,18 @@ union yyalloc
 #endif /* !YYCOPY_NEEDED */
 
 /* YYFINAL -- State number of the termination state.  */
-#define YYFINAL  2
+#define YYFINAL  4
 /* YYLAST -- Last index in YYTABLE.  */
-#define YYLAST   4
+#define YYLAST   1
 
 /* YYNTOKENS -- Number of terminals.  */
 #define YYNTOKENS  31
 /* YYNNTS -- Number of nonterminals.  */
-#define YYNNTS  3
+#define YYNNTS  4
 /* YYNRULES -- Number of rules.  */
-#define YYNRULES  6
+#define YYNRULES  5
 /* YYNSTATES -- Number of states.  */
-#define YYNSTATES  7
+#define YYNSTATES  6
 
 /* YYMAXUTOK -- Last valid token kind.  */
 #define YYMAXUTOK   285
@@ -526,7 +538,7 @@ static const yytype_int8 yytranslate[] =
 /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_int8 yyrline[] =
 {
-       0,    18,    18,    19,    22,    23,    24
+       0,    28,    28,    34,    37,    42
 };
 #endif
 
@@ -547,7 +559,7 @@ static const char *const yytname[] =
   "ABRECHAVES", "FECHACHAVES", "ATRIB", "COMMA", "SEMICOLON", "SOMA",
   "SUB", "MULT", "DIV", "EQ", "NEQ", "LT", "GT", "LET", "GET", "INT",
   "VOID", "WHILE", "ELSE", "IF", "RETURN", "ERRO", "$accept", "program",
-  "statement", YY_NULLPTR
+  "declaration_list", "declaration", YY_NULLPTR
 };
 
 static const char *
@@ -557,7 +569,7 @@ yysymbol_name (yysymbol_kind_t yysymbol)
 }
 #endif
 
-#define YYPACT_NINF (-1)
+#define YYPACT_NINF (-2)
 
 #define yypact_value_is_default(Yyn) \
   ((Yyn) == YYPACT_NINF)
@@ -571,7 +583,7 @@ yysymbol_name (yysymbol_kind_t yysymbol)
    STATE-NUM.  */
 static const yytype_int8 yypact[] =
 {
-      -1,     0,    -1,    -1,    -1,    -1,    -1
+      -2,     0,    -2,    -2,    -2,    -2
 };
 
 /* YYDEFACT[STATE-NUM] -- Default reduction number in state STATE-NUM.
@@ -579,19 +591,19 @@ static const yytype_int8 yypact[] =
    means the default is an error.  */
 static const yytype_int8 yydefact[] =
 {
-       2,     0,     1,     6,     5,     4,     3
+       5,     0,     2,     4,     1,     3
 };
 
 /* YYPGOTO[NTERM-NUM].  */
 static const yytype_int8 yypgoto[] =
 {
-      -1,    -1,    -1
+      -2,    -2,    -2,    -1
 };
 
 /* YYDEFGOTO[NTERM-NUM].  */
 static const yytype_int8 yydefgoto[] =
 {
-       0,     1,     6
+       0,     1,     2,     3
 };
 
 /* YYTABLE[YYPACT[STATE-NUM]] -- What to do in state STATE-NUM.  If
@@ -599,31 +611,31 @@ static const yytype_int8 yydefgoto[] =
    number is the opposite.  If YYTABLE_NINF, syntax error.  */
 static const yytype_int8 yytable[] =
 {
-       2,     3,     0,     4,     5
+       4,     5
 };
 
 static const yytype_int8 yycheck[] =
 {
-       0,     1,    -1,     3,     4
+       0,     2
 };
 
 /* YYSTOS[STATE-NUM] -- The symbol kind of the accessing symbol of
    state STATE-NUM.  */
 static const yytype_int8 yystos[] =
 {
-       0,    32,     0,     1,     3,     4,    33
+       0,    32,    33,    34,     0,    34
 };
 
 /* YYR1[RULE-NUM] -- Symbol kind of the left-hand side of rule RULE-NUM.  */
 static const yytype_int8 yyr1[] =
 {
-       0,    31,    32,    32,    33,    33,    33
+       0,    31,    32,    33,    33,    34
 };
 
 /* YYR2[RULE-NUM] -- Number of symbols on the right-hand side of rule RULE-NUM.  */
 static const yytype_int8 yyr2[] =
 {
-       0,     2,     0,     2,     1,     1,     1
+       0,     2,     1,     2,     1,     0
 };
 
 
@@ -1086,14 +1098,32 @@ yyreduce:
   YY_REDUCE_PRINT (yyn);
   switch (yyn)
     {
-  case 6: /* statement: error  */
-#line 24 "src/parser.y"
-                 { yyerror("syntax error"); }
-#line 1093 "./build/parser.tab.c"
+  case 2: /* program: declaration_list  */
+#line 29 "src/parser.y"
+        {
+            syntaxTree = yyvsp[0];
+        }
+#line 1107 "./build/parser.tab.c"
+    break;
+
+  case 3: /* declaration_list: declaration_list declaration  */
+#line 34 "src/parser.y"
+                                                {
+        printf("Adding declaration to declaration_list\n");
+        }
+#line 1115 "./build/parser.tab.c"
+    break;
+
+  case 4: /* declaration_list: declaration  */
+#line 37 "src/parser.y"
+                      {
+            printf("Starting new declaration_list\n");
+        }
+#line 1123 "./build/parser.tab.c"
     break;
 
 
-#line 1097 "./build/parser.tab.c"
+#line 1127 "./build/parser.tab.c"
 
       default: break;
     }
@@ -1286,52 +1316,112 @@ yyreturnlab:
   return yyresult;
 }
 
-#line 27 "src/parser.y"
+#line 44 "src/parser.y"
 
 
-void yyerror(char *s) {
-    printf(ANSI_COLOR_YELLOW "ERRO SINTÁTICO: " ANSI_COLOR_RESET ANSI_COLOR_WHITE "\"%s\" ", yytext);
-    printf(ANSI_COLOR_YELLOW "LINHA: " ANSI_COLOR_WHITE "%d" ANSI_COLOR_RESET " | %s\n", lineNum, s);
+void yyerror (char *s){
+	printf("\n" ANSI_COLOR_RED "ERRO SINTATICO, LINHA: %d", lineNum);
+	printf(ANSI_COLOR_RESET);
+	switch(auxError){
+		case NUM:
+			printf(": '%s' não era esperado (NUM)", yytext);
+			break; 
+		case SOMA:
+			printf(": '%s' não era esperado (SOMA)", yytext);
+			break;
+		case SUB:
+			printf(": '%s' não era esperado (SUB)", yytext);
+			break;
+		case MULT:
+			printf(": '%s' não era esperado (MULT)", yytext);
+			break;
+		case DIV:
+			printf(": '%s' não era esperado (DIV)", yytext);
+			break;
+		case INT:
+			printf(": '%s' não era esperado (INT)", yytext);
+			break;
+		case ID:
+			printf(": '%s' não era esperado (ID)", yytext);
+			break;
+		case VOID:
+			printf(": '%s' não era esperado (VOID)", yytext);
+			break;
+		case WHILE:
+			printf(": '%s' não era esperado (WHILE)", yytext);
+			break;
+		case ELSE:
+			printf(": '%s' não era esperado (ELSE)", yytext);
+			break;
+		case IF:
+			printf(": '%s' não era esperado (IF)", yytext);
+			break;
+		case ABREPARENTESES:
+			printf(": '%s' não era esperado (ABREPARENTESES)", yytext);
+			break;
+		case FECHAPARENTESES:
+			printf(": '%s' não era esperado (FECHAPARENTESES)", yytext);
+			break;
+		case RETURN:
+			printf(": '%s' não era esperado (RETURN)", yytext);
+			break;
+		case COMMA:
+			printf(": '%s' não era esperado (COMA)", yytext);
+			break;
+		case ABRECHAVES:
+			printf(": '%s' não era esperado (ABRECHAVES)", yytext);
+			break;
+		case FECHACHAVES:
+			printf(": '%s' não era esperado (FECHACHAVES)", yytext);
+			break;
+		case SEMICOLON:
+			printf(": '%s' não era esperado (SEMICOLON)", yytext);
+			break;
+		case ATRIB:
+			printf(": '%s' não era esperado (ATRIB)", yytext);
+			break;
+		case ABRECOLCHETES:
+			printf(": '%s' não era esperado (ABRECOLCHETES)", yytext);
+			break;
+		case FECHACOLCHETES:
+			printf(": '%s' não era esperado (FECHACOLCHETES)", yytext);
+			break;
+		case EQ:
+			printf(": '%s' não era esperado (EQ)", yytext);
+			break;
+		case NEQ:
+			printf(": '%s' não era esperado (NEQ)", yytext);
+			break;
+		case LT:
+			printf(": '%s' não era esperado (LT)", yytext);
+			break;
+		case LET:
+			printf(": '%s' não era esperado (LET)", yytext);
+			break;
+		case GT:
+			printf(": '%s' não era esperado (GT)", yytext);
+			break;
+		case GET:
+			printf(": '%s' não era esperado (GET)", yytext);
+			break;
+		case ERRO:
+			printf(": '%s' não era esperado (ERRO)", yytext);
+			break;
+	}
+	printf("\n");
+
     syntax_errors++;
+	
+	//Desaloca os nos ate o momento
+	for(int i = 0; i < nodeCount; i++){
+		free(nodes[i]);
+	} 
+	syntaxTree = NULL;
+
 }
 
 int yylex(void){
     auxError = getToken();
-    
-    // Print the token when it's retrieved
-    switch(auxError) {
-        case NUM: printf("NUM(%s) ", yytext); break;
-        case ID: printf("ID(%s) ", yytext); break;
-        case ABREPARENTESES: printf("ABREPARENTESES "); break;
-        case FECHAPARENTESES: printf("FECHAPARENTESES "); break;
-        case ABRECOLCHETES: printf("ABRECOLCHETES "); break;
-        case FECHACOLCHETES: printf("FECHACOLCHETES "); break;
-        case ABRECHAVES: printf("ABRECHAVES "); break;
-        case FECHACHAVES: printf("FECHACHAVES "); break;
-        case ATRIB: printf("ATRIB "); break;
-        case COMMA: printf("COMMA "); break;
-        case SEMICOLON: printf("SEMICOLON "); break;
-        case SOMA: printf("SOMA "); break;
-        case SUB: printf("SUB "); break;
-        case MULT: printf("MULT "); break;
-        case DIV: printf("DIV "); break;
-        case EQ: printf("EQ "); break;
-        case NEQ: printf("NEQ "); break;
-        case LT: printf("LT "); break;
-        case GT: printf("GT "); break;
-        case LET: printf("LET "); break;
-        case GET: printf("GET "); break;
-        case INT: printf("INT "); break;
-        case VOID: printf("VOID "); break;
-        case WHILE: printf("WHILE "); break;
-        case ELSE: printf("ELSE "); break;
-        case IF: printf("IF "); break;
-        case RETURN: printf("RETURN "); break;
-        case ERRO: printf("ERRO "); break;
-        case 0: printf("EOF "); break;
-        default: printf("UNKNOWN_TOKEN(%d) ", auxError); break;
-    }
-    
     return auxError;
 }
 

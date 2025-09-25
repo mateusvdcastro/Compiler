@@ -62,6 +62,7 @@ NODEPOINTER newNode();
 
 // Function to display the syntax tree
 void showTree(NODEPOINTER root, int num);
+void mostraArvore(NODEPOINTER root, int num);
 
 void freeTree(NODEPOINTER root);
 

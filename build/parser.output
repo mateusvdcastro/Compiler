@@ -1,5 +1,7 @@
 Terminals unused in grammar
 
+    NUM
+    ID
     ABREPARENTESES
     FECHAPARENTESES
     ABRECOLCHETES
@@ -28,24 +30,27 @@ Terminals unused in grammar
     ERRO
 
 
+State 2 conflicts: 1 reduce/reduce
+
+
 Grammar
 
     0 $accept: program $end
 
-    1 program: ε
-    2        | program statement
+    1 program: declaration_list
 
-    3 statement: ID
-    4          | NUM
-    5          | error
+    2 declaration_list: declaration_list declaration
+    3                 | declaration
+
+    4 declaration: ε
 
 
 Terminals, with rules where they appear
 
     $end (0) 0
-    error (256) 5
-    NUM (258) 4
-    ID (259) 3
+    error (256)
+    NUM (258)
+    ID (259)
     ABREPARENTESES (260)
     FECHAPARENTESES (261)
     ABRECOLCHETES (262)
@@ -79,65 +84,76 @@ Nonterminals, with rules where they appear
     $accept (31)
         on left: 0
     program (32)
-        on left: 1 2
-        on right: 0 2
-    statement (33)
-        on left: 3 4 5
-        on right: 2
+        on left: 1
+        on right: 0
+    declaration_list (33)
+        on left: 2 3
+        on right: 1 2
+    declaration (34)
+        on left: 4
+        on right: 2 3
 
 
 State 0
 
     0 $accept: • program $end
 
-    $default  reduce using rule 1 (program)
+    $default  reduce using rule 4 (declaration)
 
-    program  go to state 1
+    program           go to state 1
+    declaration_list  go to state 2
+    declaration       go to state 3
 
 
 State 1
 
     0 $accept: program • $end
-    2 program: program • statement
 
-    $end   shift, and go to state 2
-    error  shift, and go to state 3
-    NUM    shift, and go to state 4
-    ID     shift, and go to state 5
-
-    statement  go to state 6
+    $end  shift, and go to state 4
 
 
 State 2
+
+    1 program: declaration_list •
+    2 declaration_list: declaration_list • declaration
+
+    $end      reduce using rule 1 (program)
+    $end      [reduce using rule 4 (declaration)]
+    $default  reduce using rule 1 (program)
+
+    declaration  go to state 5
+
+    reduce/reduce conflict on token $end:
+        1 program: declaration_list •
+        4 declaration: ε •
+      Example: declaration_list •
+      First reduce derivation
+        program
+        ↳ 1: declaration_list •
+      Second reduce derivation
+        program
+        ↳ 1: declaration_list
+             ↳ 2: declaration_list declaration
+                                   ↳ 4: ε •
+
+
+
+State 3
+
+    3 declaration_list: declaration •
+
+    $default  reduce using rule 3 (declaration_list)
+
+
+State 4
 
     0 $accept: program $end •
 
     $default  accept
 
 
-State 3
-
-    5 statement: error •
-
-    $default  reduce using rule 5 (statement)
-
-
-State 4
-
-    4 statement: NUM •
-
-    $default  reduce using rule 4 (statement)
-
-
 State 5
 
-    3 statement: ID •
+    2 declaration_list: declaration_list declaration •
 
-    $default  reduce using rule 3 (statement)
-
-
-State 6
-
-    2 program: program statement •
-
-    $default  reduce using rule 2 (program)
+    $default  reduce using rule 2 (declaration_list)
