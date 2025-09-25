@@ -14,7 +14,6 @@ int lexical_errors = 0;
 %}
 
 %option noyywrap
-%option nounput
 
 DIGIT    [0-9]
 NUMBER    {DIGIT}+
@@ -151,6 +150,8 @@ enum yytokentype getToken(void){
     enum yytokentype currentToken;
 
     currentToken = yylex();
+
+    if(currentToken == ID) strcpy(id, yytext);
 
     return currentToken;
 }

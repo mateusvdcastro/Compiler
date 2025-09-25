@@ -3,6 +3,10 @@
 #include "globals.h"
 #include "parser.h"
 
+FILE * fileINPUT = NULL;
+FILE * fileCOPY = NULL;
+FILE * fileOUTPUT = NULL;
+
 // Function to get token name for display
 const char* getTokenName(enum yytokentype token) {
     switch(token) {
@@ -91,9 +95,23 @@ int main (int argc, char *argv[]) {
         return 1;
     }
 
-    callOnlyLexicalAnalysis(argv[1]);
+    //callOnlyLexicalAnalysis(argv[1]);
 
+    extern int yydebug;
+    yydebug = 0; // Defina como 1 para ativar a depuração do Bison 
 
-    
+    NODEPOINTER syntaxTree = parse();
+
+    if (syntaxTree == NULL) {
+        printf("Erro na análise sintática. A árvore de sintaxe não foi gerada.\n");
+        fclose(fileINPUT);
+        return 1;
+    } else {
+        showTree(syntaxTree, 0);
+    }
+
+    fclose(fileINPUT);
+    fclose(fileCOPY);
+    fclose(fileOUTPUT);
     return 0;
 }
