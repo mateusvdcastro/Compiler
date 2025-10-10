@@ -1,9 +1,10 @@
 CC=gcc
-CFLAGS=-I. -I./include
+CFLAGS=-g -O0 -Wall -Wextra -I. -I./include
 BUILD_DIR=./build
 OUTPUT_DIR=./output
 SRC_DIR=./src
 TEST_DIR=./tests
+VALGRIND_FLAGS=--leak-check=full --show-leak-kinds=all --track-origins=yes --errors-for-leak-kinds=all --log-file=$(OUTPUT_DIR)/logs/valgrind.%p.log
 
 $(shell mkdir -p $(BUILD_DIR))
 $(shell mkdir -p $(OUTPUT_DIR)/logs)
@@ -34,6 +35,13 @@ $(BUILD_DIR)/lex.yy.c: $(SRC_DIR)/lexer.l
 
 $(BUILD_DIR)/parser.tab.c $(BUILD_DIR)/parser.tab.h: $(SRC_DIR)/parser.y
 	bison -d -v -t -Wcounterexamples $< -o $(BUILD_DIR)/parser.tab.c
+
+valgrind: compiler
+	@if [ -z "$(file)" ]; then \
+		echo "Error: No test file specified. Usage: make valgrind file=<file_path>"; \
+		exit 1; \
+	fi
+	valgrind $(VALGRIND_FLAGS) ./compiler "$(file)"
 
 test: compiler
 	@if [ -z "$(file)" ]; then \
