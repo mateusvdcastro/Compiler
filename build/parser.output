@@ -1,36 +1,6 @@
 Terminals unused in grammar
 
-    NUM
-    ID
-    ABREPARENTESES
-    FECHAPARENTESES
-    ABRECOLCHETES
-    FECHACOLCHETES
-    ABRECHAVES
-    FECHACHAVES
-    ATRIB
-    COMMA
-    SEMICOLON
-    SOMA
-    SUB
-    MULT
-    DIV
-    EQ
-    NEQ
-    LT
-    GT
-    LET
-    GET
-    INT
-    VOID
-    WHILE
-    ELSE
-    IF
-    RETURN
     ERRO
-
-
-State 2 conflicts: 1 reduce/reduce
 
 
 Grammar
@@ -42,118 +12,1282 @@ Grammar
     2 declaration_list: declaration_list declaration
     3                 | declaration
 
-    4 declaration: ε
+    4 declaration: var_declaration
+    5            | fun_declaration
+
+    6 var_declaration: type_specifier ID SEMICOLON
+    7                | type_specifier ID ABRECOLCHETES NUM FECHACOLCHETES SEMICOLON
+
+    8 type_specifier: INT
+    9               | VOID
+
+   10 fun_declaration: type_specifier fun_id ABREPARENTESES params FECHAPARENTESES compound_decl
+
+   11 fun_id: ID
+
+   12 params: param_list
+   13       | VOID
+
+   14 param_list: param_list COMMA param
+   15           | param
+
+   16 param: type_specifier ID
+   17      | type_specifier ID ABRECOLCHETES FECHACOLCHETES
+
+   18 compound_decl: ABRECHAVES local_declarations statement_list FECHACHAVES
+
+   19 local_declarations: local_declarations var_declaration
+   20                   | ε
+
+   21 statement_list: statement_list statement
+   22               | ε
+
+   23 statement: expression_decl
+   24          | compound_decl
+   25          | selection_decl
+   26          | iteration_decl
+   27          | return_decl
+
+   28 expression_decl: expression SEMICOLON
+   29                | SEMICOLON
+
+   30 selection_decl: IF ABREPARENTESES expression FECHAPARENTESES statement
+   31               | IF ABREPARENTESES expression FECHAPARENTESES statement ELSE statement
+
+   32 iteration_decl: WHILE ABREPARENTESES expression FECHAPARENTESES statement
+
+   33 return_decl: RETURN SEMICOLON
+   34            | RETURN expression SEMICOLON
+
+   35 expression: var ATRIB expression
+   36           | simple_expression
+
+   37 var: ID
+   38    | ID ABRECOLCHETES expression FECHACOLCHETES
+
+   39 simple_expression: simple_expression relational sum_expression
+   40                  | sum_expression
+
+   41 relational: relational_operand
+
+   42 relational_operand: EQ
+   43                   | NEQ
+   44                   | LT
+   45                   | GT
+   46                   | LET
+   47                   | GET
+
+   48 sum_expression: sum_expression sum term
+   49               | term
+
+   50 sum: SOMA
+   51    | SUB
+
+   52 term: term mult factor
+   53     | factor
+
+   54 mult: MULT
+   55     | DIV
+
+   56 factor: ABREPARENTESES expression FECHAPARENTESES
+   57       | var
+   58       | activation
+   59       | NUM
+
+   60 activation: fun_id ABREPARENTESES args FECHAPARENTESES
+
+   61 args: arg_list
+   62     | ε
+
+   63 arg_list: arg_list COMMA expression
+   64         | expression
 
 
 Terminals, with rules where they appear
 
     $end (0) 0
     error (256)
-    NUM (258)
-    ID (259)
-    ABREPARENTESES (260)
-    FECHAPARENTESES (261)
-    ABRECOLCHETES (262)
-    FECHACOLCHETES (263)
-    ABRECHAVES (264)
-    FECHACHAVES (265)
-    ATRIB (266)
-    COMMA (267)
-    SEMICOLON (268)
-    SOMA (269)
-    SUB (270)
-    MULT (271)
-    DIV (272)
-    EQ (273)
-    NEQ (274)
-    LT (275)
-    GT (276)
-    LET (277)
-    GET (278)
-    INT (279)
-    VOID (280)
-    WHILE (281)
-    ELSE (282)
-    IF (283)
-    RETURN (284)
+    NUM (258) 7 59
+    ID (259) 6 7 11 16 17 37 38
+    ABREPARENTESES (260) 10 30 31 32 56 60
+    FECHAPARENTESES (261) 10 30 31 32 56 60
+    ABRECOLCHETES (262) 7 17 38
+    FECHACOLCHETES (263) 7 17 38
+    ABRECHAVES (264) 18
+    FECHACHAVES (265) 18
+    ATRIB (266) 35
+    COMMA (267) 14 63
+    SEMICOLON (268) 6 7 28 29 33 34
+    SOMA (269) 50
+    SUB (270) 51
+    MULT (271) 54
+    DIV (272) 55
+    EQ (273) 42
+    NEQ (274) 43
+    LT (275) 44
+    GT (276) 45
+    LET (277) 46
+    GET (278) 47
+    INT (279) 8
+    VOID (280) 9 13
+    WHILE (281) 32
+    ELSE (282) 31
+    IF (283) 30 31
+    RETURN (284) 33 34
     ERRO (285)
+    IFX (286)
 
 
 Nonterminals, with rules where they appear
 
-    $accept (31)
+    $accept (32)
         on left: 0
-    program (32)
+    program (33)
         on left: 1
         on right: 0
-    declaration_list (33)
+    declaration_list (34)
         on left: 2 3
         on right: 1 2
-    declaration (34)
-        on left: 4
+    declaration (35)
+        on left: 4 5
         on right: 2 3
+    var_declaration (36)
+        on left: 6 7
+        on right: 4 19
+    type_specifier (37)
+        on left: 8 9
+        on right: 6 7 10 16 17
+    fun_declaration (38)
+        on left: 10
+        on right: 5
+    fun_id (39)
+        on left: 11
+        on right: 10 60
+    params (40)
+        on left: 12 13
+        on right: 10
+    param_list (41)
+        on left: 14 15
+        on right: 12 14
+    param (42)
+        on left: 16 17
+        on right: 14 15
+    compound_decl (43)
+        on left: 18
+        on right: 10 24
+    local_declarations (44)
+        on left: 19 20
+        on right: 18 19
+    statement_list (45)
+        on left: 21 22
+        on right: 18 21
+    statement (46)
+        on left: 23 24 25 26 27
+        on right: 21 30 31 32
+    expression_decl (47)
+        on left: 28 29
+        on right: 23
+    selection_decl (48)
+        on left: 30 31
+        on right: 25
+    iteration_decl (49)
+        on left: 32
+        on right: 26
+    return_decl (50)
+        on left: 33 34
+        on right: 27
+    expression (51)
+        on left: 35 36
+        on right: 28 30 31 32 34 35 38 56 63 64
+    var (52)
+        on left: 37 38
+        on right: 35 57
+    simple_expression (53)
+        on left: 39 40
+        on right: 36 39
+    relational (54)
+        on left: 41
+        on right: 39
+    relational_operand (55)
+        on left: 42 43 44 45 46 47
+        on right: 41
+    sum_expression (56)
+        on left: 48 49
+        on right: 39 40 48
+    sum (57)
+        on left: 50 51
+        on right: 48
+    term (58)
+        on left: 52 53
+        on right: 48 49 52
+    mult (59)
+        on left: 54 55
+        on right: 52
+    factor (60)
+        on left: 56 57 58 59
+        on right: 52 53
+    activation (61)
+        on left: 60
+        on right: 58
+    args (62)
+        on left: 61 62
+        on right: 60
+    arg_list (63)
+        on left: 63 64
+        on right: 61 63
 
 
 State 0
 
     0 $accept: • program $end
 
-    $default  reduce using rule 4 (declaration)
+    INT   shift, and go to state 1
+    VOID  shift, and go to state 2
 
-    program           go to state 1
-    declaration_list  go to state 2
-    declaration       go to state 3
+    program           go to state 3
+    declaration_list  go to state 4
+    declaration       go to state 5
+    var_declaration   go to state 6
+    type_specifier    go to state 7
+    fun_declaration   go to state 8
 
 
 State 1
 
-    0 $accept: program • $end
+    8 type_specifier: INT •
 
-    $end  shift, and go to state 4
+    $default  reduce using rule 8 (type_specifier)
 
 
 State 2
 
-    1 program: declaration_list •
-    2 declaration_list: declaration_list • declaration
+    9 type_specifier: VOID •
 
-    $end      reduce using rule 1 (program)
-    $end      [reduce using rule 4 (declaration)]
-    $default  reduce using rule 1 (program)
-
-    declaration  go to state 5
-
-    reduce/reduce conflict on token $end:
-        1 program: declaration_list •
-        4 declaration: ε •
-      Example: declaration_list •
-      First reduce derivation
-        program
-        ↳ 1: declaration_list •
-      Second reduce derivation
-        program
-        ↳ 1: declaration_list
-             ↳ 2: declaration_list declaration
-                                   ↳ 4: ε •
-
+    $default  reduce using rule 9 (type_specifier)
 
 
 State 3
+
+    0 $accept: program • $end
+
+    $end  shift, and go to state 9
+
+
+State 4
+
+    1 program: declaration_list •
+    2 declaration_list: declaration_list • declaration
+
+    INT   shift, and go to state 1
+    VOID  shift, and go to state 2
+
+    $default  reduce using rule 1 (program)
+
+    declaration      go to state 10
+    var_declaration  go to state 6
+    type_specifier   go to state 7
+    fun_declaration  go to state 8
+
+
+State 5
 
     3 declaration_list: declaration •
 
     $default  reduce using rule 3 (declaration_list)
 
 
-State 4
+State 6
+
+    4 declaration: var_declaration •
+
+    $default  reduce using rule 4 (declaration)
+
+
+State 7
+
+    6 var_declaration: type_specifier • ID SEMICOLON
+    7                | type_specifier • ID ABRECOLCHETES NUM FECHACOLCHETES SEMICOLON
+   10 fun_declaration: type_specifier • fun_id ABREPARENTESES params FECHAPARENTESES compound_decl
+
+    ID  shift, and go to state 11
+
+    fun_id  go to state 12
+
+
+State 8
+
+    5 declaration: fun_declaration •
+
+    $default  reduce using rule 5 (declaration)
+
+
+State 9
 
     0 $accept: program $end •
 
     $default  accept
 
 
-State 5
+State 10
 
     2 declaration_list: declaration_list declaration •
 
     $default  reduce using rule 2 (declaration_list)
+
+
+State 11
+
+    6 var_declaration: type_specifier ID • SEMICOLON
+    7                | type_specifier ID • ABRECOLCHETES NUM FECHACOLCHETES SEMICOLON
+   11 fun_id: ID •
+
+    ABRECOLCHETES  shift, and go to state 13
+    SEMICOLON      shift, and go to state 14
+
+    $default  reduce using rule 11 (fun_id)
+
+
+State 12
+
+   10 fun_declaration: type_specifier fun_id • ABREPARENTESES params FECHAPARENTESES compound_decl
+
+    ABREPARENTESES  shift, and go to state 15
+
+
+State 13
+
+    7 var_declaration: type_specifier ID ABRECOLCHETES • NUM FECHACOLCHETES SEMICOLON
+
+    NUM  shift, and go to state 16
+
+
+State 14
+
+    6 var_declaration: type_specifier ID SEMICOLON •
+
+    $default  reduce using rule 6 (var_declaration)
+
+
+State 15
+
+   10 fun_declaration: type_specifier fun_id ABREPARENTESES • params FECHAPARENTESES compound_decl
+
+    INT   shift, and go to state 1
+    VOID  shift, and go to state 17
+
+    type_specifier  go to state 18
+    params          go to state 19
+    param_list      go to state 20
+    param           go to state 21
+
+
+State 16
+
+    7 var_declaration: type_specifier ID ABRECOLCHETES NUM • FECHACOLCHETES SEMICOLON
+
+    FECHACOLCHETES  shift, and go to state 22
+
+
+State 17
+
+    9 type_specifier: VOID •
+   13 params: VOID •
+
+    FECHAPARENTESES  reduce using rule 13 (params)
+    $default         reduce using rule 9 (type_specifier)
+
+
+State 18
+
+   16 param: type_specifier • ID
+   17      | type_specifier • ID ABRECOLCHETES FECHACOLCHETES
+
+    ID  shift, and go to state 23
+
+
+State 19
+
+   10 fun_declaration: type_specifier fun_id ABREPARENTESES params • FECHAPARENTESES compound_decl
+
+    FECHAPARENTESES  shift, and go to state 24
+
+
+State 20
+
+   12 params: param_list •
+   14 param_list: param_list • COMMA param
+
+    COMMA  shift, and go to state 25
+
+    $default  reduce using rule 12 (params)
+
+
+State 21
+
+   15 param_list: param •
+
+    $default  reduce using rule 15 (param_list)
+
+
+State 22
+
+    7 var_declaration: type_specifier ID ABRECOLCHETES NUM FECHACOLCHETES • SEMICOLON
+
+    SEMICOLON  shift, and go to state 26
+
+
+State 23
+
+   16 param: type_specifier ID •
+   17      | type_specifier ID • ABRECOLCHETES FECHACOLCHETES
+
+    ABRECOLCHETES  shift, and go to state 27
+
+    $default  reduce using rule 16 (param)
+
+
+State 24
+
+   10 fun_declaration: type_specifier fun_id ABREPARENTESES params FECHAPARENTESES • compound_decl
+
+    ABRECHAVES  shift, and go to state 28
+
+    compound_decl  go to state 29
+
+
+State 25
+
+   14 param_list: param_list COMMA • param
+
+    INT   shift, and go to state 1
+    VOID  shift, and go to state 2
+
+    type_specifier  go to state 18
+    param           go to state 30
+
+
+State 26
+
+    7 var_declaration: type_specifier ID ABRECOLCHETES NUM FECHACOLCHETES SEMICOLON •
+
+    $default  reduce using rule 7 (var_declaration)
+
+
+State 27
+
+   17 param: type_specifier ID ABRECOLCHETES • FECHACOLCHETES
+
+    FECHACOLCHETES  shift, and go to state 31
+
+
+State 28
+
+   18 compound_decl: ABRECHAVES • local_declarations statement_list FECHACHAVES
+
+    $default  reduce using rule 20 (local_declarations)
+
+    local_declarations  go to state 32
+
+
+State 29
+
+   10 fun_declaration: type_specifier fun_id ABREPARENTESES params FECHAPARENTESES compound_decl •
+
+    $default  reduce using rule 10 (fun_declaration)
+
+
+State 30
+
+   14 param_list: param_list COMMA param •
+
+    $default  reduce using rule 14 (param_list)
+
+
+State 31
+
+   17 param: type_specifier ID ABRECOLCHETES FECHACOLCHETES •
+
+    $default  reduce using rule 17 (param)
+
+
+State 32
+
+   18 compound_decl: ABRECHAVES local_declarations • statement_list FECHACHAVES
+   19 local_declarations: local_declarations • var_declaration
+
+    INT   shift, and go to state 1
+    VOID  shift, and go to state 2
+
+    $default  reduce using rule 22 (statement_list)
+
+    var_declaration  go to state 33
+    type_specifier   go to state 34
+    statement_list   go to state 35
+
+
+State 33
+
+   19 local_declarations: local_declarations var_declaration •
+
+    $default  reduce using rule 19 (local_declarations)
+
+
+State 34
+
+    6 var_declaration: type_specifier • ID SEMICOLON
+    7                | type_specifier • ID ABRECOLCHETES NUM FECHACOLCHETES SEMICOLON
+
+    ID  shift, and go to state 36
+
+
+State 35
+
+   18 compound_decl: ABRECHAVES local_declarations statement_list • FECHACHAVES
+   21 statement_list: statement_list • statement
+
+    NUM             shift, and go to state 37
+    ID              shift, and go to state 38
+    ABREPARENTESES  shift, and go to state 39
+    ABRECHAVES      shift, and go to state 28
+    FECHACHAVES     shift, and go to state 40
+    SEMICOLON       shift, and go to state 41
+    WHILE           shift, and go to state 42
+    IF              shift, and go to state 43
+    RETURN          shift, and go to state 44
+
+    fun_id             go to state 45
+    compound_decl      go to state 46
+    statement          go to state 47
+    expression_decl    go to state 48
+    selection_decl     go to state 49
+    iteration_decl     go to state 50
+    return_decl        go to state 51
+    expression         go to state 52
+    var                go to state 53
+    simple_expression  go to state 54
+    sum_expression     go to state 55
+    term               go to state 56
+    factor             go to state 57
+    activation         go to state 58
+
+
+State 36
+
+    6 var_declaration: type_specifier ID • SEMICOLON
+    7                | type_specifier ID • ABRECOLCHETES NUM FECHACOLCHETES SEMICOLON
+
+    ABRECOLCHETES  shift, and go to state 13
+    SEMICOLON      shift, and go to state 14
+
+
+State 37
+
+   59 factor: NUM •
+
+    $default  reduce using rule 59 (factor)
+
+
+State 38
+
+   11 fun_id: ID •
+   37 var: ID •
+   38    | ID • ABRECOLCHETES expression FECHACOLCHETES
+
+    ABRECOLCHETES  shift, and go to state 59
+
+    ABREPARENTESES  reduce using rule 11 (fun_id)
+    $default        reduce using rule 37 (var)
+
+
+State 39
+
+   56 factor: ABREPARENTESES • expression FECHAPARENTESES
+
+    NUM             shift, and go to state 37
+    ID              shift, and go to state 38
+    ABREPARENTESES  shift, and go to state 39
+
+    fun_id             go to state 45
+    expression         go to state 60
+    var                go to state 53
+    simple_expression  go to state 54
+    sum_expression     go to state 55
+    term               go to state 56
+    factor             go to state 57
+    activation         go to state 58
+
+
+State 40
+
+   18 compound_decl: ABRECHAVES local_declarations statement_list FECHACHAVES •
+
+    $default  reduce using rule 18 (compound_decl)
+
+
+State 41
+
+   29 expression_decl: SEMICOLON •
+
+    $default  reduce using rule 29 (expression_decl)
+
+
+State 42
+
+   32 iteration_decl: WHILE • ABREPARENTESES expression FECHAPARENTESES statement
+
+    ABREPARENTESES  shift, and go to state 61
+
+
+State 43
+
+   30 selection_decl: IF • ABREPARENTESES expression FECHAPARENTESES statement
+   31               | IF • ABREPARENTESES expression FECHAPARENTESES statement ELSE statement
+
+    ABREPARENTESES  shift, and go to state 62
+
+
+State 44
+
+   33 return_decl: RETURN • SEMICOLON
+   34            | RETURN • expression SEMICOLON
+
+    NUM             shift, and go to state 37
+    ID              shift, and go to state 38
+    ABREPARENTESES  shift, and go to state 39
+    SEMICOLON       shift, and go to state 63
+
+    fun_id             go to state 45
+    expression         go to state 64
+    var                go to state 53
+    simple_expression  go to state 54
+    sum_expression     go to state 55
+    term               go to state 56
+    factor             go to state 57
+    activation         go to state 58
+
+
+State 45
+
+   60 activation: fun_id • ABREPARENTESES args FECHAPARENTESES
+
+    ABREPARENTESES  shift, and go to state 65
+
+
+State 46
+
+   24 statement: compound_decl •
+
+    $default  reduce using rule 24 (statement)
+
+
+State 47
+
+   21 statement_list: statement_list statement •
+
+    $default  reduce using rule 21 (statement_list)
+
+
+State 48
+
+   23 statement: expression_decl •
+
+    $default  reduce using rule 23 (statement)
+
+
+State 49
+
+   25 statement: selection_decl •
+
+    $default  reduce using rule 25 (statement)
+
+
+State 50
+
+   26 statement: iteration_decl •
+
+    $default  reduce using rule 26 (statement)
+
+
+State 51
+
+   27 statement: return_decl •
+
+    $default  reduce using rule 27 (statement)
+
+
+State 52
+
+   28 expression_decl: expression • SEMICOLON
+
+    SEMICOLON  shift, and go to state 66
+
+
+State 53
+
+   35 expression: var • ATRIB expression
+   57 factor: var •
+
+    ATRIB  shift, and go to state 67
+
+    $default  reduce using rule 57 (factor)
+
+
+State 54
+
+   36 expression: simple_expression •
+   39 simple_expression: simple_expression • relational sum_expression
+
+    EQ   shift, and go to state 68
+    NEQ  shift, and go to state 69
+    LT   shift, and go to state 70
+    GT   shift, and go to state 71
+    LET  shift, and go to state 72
+    GET  shift, and go to state 73
+
+    $default  reduce using rule 36 (expression)
+
+    relational          go to state 74
+    relational_operand  go to state 75
+
+
+State 55
+
+   40 simple_expression: sum_expression •
+   48 sum_expression: sum_expression • sum term
+
+    SOMA  shift, and go to state 76
+    SUB   shift, and go to state 77
+
+    $default  reduce using rule 40 (simple_expression)
+
+    sum  go to state 78
+
+
+State 56
+
+   49 sum_expression: term •
+   52 term: term • mult factor
+
+    MULT  shift, and go to state 79
+    DIV   shift, and go to state 80
+
+    $default  reduce using rule 49 (sum_expression)
+
+    mult  go to state 81
+
+
+State 57
+
+   53 term: factor •
+
+    $default  reduce using rule 53 (term)
+
+
+State 58
+
+   58 factor: activation •
+
+    $default  reduce using rule 58 (factor)
+
+
+State 59
+
+   38 var: ID ABRECOLCHETES • expression FECHACOLCHETES
+
+    NUM             shift, and go to state 37
+    ID              shift, and go to state 38
+    ABREPARENTESES  shift, and go to state 39
+
+    fun_id             go to state 45
+    expression         go to state 82
+    var                go to state 53
+    simple_expression  go to state 54
+    sum_expression     go to state 55
+    term               go to state 56
+    factor             go to state 57
+    activation         go to state 58
+
+
+State 60
+
+   56 factor: ABREPARENTESES expression • FECHAPARENTESES
+
+    FECHAPARENTESES  shift, and go to state 83
+
+
+State 61
+
+   32 iteration_decl: WHILE ABREPARENTESES • expression FECHAPARENTESES statement
+
+    NUM             shift, and go to state 37
+    ID              shift, and go to state 38
+    ABREPARENTESES  shift, and go to state 39
+
+    fun_id             go to state 45
+    expression         go to state 84
+    var                go to state 53
+    simple_expression  go to state 54
+    sum_expression     go to state 55
+    term               go to state 56
+    factor             go to state 57
+    activation         go to state 58
+
+
+State 62
+
+   30 selection_decl: IF ABREPARENTESES • expression FECHAPARENTESES statement
+   31               | IF ABREPARENTESES • expression FECHAPARENTESES statement ELSE statement
+
+    NUM             shift, and go to state 37
+    ID              shift, and go to state 38
+    ABREPARENTESES  shift, and go to state 39
+
+    fun_id             go to state 45
+    expression         go to state 85
+    var                go to state 53
+    simple_expression  go to state 54
+    sum_expression     go to state 55
+    term               go to state 56
+    factor             go to state 57
+    activation         go to state 58
+
+
+State 63
+
+   33 return_decl: RETURN SEMICOLON •
+
+    $default  reduce using rule 33 (return_decl)
+
+
+State 64
+
+   34 return_decl: RETURN expression • SEMICOLON
+
+    SEMICOLON  shift, and go to state 86
+
+
+State 65
+
+   60 activation: fun_id ABREPARENTESES • args FECHAPARENTESES
+
+    NUM             shift, and go to state 37
+    ID              shift, and go to state 38
+    ABREPARENTESES  shift, and go to state 39
+
+    $default  reduce using rule 62 (args)
+
+    fun_id             go to state 45
+    expression         go to state 87
+    var                go to state 53
+    simple_expression  go to state 54
+    sum_expression     go to state 55
+    term               go to state 56
+    factor             go to state 57
+    activation         go to state 58
+    args               go to state 88
+    arg_list           go to state 89
+
+
+State 66
+
+   28 expression_decl: expression SEMICOLON •
+
+    $default  reduce using rule 28 (expression_decl)
+
+
+State 67
+
+   35 expression: var ATRIB • expression
+
+    NUM             shift, and go to state 37
+    ID              shift, and go to state 38
+    ABREPARENTESES  shift, and go to state 39
+
+    fun_id             go to state 45
+    expression         go to state 90
+    var                go to state 53
+    simple_expression  go to state 54
+    sum_expression     go to state 55
+    term               go to state 56
+    factor             go to state 57
+    activation         go to state 58
+
+
+State 68
+
+   42 relational_operand: EQ •
+
+    $default  reduce using rule 42 (relational_operand)
+
+
+State 69
+
+   43 relational_operand: NEQ •
+
+    $default  reduce using rule 43 (relational_operand)
+
+
+State 70
+
+   44 relational_operand: LT •
+
+    $default  reduce using rule 44 (relational_operand)
+
+
+State 71
+
+   45 relational_operand: GT •
+
+    $default  reduce using rule 45 (relational_operand)
+
+
+State 72
+
+   46 relational_operand: LET •
+
+    $default  reduce using rule 46 (relational_operand)
+
+
+State 73
+
+   47 relational_operand: GET •
+
+    $default  reduce using rule 47 (relational_operand)
+
+
+State 74
+
+   39 simple_expression: simple_expression relational • sum_expression
+
+    NUM             shift, and go to state 37
+    ID              shift, and go to state 38
+    ABREPARENTESES  shift, and go to state 39
+
+    fun_id          go to state 45
+    var             go to state 91
+    sum_expression  go to state 92
+    term            go to state 56
+    factor          go to state 57
+    activation      go to state 58
+
+
+State 75
+
+   41 relational: relational_operand •
+
+    $default  reduce using rule 41 (relational)
+
+
+State 76
+
+   50 sum: SOMA •
+
+    $default  reduce using rule 50 (sum)
+
+
+State 77
+
+   51 sum: SUB •
+
+    $default  reduce using rule 51 (sum)
+
+
+State 78
+
+   48 sum_expression: sum_expression sum • term
+
+    NUM             shift, and go to state 37
+    ID              shift, and go to state 38
+    ABREPARENTESES  shift, and go to state 39
+
+    fun_id      go to state 45
+    var         go to state 91
+    term        go to state 93
+    factor      go to state 57
+    activation  go to state 58
+
+
+State 79
+
+   54 mult: MULT •
+
+    $default  reduce using rule 54 (mult)
+
+
+State 80
+
+   55 mult: DIV •
+
+    $default  reduce using rule 55 (mult)
+
+
+State 81
+
+   52 term: term mult • factor
+
+    NUM             shift, and go to state 37
+    ID              shift, and go to state 38
+    ABREPARENTESES  shift, and go to state 39
+
+    fun_id      go to state 45
+    var         go to state 91
+    factor      go to state 94
+    activation  go to state 58
+
+
+State 82
+
+   38 var: ID ABRECOLCHETES expression • FECHACOLCHETES
+
+    FECHACOLCHETES  shift, and go to state 95
+
+
+State 83
+
+   56 factor: ABREPARENTESES expression FECHAPARENTESES •
+
+    $default  reduce using rule 56 (factor)
+
+
+State 84
+
+   32 iteration_decl: WHILE ABREPARENTESES expression • FECHAPARENTESES statement
+
+    FECHAPARENTESES  shift, and go to state 96
+
+
+State 85
+
+   30 selection_decl: IF ABREPARENTESES expression • FECHAPARENTESES statement
+   31               | IF ABREPARENTESES expression • FECHAPARENTESES statement ELSE statement
+
+    FECHAPARENTESES  shift, and go to state 97
+
+
+State 86
+
+   34 return_decl: RETURN expression SEMICOLON •
+
+    $default  reduce using rule 34 (return_decl)
+
+
+State 87
+
+   64 arg_list: expression •
+
+    $default  reduce using rule 64 (arg_list)
+
+
+State 88
+
+   60 activation: fun_id ABREPARENTESES args • FECHAPARENTESES
+
+    FECHAPARENTESES  shift, and go to state 98
+
+
+State 89
+
+   61 args: arg_list •
+   63 arg_list: arg_list • COMMA expression
+
+    COMMA  shift, and go to state 99
+
+    $default  reduce using rule 61 (args)
+
+
+State 90
+
+   35 expression: var ATRIB expression •
+
+    $default  reduce using rule 35 (expression)
+
+
+State 91
+
+   57 factor: var •
+
+    $default  reduce using rule 57 (factor)
+
+
+State 92
+
+   39 simple_expression: simple_expression relational sum_expression •
+   48 sum_expression: sum_expression • sum term
+
+    SOMA  shift, and go to state 76
+    SUB   shift, and go to state 77
+
+    $default  reduce using rule 39 (simple_expression)
+
+    sum  go to state 78
+
+
+State 93
+
+   48 sum_expression: sum_expression sum term •
+   52 term: term • mult factor
+
+    MULT  shift, and go to state 79
+    DIV   shift, and go to state 80
+
+    $default  reduce using rule 48 (sum_expression)
+
+    mult  go to state 81
+
+
+State 94
+
+   52 term: term mult factor •
+
+    $default  reduce using rule 52 (term)
+
+
+State 95
+
+   38 var: ID ABRECOLCHETES expression FECHACOLCHETES •
+
+    $default  reduce using rule 38 (var)
+
+
+State 96
+
+   32 iteration_decl: WHILE ABREPARENTESES expression FECHAPARENTESES • statement
+
+    NUM             shift, and go to state 37
+    ID              shift, and go to state 38
+    ABREPARENTESES  shift, and go to state 39
+    ABRECHAVES      shift, and go to state 28
+    SEMICOLON       shift, and go to state 41
+    WHILE           shift, and go to state 42
+    IF              shift, and go to state 43
+    RETURN          shift, and go to state 44
+
+    fun_id             go to state 45
+    compound_decl      go to state 46
+    statement          go to state 100
+    expression_decl    go to state 48
+    selection_decl     go to state 49
+    iteration_decl     go to state 50
+    return_decl        go to state 51
+    expression         go to state 52
+    var                go to state 53
+    simple_expression  go to state 54
+    sum_expression     go to state 55
+    term               go to state 56
+    factor             go to state 57
+    activation         go to state 58
+
+
+State 97
+
+   30 selection_decl: IF ABREPARENTESES expression FECHAPARENTESES • statement
+   31               | IF ABREPARENTESES expression FECHAPARENTESES • statement ELSE statement
+
+    NUM             shift, and go to state 37
+    ID              shift, and go to state 38
+    ABREPARENTESES  shift, and go to state 39
+    ABRECHAVES      shift, and go to state 28
+    SEMICOLON       shift, and go to state 41
+    WHILE           shift, and go to state 42
+    IF              shift, and go to state 43
+    RETURN          shift, and go to state 44
+
+    fun_id             go to state 45
+    compound_decl      go to state 46
+    statement          go to state 101
+    expression_decl    go to state 48
+    selection_decl     go to state 49
+    iteration_decl     go to state 50
+    return_decl        go to state 51
+    expression         go to state 52
+    var                go to state 53
+    simple_expression  go to state 54
+    sum_expression     go to state 55
+    term               go to state 56
+    factor             go to state 57
+    activation         go to state 58
+
+
+State 98
+
+   60 activation: fun_id ABREPARENTESES args FECHAPARENTESES •
+
+    $default  reduce using rule 60 (activation)
+
+
+State 99
+
+   63 arg_list: arg_list COMMA • expression
+
+    NUM             shift, and go to state 37
+    ID              shift, and go to state 38
+    ABREPARENTESES  shift, and go to state 39
+
+    fun_id             go to state 45
+    expression         go to state 102
+    var                go to state 53
+    simple_expression  go to state 54
+    sum_expression     go to state 55
+    term               go to state 56
+    factor             go to state 57
+    activation         go to state 58
+
+
+State 100
+
+   32 iteration_decl: WHILE ABREPARENTESES expression FECHAPARENTESES statement •
+
+    $default  reduce using rule 32 (iteration_decl)
+
+
+State 101
+
+   30 selection_decl: IF ABREPARENTESES expression FECHAPARENTESES statement •
+   31               | IF ABREPARENTESES expression FECHAPARENTESES statement • ELSE statement
+
+    ELSE  shift, and go to state 103
+
+    $default  reduce using rule 30 (selection_decl)
+
+
+State 102
+
+   63 arg_list: arg_list COMMA expression •
+
+    $default  reduce using rule 63 (arg_list)
+
+
+State 103
+
+   31 selection_decl: IF ABREPARENTESES expression FECHAPARENTESES statement ELSE • statement
+
+    NUM             shift, and go to state 37
+    ID              shift, and go to state 38
+    ABREPARENTESES  shift, and go to state 39
+    ABRECHAVES      shift, and go to state 28
+    SEMICOLON       shift, and go to state 41
+    WHILE           shift, and go to state 42
+    IF              shift, and go to state 43
+    RETURN          shift, and go to state 44
+
+    fun_id             go to state 45
+    compound_decl      go to state 46
+    statement          go to state 104
+    expression_decl    go to state 48
+    selection_decl     go to state 49
+    iteration_decl     go to state 50
+    return_decl        go to state 51
+    expression         go to state 52
+    var                go to state 53
+    simple_expression  go to state 54
+    sum_expression     go to state 55
+    term               go to state 56
+    factor             go to state 57
+    activation         go to state 58
+
+
+State 104
+
+   31 selection_decl: IF ABREPARENTESES expression FECHAPARENTESES statement ELSE statement •
+
+    $default  reduce using rule 31 (selection_decl)

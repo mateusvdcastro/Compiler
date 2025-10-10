@@ -81,7 +81,8 @@ extern int yydebug;
     ELSE = 282,                    /* ELSE  */
     IF = 283,                      /* IF  */
     RETURN = 284,                  /* RETURN  */
-    ERRO = 285                     /* ERRO  */
+    ERRO = 285,                    /* ERRO  */
+    IFX = 286                      /* IFX  */
   };
   typedef enum yytokentype yytoken_kind_t;
 #endif

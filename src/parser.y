@@ -8,6 +8,7 @@
 #define MAX_NODES 1000
 
 static int yylex(void);
+void yyerror (char *s);
 
 NODEPOINTER nodes[MAX_NODES];
 NODEPOINTER syntaxTree;
@@ -23,24 +24,247 @@ int syntax_errors = 0;
 %token ABRECHAVES FECHACHAVES ATRIB COMMA SEMICOLON SOMA SUB MULT DIV
 %token EQ NEQ LT GT LET GET INT VOID WHILE ELSE IF RETURN ERRO
 
+%nonassoc IFX
+%nonassoc ELSE
+
 %%
 
-program : declaration_list
-        {
-            syntaxTree = $1;
-        }
-        ;
+program				: declaration_list {
 
-declaration_list : declaration_list declaration {
-        printf("Adding declaration to declaration_list\n");
-        }
-        | declaration {
-            printf("Starting new declaration_list\n");
-        }
-        ;
+					}
+					;
 
-declaration : 
+declaration_list	: declaration_list declaration {
 
+					}
+					| declaration {
+
+					}
+					;
+
+declaration			: var_declaration {
+
+					}
+					| fun_declaration {
+
+					}
+					;
+
+var_declaration		: type_specifier ID SEMICOLON {
+
+					}
+					| type_specifier ID ABRECOLCHETES NUM FECHACOLCHETES SEMICOLON {
+
+					}
+					;
+
+type_specifier		: INT {
+
+					}
+					| VOID {
+
+					}
+					;
+
+fun_declaration		: type_specifier fun_id ABREPARENTESES params FECHAPARENTESES compound_decl {
+
+					}
+					;
+
+fun_id				: ID {
+
+					}
+					;
+
+params 				: param_list {
+
+					}
+					| VOID {
+
+					}
+					;
+
+param_list			: param_list COMMA param {
+
+					}
+					| param {
+
+					}
+					;
+
+param				: type_specifier ID {
+
+					}
+					| type_specifier ID ABRECOLCHETES FECHACOLCHETES {
+
+					}
+					;
+
+compound_decl		: ABRECHAVES local_declarations statement_list FECHACHAVES {
+
+					}
+					;
+
+local_declarations	: local_declarations var_declaration {
+
+					}
+					| %empty {
+
+					}
+					;
+
+statement_list		: statement_list statement {
+
+					}
+					| %empty {
+
+					}
+					;
+
+statement			: expression_decl {
+
+					} | compound_decl {
+
+					} | selection_decl {
+
+					} | iteration_decl {
+
+					} | return_decl {
+
+					}
+					;
+
+expression_decl		: expression SEMICOLON {
+
+					} | SEMICOLON {
+
+					}
+					;
+
+selection_decl		: IF ABREPARENTESES expression FECHAPARENTESES statement %prec IFX {
+
+					}
+					| IF ABREPARENTESES expression FECHAPARENTESES statement ELSE statement {
+
+					}
+					;
+
+iteration_decl		: WHILE ABREPARENTESES expression FECHAPARENTESES statement {
+
+					}
+					;
+
+return_decl			: RETURN SEMICOLON {
+
+					} | RETURN expression SEMICOLON {
+
+					}
+					;
+
+expression			: var ATRIB expression {
+
+					}
+					| simple_expression {
+
+					}
+					;
+
+var					: ID {
+						
+					}
+					| ID ABRECOLCHETES expression FECHACOLCHETES {
+
+					}
+					;
+
+simple_expression	: simple_expression relational sum_expression {
+
+					}
+					| sum_expression {
+
+					}
+					;
+
+relational			: relational_operand {
+
+					}
+					;
+
+relational_operand : EQ {
+
+					}
+					| NEQ {
+
+					} | LT {
+
+					} | GT {
+
+					} | LET {
+
+					} | GET {
+
+					}
+					;
+
+sum_expression		: sum_expression sum term {
+
+					}
+					| term {
+
+					}
+					;
+
+sum					: SOMA {
+
+					} | SUB {
+
+					}
+					;
+
+term				: term mult factor {
+
+					} | factor {
+
+					}
+					;	
+
+mult				: MULT {
+
+					} | DIV {
+
+					}
+					;
+
+factor				: ABREPARENTESES expression FECHAPARENTESES {
+
+					} | var {
+
+					} | activation {
+
+					} | NUM {
+
+					}
+					;
+
+activation			: fun_id ABREPARENTESES args FECHAPARENTESES {
+
+					}
+					;
+
+args				: arg_list {
+
+					} | %empty {
+
+					}
+					;
+
+arg_list			: arg_list COMMA expression {
+
+					}
+					| expression {
+
+					}
+					;
 %%
 
 void yyerror (char *s){
