@@ -1283,7 +1283,7 @@ yyreduce:
   case 11: /* fun_declaration: type_specifier fun_id ABREPARENTESES params FECHAPARENTESES compound_decl  */
 #line 69 "src/parser.y"
                                                                                                     {
-
+						printf("FUN_DECLARATION\n");
 					}
 #line 1289 "./build/parser.tab.c"
     break;
@@ -1347,7 +1347,7 @@ yyreduce:
   case 19: /* compound_decl: ABRECHAVES local_declarations statement_list FECHACHAVES  */
 #line 103 "src/parser.y"
                                                                                    {
-
+						printf("COMPOUND_DECLARATION\n");
 					}
 #line 1353 "./build/parser.tab.c"
     break;
@@ -1707,7 +1707,7 @@ yyreduce:
   case 64: /* arg_list: arg_list COMMA expression  */
 #line 261 "src/parser.y"
                                                             {
-
+						printf("ARG_LIST COMMA\n");
 					}
 #line 1713 "./build/parser.tab.c"
     break;
@@ -1715,7 +1715,7 @@ yyreduce:
   case 65: /* arg_list: expression  */
 #line 264 "src/parser.y"
                                                      {
-
+						printf("ARG_LIST EXPRESSION\n");
 					}
 #line 1721 "./build/parser.tab.c"
     break;

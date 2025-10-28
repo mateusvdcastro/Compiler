@@ -8,14 +8,18 @@
 #define DEBUG_MODE 0 // Activate debug mode
 #define MAXLEXEME 21 // Maximum lexeme length
 
+typedef struct {
+    char stack[4][MAXLEXEME];
+    int top;
+} Stack;
+
 extern int flagVerbose; // Flag to activate verbose mode
-extern int indStack; // lexeme stack index
 extern int lineNum; // line number
 extern int lineCount; // line counter
 extern int lexical_errors; // lexical errors counter
 extern int syntax_errors;
 extern char* yytext; // lexeme text
-extern char stack[4][MAXLEXEME]; // lexeme stack
+extern Stack lexStack; // lexeme stack
 extern FILE * fileINPUT; // input file
 extern FILE * fileCOPY; // copy of the input file
 extern FILE * fileOUTPUT; // output file

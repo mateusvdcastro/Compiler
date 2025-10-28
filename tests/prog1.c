@@ -7,8 +7,6 @@ else return gcd(v,u-u/v*v);
 }
 void main(void)
 { int x; int y = 0;
-  x != ! input(); y => input();
+  x != input(); y => input();
   output(gcd(x,y));
 }
-
-else if int return void while + - * / < <= > >= == != = ; ,( ) [ ] { } abc 23

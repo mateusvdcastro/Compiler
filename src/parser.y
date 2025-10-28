@@ -67,7 +67,7 @@ type_specifier		: INT {
 					;
 
 fun_declaration		: type_specifier fun_id ABREPARENTESES params FECHAPARENTESES compound_decl {
-
+						printf("FUN_DECLARATION\n");
 					}
 					;
 
@@ -101,7 +101,7 @@ param				: type_specifier ID {
 					;
 
 compound_decl		: ABRECHAVES local_declarations statement_list FECHACHAVES {
-
+						printf("COMPOUND_DECLARATION\n");
 					}
 					;
 
@@ -259,10 +259,10 @@ args				: arg_list {
 					;
 
 arg_list			: arg_list COMMA expression {
-
+						printf("ARG_LIST COMMA\n");
 					}
 					| expression {
-
+						printf("ARG_LIST EXPRESSION\n");
 					}
 					;
 %%

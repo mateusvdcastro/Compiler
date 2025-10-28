@@ -7,6 +7,8 @@ FILE * fileINPUT = NULL;
 FILE * fileCOPY = NULL;
 FILE * fileOUTPUT = NULL;
 
+Stack lexStack;
+
 extern int yylex_destroy(void);
 
 // Function to get token name for display
@@ -100,7 +102,7 @@ int main (int argc, char *argv[]) {
     //callOnlyLexicalAnalysis(argv[1]);
 
     extern int yydebug;
-    yydebug = 1; // Defina como 1 para ativar a depuração do Bison 
+    yydebug = 1; // Defina como 1 para ativar a depuração do Bison
 
     NODEPOINTER syntaxTree = parse();
 

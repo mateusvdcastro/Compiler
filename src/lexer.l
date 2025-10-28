@@ -8,9 +8,48 @@ int yylex(void);
 
 char id[MAXLEXEME];
 
+int verifyReservedWord(enum yytokentype *token);
+
 int firstTime = 1;
 
 int lexical_errors = 0;
+
+int isFull(Stack *lexStack);
+int isEmpty(Stack *lexStack);
+
+void initStack(Stack *lexStack) {
+    lexStack->top = -1;
+}
+
+void push(Stack *lexStack, char* lexeme) {
+    if (isFull(lexStack)) {
+        printf("Stack Lexeme Overflow\n");
+        return;
+    }
+    lexStack->top++;
+    strcpy(lexStack->stack[lexStack->top], lexeme);
+
+    printf("Pushed lexeme to lexeme stack: %s\n", lexeme);
+}
+
+void pop(Stack *lexStack, char* lexeme) {
+    if (isEmpty(lexStack)) {
+        printf("Stack Lexeme Underflow\n");
+        return;
+    }
+    strcpy(lexeme, lexStack->stack[lexStack->top]);
+    lexStack->top--;
+    printf("Popped lexeme from lexeme stack: %s\n", lexeme);
+}
+
+int isFull(Stack *lexStack) {
+    return lexStack->top == 3;
+}
+
+int isEmpty(Stack *lexStack) {
+    return lexStack->top == -1;
+}
+
 %}
 
 %option noyywrap
@@ -44,11 +83,23 @@ WHITESPACE [ \t]+
 {NEWLINE}    { lineNum++; }
 
 {NUMBER} {
+            push(&lexStack, yytext);
+
             return NUM; 
          }
 
 {IDENT} {
-            enum yytokentype token = ID;
+            enum yytokentype token;
+
+            if(!verifyReservedWord(&token)){
+                token = ID;
+            }
+
+            if (token == ID) {
+                bzero(lexStack.stack[lexStack.top + 1], MAXLEXEME);
+                push(&lexStack, yytext);
+            };
+
             return token;
          }
 
@@ -144,8 +195,56 @@ WHITESPACE [ \t]+
 
 %%
 
+int verifyReservedWord(enum yytokentype *token){
+  char aux[20];
+  int flag = 0;
+  
+  if(strcmp(yytext, "if") == 0){
+      strcpy(aux, "if");
+      *token = IF;
+      flag =  1;
+  }
+  else if(strcmp(yytext, "int") == 0){
+      strcpy(aux, "int");
+      *token = INT;
+      flag =  1;
+  }
+  else if(strcmp(yytext, "else") == 0){
+      strcpy(aux, "else");
+      *token = ELSE;
+      flag =  1;
+  }
+  else if(strcmp(yytext, "return") == 0){
+      strcpy(aux, "return");
+      *token = RETURN;
+      flag =  1;
+  }
+  else if(strcmp(yytext, "void") == 0){
+      strcpy(aux, "void");
+      *token = VOID;
+      flag =  1;
+  }
+  else if(strcmp(yytext, "while") == 0){
+      strcpy(aux, "while");
+      *token = WHILE;
+      flag =  1;
+  }
+  return flag;
+}
+
 enum yytokentype getToken(void){
     yyin = fileINPUT;
+
+    if (firstTime) {
+        
+        initStack(&lexStack);
+
+        for (int i = 0; i < 4; i++){
+          bzero(lexStack.stack[i], MAXLEXEME);
+        }
+    }
+
+    firstTime = 0;
 
     enum yytokentype currentToken;
 
