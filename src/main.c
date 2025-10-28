@@ -1,15 +1,16 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "globals.h"
-#include "parser.h"
+#include "parser.tab.h"
 
 FILE * fileINPUT = NULL;
 FILE * fileCOPY = NULL;
 FILE * fileOUTPUT = NULL;
 
-Stack lexStack;
-
 extern int yylex_destroy(void);
+
+Stack lexStack;
+int numLine = 1;
 
 // Function to get token name for display
 const char* getTokenName(enum yytokentype token) {
@@ -63,18 +64,18 @@ void callOnlyLexicalAnalysis(char *argv){
         tokenCount++;
         
         if (token == 0 || token == YYEOF) {
-            printf("%-5d %-20s %-10d %s\n", lineNum, "EOF", 0, "");
+            printf("%-5d %-20s %-10d %s\n", numLine, "EOF", 0, "");
             break;
         }
         
         // Exibir informações do token
-        printf("%-5d %-20s %-10d %s\n", lineNum, getTokenName(token), token, yytext ? yytext : "");
+        printf("%-5d %-20s %-10d %s\n", numLine, getTokenName(token), token, yytext ? yytext : "");
         
     } while (token != 0 && token != YYEOF);
 
     printf("\n=== RESUMO ===\n");
     printf("Total de tokens encontrados: %d\n", tokenCount);
-    printf("Número de linhas processadas: %d\n", lineNum);
+    printf("Número de linhas processadas: %d\n", numLine);
 
     if (lexical_errors > 0) {
         printf("Erros léxicos encontrados: %d\n", lexical_errors);
@@ -87,6 +88,7 @@ void callOnlyLexicalAnalysis(char *argv){
 }
 
 int main (int argc, char *argv[]) {
+
     if (argc != 2){
         printf("Uso: %s <arquivo>\n", argv[0]);
         return 1;

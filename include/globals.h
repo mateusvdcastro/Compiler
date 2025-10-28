@@ -13,6 +13,11 @@ typedef struct {
     int top;
 } Stack;
 
+void push(Stack *stack, const char *lexeme);
+void pop(Stack *stack, char *dest);
+
+
+
 extern int flagVerbose; // Flag to activate verbose mode
 extern int lineNum; // line number
 extern int lineCount; // line counter

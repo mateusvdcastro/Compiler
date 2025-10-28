@@ -464,7 +464,7 @@ char *yytext;
 #line 1 "src/lexer.l"
 #line 2 "src/lexer.l"
 #include <string.h>
-#include "parser.h"
+#include "../build/parser.tab.h"
 #include "globals.h"
 
 int lineNum = 1;
@@ -485,7 +485,7 @@ void initStack(Stack *lexStack) {
     lexStack->top = -1;
 }
 
-void push(Stack *lexStack, char* lexeme) {
+void push(Stack *lexStack, const char* lexeme) {
     if (isFull(lexStack)) {
         printf("Stack Lexeme Overflow\n");
         return;
@@ -501,7 +501,9 @@ void pop(Stack *lexStack, char* lexeme) {
         printf("Stack Lexeme Underflow\n");
         return;
     }
-    strcpy(lexeme, lexStack->stack[lexStack->top]);
+    if (lexeme != NULL) {  // Add this check
+        strcpy(lexeme, lexStack->stack[lexStack->top]);
+    }
     lexStack->top--;
     printf("Popped lexeme from lexeme stack: %s\n", lexeme);
 }
@@ -514,8 +516,8 @@ int isEmpty(Stack *lexStack) {
     return lexStack->top == -1;
 }
 
-#line 518 "build/lex.yy.c"
-#line 519 "build/lex.yy.c"
+#line 520 "build/lex.yy.c"
+#line 521 "build/lex.yy.c"
 
 #define INITIAL 0
 
@@ -732,10 +734,10 @@ YY_DECL
 		}
 
 	{
-#line 64 "src/lexer.l"
+#line 66 "src/lexer.l"
 
 
-#line 739 "build/lex.yy.c"
+#line 741 "build/lex.yy.c"
 
 	while ( /*CONSTCOND*/1 )		/* loops until end-of-file is reached */
 		{
@@ -794,12 +796,12 @@ do_action:	/* This label is used only to access EOF actions. */
 
 case 1:
 YY_RULE_SETUP
-#line 66 "src/lexer.l"
+#line 68 "src/lexer.l"
 { /* ignore whitespace */ }
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
-#line 68 "src/lexer.l"
+#line 70 "src/lexer.l"
 {
           char c, aux = 'x'; 
           do{ 
@@ -818,12 +820,12 @@ YY_RULE_SETUP
 case 3:
 /* rule 3 can match eol */
 YY_RULE_SETUP
-#line 83 "src/lexer.l"
+#line 85 "src/lexer.l"
 { lineNum++; }
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
-#line 85 "src/lexer.l"
+#line 87 "src/lexer.l"
 {
             push(&lexStack, yytext);
 
@@ -832,7 +834,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 91 "src/lexer.l"
+#line 93 "src/lexer.l"
 {
             enum yytokentype token;
 
@@ -850,146 +852,146 @@ YY_RULE_SETUP
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 106 "src/lexer.l"
+#line 108 "src/lexer.l"
 {
     return ABREPARENTESES;
    }
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 110 "src/lexer.l"
+#line 112 "src/lexer.l"
 {
     return FECHAPARENTESES;
    } 
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
-#line 114 "src/lexer.l"
+#line 116 "src/lexer.l"
 {
     return ABRECOLCHETES;
    }	      
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
-#line 119 "src/lexer.l"
+#line 121 "src/lexer.l"
 {
     return FECHACOLCHETES;
    }	      
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
-#line 124 "src/lexer.l"
+#line 126 "src/lexer.l"
 {
     return ABRECHAVES;
    }
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
-#line 128 "src/lexer.l"
+#line 130 "src/lexer.l"
 {
     return FECHACHAVES;	
    }
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
-#line 133 "src/lexer.l"
+#line 135 "src/lexer.l"
 {
     return ATRIB;
   }	
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
-#line 137 "src/lexer.l"
+#line 139 "src/lexer.l"
 {
     return COMMA;
   }	
 	YY_BREAK
 case 14:
 YY_RULE_SETUP
-#line 141 "src/lexer.l"
+#line 143 "src/lexer.l"
 {
     return SEMICOLON;
   }
 	YY_BREAK
 case 15:
 YY_RULE_SETUP
-#line 145 "src/lexer.l"
+#line 147 "src/lexer.l"
 {
     return SOMA;
    }	
 	YY_BREAK
 case 16:
 YY_RULE_SETUP
-#line 149 "src/lexer.l"
+#line 151 "src/lexer.l"
 {
     return SUB;
    }  
 	YY_BREAK
 case 17:
 YY_RULE_SETUP
-#line 153 "src/lexer.l"
+#line 155 "src/lexer.l"
 {
     return MULT;
    }	
 	YY_BREAK
 case 18:
 YY_RULE_SETUP
-#line 157 "src/lexer.l"
+#line 159 "src/lexer.l"
 {
     return DIV;
    } 
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
-#line 161 "src/lexer.l"
+#line 163 "src/lexer.l"
 {
     return EQ;
    }
 	YY_BREAK
 case 20:
 YY_RULE_SETUP
-#line 165 "src/lexer.l"
+#line 167 "src/lexer.l"
 {
     return NEQ;
     }
 	YY_BREAK
 case 21:
 YY_RULE_SETUP
-#line 169 "src/lexer.l"
+#line 171 "src/lexer.l"
 {
     return LT;
   }
 	YY_BREAK
 case 22:
 YY_RULE_SETUP
-#line 173 "src/lexer.l"
+#line 175 "src/lexer.l"
 {
     return GT;
   }
 	YY_BREAK
 case 23:
 YY_RULE_SETUP
-#line 177 "src/lexer.l"
+#line 179 "src/lexer.l"
 {
         return LET;
       }
 	YY_BREAK
 case 24:
 YY_RULE_SETUP
-#line 181 "src/lexer.l"
+#line 183 "src/lexer.l"
 {	
         return GET;
       }
 	YY_BREAK
 case YY_STATE_EOF(INITIAL):
-#line 185 "src/lexer.l"
+#line 187 "src/lexer.l"
 {
         return 0;
     }
 	YY_BREAK
 case 25:
 YY_RULE_SETUP
-#line 189 "src/lexer.l"
+#line 191 "src/lexer.l"
 {
     printf(ANSI_COLOR_RED "\nERRO LÉXICO: " ANSI_COLOR_RESET ANSI_COLOR_WHITE "\"%s\" ", yytext);
     printf(ANSI_COLOR_RED "LINHA: " ANSI_COLOR_WHITE "%d" ANSI_COLOR_RESET "\n", lineNum);
@@ -999,10 +1001,10 @@ YY_RULE_SETUP
 	YY_BREAK
 case 26:
 YY_RULE_SETUP
-#line 196 "src/lexer.l"
+#line 198 "src/lexer.l"
 ECHO;
 	YY_BREAK
-#line 1006 "build/lex.yy.c"
+#line 1008 "build/lex.yy.c"
 
 	case YY_END_OF_BUFFER:
 		{
@@ -2005,7 +2007,7 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 196 "src/lexer.l"
+#line 198 "src/lexer.l"
 
 
 int verifyReservedWord(enum yytokentype *token){

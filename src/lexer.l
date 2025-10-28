@@ -1,6 +1,6 @@
 %{
 #include <string.h>
-#include "parser.h"
+#include "../build/parser.tab.h"
 #include "globals.h"
 
 int lineNum = 1;
@@ -21,7 +21,7 @@ void initStack(Stack *lexStack) {
     lexStack->top = -1;
 }
 
-void push(Stack *lexStack, char* lexeme) {
+void push(Stack *lexStack, const char* lexeme) {
     if (isFull(lexStack)) {
         printf("Stack Lexeme Overflow\n");
         return;
@@ -37,7 +37,9 @@ void pop(Stack *lexStack, char* lexeme) {
         printf("Stack Lexeme Underflow\n");
         return;
     }
-    strcpy(lexeme, lexStack->stack[lexStack->top]);
+    if (lexeme != NULL) {  // Add this check
+        strcpy(lexeme, lexStack->stack[lexStack->top]);
+    }
     lexStack->top--;
     printf("Popped lexeme from lexeme stack: %s\n", lexeme);
 }

@@ -1,5 +1,5 @@
 CC=gcc
-CFLAGS=-g -O0 -Wall -Wextra -I. -I./include
+CFLAGS=-g -O0 -Wall -Wextra -I. -I./include -I./build
 BUILD_DIR=./build
 OUTPUT_DIR=./output
 SRC_DIR=./src
@@ -21,7 +21,10 @@ clean_output:
 compiler: $(BUILD_DIR)/main.o $(BUILD_DIR)/parser.tab.o $(BUILD_DIR)/lex.yy.o $(BUILD_DIR)/syntax_tree.o
 	$(CC) $(CFLAGS) -o $@ $^ -lfl
 
-$(BUILD_DIR)/main.o: $(SRC_DIR)/main.c
+$(BUILD_DIR)/main.o: $(SRC_DIR)/main.c $(BUILD_DIR)/parser.tab.h
+	$(CC) $(CFLAGS) -c $< -o $@
+
+$(BUILD_DIR)/parser.tab.o: $(BUILD_DIR)/parser.tab.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
 $(BUILD_DIR)/syntax_tree.o: $(SRC_DIR)/syntax_tree.c
@@ -30,7 +33,7 @@ $(BUILD_DIR)/syntax_tree.o: $(SRC_DIR)/syntax_tree.c
 $(BUILD_DIR)/lex.yy.o: $(BUILD_DIR)/lex.yy.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
-$(BUILD_DIR)/lex.yy.c: $(SRC_DIR)/lexer.l
+$(BUILD_DIR)/lex.yy.c: $(SRC_DIR)/lexer.l $(BUILD_DIR)/parser.tab.h
 	flex -o $@ $<
 
 $(BUILD_DIR)/parser.tab.c $(BUILD_DIR)/parser.tab.h: $(SRC_DIR)/parser.y
