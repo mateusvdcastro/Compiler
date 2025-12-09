@@ -5,8 +5,11 @@ int gcd (int u, int v)
 else return gcd(v,u-u/v*v);
 /* u-u/v*v == u mod v */
 }
-void main(void)
-{ int x; int y = 0;
-  x != input(); y => input();
+int main(int pera)
+{ int x; int y ;
+  int Rhalligton;
+  Rhalligton = 10;
+  x != input(); y = input();
   output(gcd(x,y));
+  return 0;
 }

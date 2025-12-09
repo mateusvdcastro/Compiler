@@ -1214,7 +1214,7 @@ yyreduce:
   case 2: /* program: declaration_list  */
 #line 32 "src/parser.y"
                                                    {
-						printf("PROGRAM\n");
+						//printf("PROGRAM\n");
 						syntaxTree = yyvsp[0];
 					}
 #line 1221 "./build/parser.tab.c"
@@ -1229,7 +1229,7 @@ yyreduce:
 						} else {
 							yyval = yyvsp[0];
 						}
-						printf("DECLARATION_LIST\n");
+						//printf("DECLARATION_LIST\n");
 					}
 #line 1235 "./build/parser.tab.c"
     break;
@@ -1237,7 +1237,7 @@ yyreduce:
   case 4: /* declaration_list: declaration  */
 #line 47 "src/parser.y"
                                                       {
-						printf("DECLARATION_LIST\n");
+						//printf("DECLARATION_LIST\n");
 						yyval = yyvsp[0];
 					}
 #line 1244 "./build/parser.tab.c"
@@ -1246,7 +1246,7 @@ yyreduce:
   case 5: /* declaration: var_declaration  */
 #line 53 "src/parser.y"
                                                   {
-						printf("VAR_DECLARATION\n");
+						//printf("VAR_DECLARATION\n");
 						yyval = yyvsp[0];
 					}
 #line 1253 "./build/parser.tab.c"
@@ -1255,7 +1255,7 @@ yyreduce:
   case 6: /* declaration: fun_declaration  */
 #line 57 "src/parser.y"
                                                           {
-						printf("FUN_DECLARATION\n");
+						//printf("FUN_DECLARATION\n");
 						yyval = yyvsp[0];
 					}
 #line 1262 "./build/parser.tab.c"
@@ -1264,7 +1264,7 @@ yyreduce:
   case 7: /* var_declaration: type_specifier ID SEMICOLON  */
 #line 63 "src/parser.y"
                                                       {
-						printf("VAR_DECLARATION\n");
+						//printf("VAR_DECLARATION\n");
 
 						yyval = yyvsp[-2];
 						yyval->nodeKind = StmtK;
@@ -1287,7 +1287,7 @@ yyreduce:
 #line 80 "src/parser.y"
                                                                          {
 						yyerrok;
-						printf("VAR_DECLARATION ERROR RECOVERED\n");
+						//printf("VAR_DECLARATION ERROR RECOVERED\n");
 						if (yyvsp[-2] != NULL) freeTree(yyvsp[-2]);
 						yyval = NULL;
 
@@ -1298,7 +1298,7 @@ yyreduce:
   case 9: /* var_declaration: type_specifier ID ABRECOLCHETES NUM FECHACOLCHETES SEMICOLON  */
 #line 87 "src/parser.y"
                                                                                                        {
-						printf("VAR_DECLARATION ARRAY\n");
+						//printf("VAR_DECLARATION ARRAY\n");
 
 						yyval = yyvsp[-5];
 						yyval->nodeKind = StmtK;
@@ -1327,7 +1327,7 @@ yyreduce:
 #line 110 "src/parser.y"
                                                                                         {
 						yyerrok;
-						printf("VAR_DECLARATION ERROR RECOVERED\n");
+						//printf("VAR_DECLARATION ERROR RECOVERED\n");
 						if (yyvsp[-3] != NULL) freeTree(yyvsp[-3]);
 						yyval = NULL;
 					}
@@ -1454,7 +1454,7 @@ yyreduce:
   case 20: /* param: type_specifier ID ABRECOLCHETES FECHACOLCHETES  */
 #line 197 "src/parser.y"
                                                                                          {
-						printf("PARAMETER ARRAY\n");
+						//printf("PARAMETER ARRAY\n");
 						yyval = yyvsp[-3];
 						yyval->nodeKind = StmtK;
 						yyval->lineNum = lineNum;
@@ -1473,7 +1473,7 @@ yyreduce:
   case 21: /* compound_decl: ABRECHAVES local_declarations statement_list FECHACHAVES  */
 #line 213 "src/parser.y"
                                                                                    {
-						printf("COMPOUND_DECLARATION\n");
+						//printf("COMPOUND_DECLARATION\n");
 						if (yyvsp[-2] != NULL){
 							yyval = yyvsp[-2];
 							addSibling(yyval, yyvsp[-1]);
@@ -1529,7 +1529,7 @@ yyreduce:
   case 26: /* statement: expression_decl  */
 #line 250 "src/parser.y"
                                                   {
-						printf("EXPRESSION_DECLARATION\n");
+						//printf("EXPRESSION_DECLARATION\n");
 						yyval = yyvsp[0];
 					}
 #line 1536 "./build/parser.tab.c"
@@ -1538,7 +1538,7 @@ yyreduce:
   case 27: /* statement: compound_decl  */
 #line 253 "src/parser.y"
                                                           {
-						printf("COMPOUND_DECLARATION\n");
+						//printf("COMPOUND_DECLARATION\n");
 						yyval = yyvsp[0];
 					}
 #line 1545 "./build/parser.tab.c"
@@ -1547,7 +1547,7 @@ yyreduce:
   case 28: /* statement: selection_decl  */
 #line 256 "src/parser.y"
                                                            {
-						printf("SELECTION_DECLARATION\n");
+						//printf("SELECTION_DECLARATION\n");
 						yyval = yyvsp[0];
 					}
 #line 1554 "./build/parser.tab.c"
@@ -1556,7 +1556,7 @@ yyreduce:
   case 29: /* statement: iteration_decl  */
 #line 259 "src/parser.y"
                                                            {
-						printf("ITERATION_DECLARATION\n");
+						//printf("ITERATION_DECLARATION\n");
 						yyval = yyvsp[0];
 					}
 #line 1563 "./build/parser.tab.c"
@@ -1565,7 +1565,7 @@ yyreduce:
   case 30: /* statement: return_decl  */
 #line 262 "src/parser.y"
                                                         {
-						printf("RETURN_DECLARATION\n");
+						//printf("RETURN_DECLARATION\n");
 						yyval = yyvsp[0];
 					}
 #line 1572 "./build/parser.tab.c"
@@ -1574,7 +1574,7 @@ yyreduce:
   case 31: /* expression_decl: expression SEMICOLON  */
 #line 268 "src/parser.y"
                                                {
-						printf("EXPRESSION_DECLARATION\n");
+						//printf("EXPRESSION_DECLARATION\n");
 						yyval = yyvsp[-1];
 					}
 #line 1581 "./build/parser.tab.c"
@@ -1592,7 +1592,7 @@ yyreduce:
 #line 273 "src/parser.y"
                                                             {
 						yyerrok;
-						printf("EXPRESSION_DECLARATION ERROR RECOVERED\n");
+						//printf("EXPRESSION_DECLARATION ERROR RECOVERED\n");
 						yyval = NULL;
 					}
 #line 1599 "./build/parser.tab.c"
@@ -1601,7 +1601,7 @@ yyreduce:
   case 34: /* selection_decl: IF ABREPARENTESES expression FECHAPARENTESES statement  */
 #line 280 "src/parser.y"
                                                                                            {
-						printf("SELECTION_DECLARATION\n");
+						//printf("SELECTION_DECLARATION\n");
 
 						yyval = newNode();
 						strcpy(yyval->lexeme, "IF");
@@ -1620,7 +1620,7 @@ yyreduce:
   case 35: /* selection_decl: IF ABREPARENTESES expression FECHAPARENTESES statement ELSE statement  */
 #line 294 "src/parser.y"
                                                                                                                 {
-						printf("SELECTION_DECLARATION\n");
+						//printf("SELECTION_DECLARATION\n");
 
 						yyval = newNode();
 						strcpy(yyval->lexeme, "IF");
@@ -1698,7 +1698,7 @@ yyreduce:
 						addChild(yyval, yyvsp[-2]);
 						addChild(yyval, yyvsp[0]);
 
-						printf("EXPRESSION ATRIB\n");
+						//printf("EXPRESSION ATRIB\n");
 						nodes[nodeCount++] = yyval;
 					}
 #line 1705 "./build/parser.tab.c"
@@ -1964,7 +1964,7 @@ yyreduce:
   case 64: /* activation: fun_id ABREPARENTESES args FECHAPARENTESES  */
 #line 508 "src/parser.y"
                                                                              {
-						printf("ACTIVATION\n");
+						//printf("ACTIVATION\n");
 						yyval = yyvsp[-3];
 						yyval->nodeKind = ExpK;
 						yyval->lineNum = lineNum;
@@ -2000,7 +2000,7 @@ yyreduce:
 							yyval = yyvsp[0];
 						}
 
-						printf("ARG_LIST COMMA\n");
+						//printf("ARG_LIST COMMA\n");
 					}
 #line 2006 "./build/parser.tab.c"
     break;
@@ -2009,7 +2009,7 @@ yyreduce:
 #line 535 "src/parser.y"
                                                      {
 						yyval = yyvsp[0];
-						printf("ARG_LIST EXPRESSION\n");
+						//printf("ARG_LIST EXPRESSION\n");
 					}
 #line 2015 "./build/parser.tab.c"
     break;

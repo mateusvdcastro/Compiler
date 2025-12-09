@@ -104,7 +104,7 @@ int main (int argc, char *argv[]) {
     //callOnlyLexicalAnalysis(argv[1]);
 
     extern int yydebug;
-    yydebug = 1; // Defina como 1 para ativar a depuração do Bison
+    yydebug = 0; // Defina como 1 para ativar a depuração do Bison
 
     NODEPOINTER syntaxTree = parse();
 
@@ -115,7 +115,7 @@ int main (int argc, char *argv[]) {
         return 1;
     } else {
         printf("=== ÁRVORE DE SINTAXE ===\n");
-        showTree(syntaxTree, 0);
+        // showTree(syntaxTree, 0);
 
         freeTree(syntaxTree);
     }

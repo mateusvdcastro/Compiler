@@ -493,7 +493,7 @@ void push(Stack *lexStack, const char* lexeme) {
     lexStack->top++;
     strcpy(lexStack->stack[lexStack->top], lexeme);
 
-    printf("Pushed lexeme to lexeme stack: %s\n", lexeme);
+    //printf("Pushed lexeme to lexeme stack: %s\n", lexeme);
 }
 
 void pop(Stack *lexStack, char* lexeme) {
@@ -505,7 +505,7 @@ void pop(Stack *lexStack, char* lexeme) {
         strcpy(lexeme, lexStack->stack[lexStack->top]);
     }
     lexStack->top--;
-    printf("Popped lexeme from lexeme stack: %s\n", lexeme);
+    //printf("Popped lexeme from lexeme stack: %s\n", lexeme);
 }
 
 int isFull(Stack *lexStack) {

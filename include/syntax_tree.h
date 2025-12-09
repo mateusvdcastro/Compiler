@@ -1,5 +1,5 @@
-#ifndef _SYNTAX_TREE_H_
-#define _SYNTAX_TREE_H_ 1
+    #ifndef _SYNTAX_TREE_H_
+    #define _SYNTAX_TREE_H_ 1
 
 // Types of nodes that can exist in the tree
 typedef enum { StmtK, ExpK, NullK } NodeKind; // Stmt = Statement and Exp = Expression
@@ -30,7 +30,7 @@ typedef enum {
     ConstK, // Constant numeric value
     IdK, // Identifier
     AtivK, // Function call
-    VetK, // Array
+    VetK, // Array  
     AssignK, // Assignment
     TypeK, // Type
     NullExpK // Null expression

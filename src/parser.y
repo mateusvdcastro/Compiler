@@ -18,7 +18,7 @@ enum yytokentype auxError;
 int nodeCount = 0;
 int syntax_errors = 0;
 %}
-
+	
 /* Token declarations - you should add your actual tokens here */
 %token NUM ID ABREPARENTESES FECHAPARENTESES ABRECOLCHETES FECHACOLCHETES
 %token ABRECHAVES FECHACHAVES ATRIB COMMA SEMICOLON SOMA SUB MULT DIV
@@ -30,7 +30,7 @@ int syntax_errors = 0;
 %%
 
 program				: declaration_list {
-						printf("PROGRAM\n");
+						//printf("PROGRAM\n");
 						syntaxTree = $1;
 					}
 					;
@@ -42,26 +42,26 @@ declaration_list	: declaration_list declaration {
 						} else {
 							$$ = $2;
 						}
-						printf("DECLARATION_LIST\n");
+						//printf("DECLARATION_LIST\n");
 					}
 					| declaration {
-						printf("DECLARATION_LIST\n");
+						//printf("DECLARATION_LIST\n");
 						$$ = $1;
 					}
 					;
 
 declaration			: var_declaration {
-						printf("VAR_DECLARATION\n");
+						//printf("VAR_DECLARATION\n");
 						$$ = $1;
 					}
 					| fun_declaration {
-						printf("FUN_DECLARATION\n");
+						//printf("FUN_DECLARATION\n");
 						$$ = $1;
 					}
 					;
 
 var_declaration		: type_specifier ID SEMICOLON {
-						printf("VAR_DECLARATION\n");
+						//printf("VAR_DECLARATION\n");
 
 						$$ = $1;
 						$$->nodeKind = StmtK;
@@ -79,13 +79,13 @@ var_declaration		: type_specifier ID SEMICOLON {
 					}
 					| type_specifier error SEMICOLON {
 						yyerrok;
-						printf("VAR_DECLARATION ERROR RECOVERED\n");
+						//printf("VAR_DECLARATION ERROR RECOVERED\n");
 						if ($1 != NULL) freeTree($1);
 						$$ = NULL;
 
 					}
 					| type_specifier ID ABRECOLCHETES NUM FECHACOLCHETES SEMICOLON {
-						printf("VAR_DECLARATION ARRAY\n");
+						//printf("VAR_DECLARATION ARRAY\n");
 
 						$$ = $1;
 						$$->nodeKind = StmtK;
@@ -109,7 +109,7 @@ var_declaration		: type_specifier ID SEMICOLON {
 					}
 					| type_specifier error FECHACOLCHETES SEMICOLON {
 						yyerrok;
-						printf("VAR_DECLARATION ERROR RECOVERED\n");
+						//printf("VAR_DECLARATION ERROR RECOVERED\n");
 						if ($1 != NULL) freeTree($1);
 						$$ = NULL;
 					}
@@ -195,7 +195,7 @@ param				: type_specifier ID {
 
 					}
 					| type_specifier ID ABRECOLCHETES FECHACOLCHETES {
-						printf("PARAMETER ARRAY\n");
+						//printf("PARAMETER ARRAY\n");
 						$$ = $1;
 						$$->nodeKind = StmtK;
 						$$->lineNum = lineNum;
@@ -211,7 +211,7 @@ param				: type_specifier ID {
 					;
 
 compound_decl		: ABRECHAVES local_declarations statement_list FECHACHAVES {
-						printf("COMPOUND_DECLARATION\n");
+						//printf("COMPOUND_DECLARATION\n");
 						if ($2 != NULL){
 							$$ = $2;
 							addSibling($$, $3);
@@ -248,37 +248,37 @@ statement_list		: statement_list statement {
 					;
 
 statement			: expression_decl {
-						printf("EXPRESSION_DECLARATION\n");
+						//printf("EXPRESSION_DECLARATION\n");
 						$$ = $1;
 					} | compound_decl {
-						printf("COMPOUND_DECLARATION\n");
+						//printf("COMPOUND_DECLARATION\n");
 						$$ = $1;
 					} | selection_decl {
-						printf("SELECTION_DECLARATION\n");
+						//printf("SELECTION_DECLARATION\n");
 						$$ = $1;
 					} | iteration_decl {
-						printf("ITERATION_DECLARATION\n");
+						//printf("ITERATION_DECLARATION\n");
 						$$ = $1;
 					} | return_decl {
-						printf("RETURN_DECLARATION\n");
+						//printf("RETURN_DECLARATION\n");
 						$$ = $1;
 					}
 					;
 
 expression_decl		: expression SEMICOLON {
-						printf("EXPRESSION_DECLARATION\n");
+						//printf("EXPRESSION_DECLARATION\n");
 						$$ = $1;
 					} | SEMICOLON {
 						$$ = NULL;
 					} | error SEMICOLON {
 						yyerrok;
-						printf("EXPRESSION_DECLARATION ERROR RECOVERED\n");
+						//printf("EXPRESSION_DECLARATION ERROR RECOVERED\n");
 						$$ = NULL;
 					}
 					;
 
 selection_decl		: IF ABREPARENTESES expression FECHAPARENTESES statement %prec IFX {
-						printf("SELECTION_DECLARATION\n");
+						//printf("SELECTION_DECLARATION\n");
 
 						$$ = newNode();
 						strcpy($$->lexeme, "IF");
@@ -292,7 +292,7 @@ selection_decl		: IF ABREPARENTESES expression FECHAPARENTESES statement %prec I
 						nodes[nodeCount++] = $$;
 					}
 					| IF ABREPARENTESES expression FECHAPARENTESES statement ELSE statement {
-						printf("SELECTION_DECLARATION\n");
+						//printf("SELECTION_DECLARATION\n");
 
 						$$ = newNode();
 						strcpy($$->lexeme, "IF");
@@ -355,7 +355,7 @@ expression			: var ATRIB expression {
 						addChild($$, $1);
 						addChild($$, $3);
 
-						printf("EXPRESSION ATRIB\n");
+						//printf("EXPRESSION ATRIB\n");
 						nodes[nodeCount++] = $$;
 					}
 					| simple_expression {
@@ -506,7 +506,7 @@ factor				: ABREPARENTESES expression FECHAPARENTESES {
 					;
 
 activation			: fun_id ABREPARENTESES args FECHAPARENTESES {
-						printf("ACTIVATION\n");
+						//printf("ACTIVATION\n");
 						$$ = $1;
 						$$->nodeKind = ExpK;
 						$$->lineNum = lineNum;
@@ -530,11 +530,11 @@ arg_list			: arg_list COMMA expression {
 							$$ = $3;
 						}
 
-						printf("ARG_LIST COMMA\n");
+						//printf("ARG_LIST COMMA\n");
 					}
 					| expression {
 						$$ = $1;
-						printf("ARG_LIST EXPRESSION\n");
+						//printf("ARG_LIST EXPRESSION\n");
 					}
 					;
 %%
