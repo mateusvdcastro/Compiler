@@ -18,7 +18,7 @@ clean_output:
 	rm -f $(OUTPUT_DIR)/logs/*.log
 	rm -f $(OUTPUT_DIR)/*.txt
 
-compiler: $(BUILD_DIR)/main.o $(BUILD_DIR)/parser.tab.o $(BUILD_DIR)/lex.yy.o $(BUILD_DIR)/syntax_tree.o
+compiler: $(BUILD_DIR)/main.o $(BUILD_DIR)/parser.tab.o $(BUILD_DIR)/lex.yy.o $(BUILD_DIR)/syntax_tree.o $(BUILD_DIR)/symbol_table.o $(BUILD_DIR)/semantic.o
 	$(CC) $(CFLAGS) -o $@ $^ -lfl
 
 $(BUILD_DIR)/main.o: $(SRC_DIR)/main.c $(BUILD_DIR)/parser.tab.h
@@ -28,6 +28,12 @@ $(BUILD_DIR)/parser.tab.o: $(BUILD_DIR)/parser.tab.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
 $(BUILD_DIR)/syntax_tree.o: $(SRC_DIR)/syntax_tree.c
+	$(CC) $(CFLAGS) -c $< -o $@
+
+$(BUILD_DIR)/symbol_table.o: $(SRC_DIR)/symbol_table.c
+	$(CC) $(CFLAGS) -c $< -o $@
+
+$(BUILD_DIR)/semantic.o: $(SRC_DIR)/semantic.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
 $(BUILD_DIR)/lex.yy.o: $(BUILD_DIR)/lex.yy.c
@@ -41,7 +47,8 @@ $(BUILD_DIR)/parser.tab.c $(BUILD_DIR)/parser.tab.h: $(SRC_DIR)/parser.y
 
 valgrind: compiler
 	@if [ -z "$(file)" ]; then \
-		echo "Error: No test file specified. Usage: make valgrind file=<file_path>"; \
+		echo "Error: No test file specified. Usage: 		$(BUILD_DIR)/sy		$(BUILD_DIR)/sy		$(BUILD_DIR)/sy		$(BUILD_DIR)/symbol_table.o: $([symbol_table.c](http://_vscodecontentref_/11)
+			$(CC) $(CFLAGS) -c $< -o $@"; \
 		exit 1; \
 	fi
 	valgrind $(VALGRIND_FLAGS) ./compiler "$(file)"

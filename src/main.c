@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include "globals.h"
 #include "parser.tab.h"
+#include "semantica.h"
 
 FILE * fileINPUT = NULL;
 FILE * fileCOPY = NULL;
@@ -115,8 +116,35 @@ int main (int argc, char *argv[]) {
         return 1;
     } else {
         printf("=== ÁRVORE DE SINTAXE ===\n");
-        // showTree(syntaxTree, 0);
+        showTree(syntaxTree, 0);
 
+        // Criar e inicializar tabela de símbolos
+        printf("\n=== ANÁLISE SEMÂNTICA ===\n");
+        Item **symbolTable = startable();
+        
+        if (symbolTable == NULL) {
+            printf("Erro: Não foi possível criar a tabela de símbolos.\n");
+            freeTree(syntaxTree);
+            yylex_destroy();
+            fclose(fileINPUT);
+            return 1;
+        }
+
+        // Executar análise semântica
+        analyzeTree(syntaxTree, symbolTable, "global");
+
+        // Exibir tabela de símbolos
+        printable(symbolTable);
+
+        // Verificar se houve erros semânticos
+        if (semanticError > 0) {
+            printf("Total de erros semânticos: %d\n\n", semanticError);
+        } else {
+            printf("Análise semântica concluída sem erros.\n\n");
+        }
+
+        // Liberar recursos
+        destructable(symbolTable);
         freeTree(syntaxTree);
     }
 
