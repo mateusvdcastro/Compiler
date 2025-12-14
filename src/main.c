@@ -43,7 +43,6 @@ const char* getTokenName(enum yytokentype token) {
         case LET: return "LET";
         case GT: return "GT";
         case GET: return "GET";
-        case ERRO: return "ERRO";
         case IFX: return "IFX";
         case YYEOF: return "EOF";
         default: return "UNKNOWN";

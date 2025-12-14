@@ -7,14 +7,16 @@
 
 #define DEBUG_MODE 0 // Activate debug mode
 #define MAXLEXEME 21 // Maximum lexeme length
+#define MAXSTACK 4 // Maximum stack size for lexemes
 
 typedef struct {
-    char stack[4][MAXLEXEME];
+    char stack[MAXSTACK][MAXLEXEME];
     int top;
 } Stack;
 
 void push(Stack *stack, const char *lexeme);
 void pop(Stack *stack, char *dest);
+void clearStack(Stack *stack);
 
 
 

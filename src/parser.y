@@ -22,7 +22,7 @@ int syntax_errors = 0;
 /* Token declarations - you should add your actual tokens here */
 %token NUM ID ABREPARENTESES FECHAPARENTESES ABRECOLCHETES FECHACOLCHETES
 %token ABRECHAVES FECHACHAVES ATRIB COMMA SEMICOLON SOMA SUB MULT DIV
-%token EQ NEQ LT GT LET GET INT VOID WHILE ELSE IF RETURN ERRO
+%token EQ NEQ LT GT LET GET INT VOID WHILE ELSE IF RETURN
 
 %nonassoc IFX
 %nonassoc ELSE
@@ -80,7 +80,7 @@ var_declaration		: type_specifier ID SEMICOLON {
 					| type_specifier error SEMICOLON {
 						yyerrok;
 						//printf("VAR_DECLARATION ERROR RECOVERED\n");
-						if ($1 != NULL) freeTree($1);
+						//if ($1 != NULL) freeTree($1);
 						$$ = NULL;
 
 					}
@@ -110,7 +110,7 @@ var_declaration		: type_specifier ID SEMICOLON {
 					| type_specifier error FECHACOLCHETES SEMICOLON {
 						yyerrok;
 						//printf("VAR_DECLARATION ERROR RECOVERED\n");
-						if ($1 != NULL) freeTree($1);
+						//if ($1 != NULL) freeTree($1);
 						$$ = NULL;
 					}
 					;
@@ -219,6 +219,10 @@ compound_decl		: ABRECHAVES local_declarations statement_list FECHACHAVES {
 							$$ = $3;
 						}
 					}
+					| ABRECHAVES error FECHACHAVES {
+						yyerrok;
+						$$ = NULL;
+					}
 					;
 
 local_declarations	: local_declarations var_declaration {
@@ -306,6 +310,14 @@ selection_decl		: IF ABREPARENTESES expression FECHAPARENTESES statement %prec I
 
 						nodes[nodeCount++] = $$;
 					}
+					| IF ABREPARENTESES error FECHAPARENTESES statement %prec IFX {
+						yyerrok;
+						$$ = NULL;
+					}
+					| IF ABREPARENTESES error FECHAPARENTESES statement ELSE statement {
+						yyerrok;
+						$$ = NULL;
+					}
 					;
 
 iteration_decl		: WHILE ABREPARENTESES expression FECHAPARENTESES statement {
@@ -321,6 +333,14 @@ iteration_decl		: WHILE ABREPARENTESES expression FECHAPARENTESES statement {
 						addChild($$, $5);
 
 						nodes[nodeCount++] = $$;
+					}
+					| WHILE ABREPARENTESES error FECHAPARENTESES statement {
+						yyerrok;
+						$$ = NULL;
+					}
+					| WHILE error statement {
+						yyerrok;
+						$$ = NULL;
 					}
 					;
 
@@ -440,6 +460,8 @@ sum_expression		: sum_expression sum term {
 						$$ = $2;
 						$$->nodeKind = ExpK;
 						$$->lineNum = lineNum;
+						$$->expKind = OpK;
+
 						addChild($$, $1);
 						addChild($$, $3);
 					}
@@ -626,19 +648,17 @@ void yyerror (char *s){
 		case GET:
 			printf(": '%s' não era esperado (GET)", yytext);
 			break;
-		case ERRO:
-			printf(": '%s' não era esperado (ERRO)", yytext);
-			break;
 	}
 	printf("\n");
 
     syntax_errors++;
+	clearStack(&lexStack);
 	
 	//Desaloca os nos ate o momento
 	// Don't free individual nodes - they may share pointers (siblings/children)
 	// causing double-free errors. Set nodeCount to 0 to reset tracking.
-	nodeCount = 0;
-	syntaxTree = NULL;
+	//nodeCount = 0;
+	//syntaxTree = NULL;
 
 }
 

@@ -482,7 +482,14 @@ int isFull(Stack *lexStack);
 int isEmpty(Stack *lexStack);
 
 void initStack(Stack *lexStack) {
+    lexStack->top = -1; 
+}
+
+void clearStack(Stack *lexStack) {
     lexStack->top = -1;
+    for (int i = 0; i < MAXSTACK; i++) {
+        memset(lexStack->stack[i], 0, MAXLEXEME);
+    }
 }
 
 void push(Stack *lexStack, const char* lexeme) {
@@ -491,7 +498,9 @@ void push(Stack *lexStack, const char* lexeme) {
         return;
     }
     lexStack->top++;
-    strcpy(lexStack->stack[lexStack->top], lexeme);
+    memset(lexStack->stack[lexStack->top], 0, MAXLEXEME);
+    strncpy(lexStack->stack[lexStack->top], lexeme, MAXLEXEME - 1);
+    lexStack->stack[lexStack->top][MAXLEXEME - 1] = '\0';
 
     //printf("Pushed lexeme to lexeme stack: %s\n", lexeme);
 }
@@ -502,22 +511,24 @@ void pop(Stack *lexStack, char* lexeme) {
         return;
     }
     if (lexeme != NULL) {  // Add this check
-        strcpy(lexeme, lexStack->stack[lexStack->top]);
+        strncpy(lexeme, lexStack->stack[lexStack->top], MAXLEXEME - 1);
+        lexeme[MAXLEXEME - 1] = '\0';
     }
+    memset(lexStack->stack[lexStack->top], 0, MAXLEXEME);
     lexStack->top--;
     //printf("Popped lexeme from lexeme stack: %s\n", lexeme);
 }
 
 int isFull(Stack *lexStack) {
-    return lexStack->top == 3;
+    return lexStack->top >= (MAXSTACK - 1);
 }
 
 int isEmpty(Stack *lexStack) {
     return lexStack->top == -1;
 }
 
-#line 520 "build/lex.yy.c"
-#line 521 "build/lex.yy.c"
+#line 531 "build/lex.yy.c"
+#line 532 "build/lex.yy.c"
 
 #define INITIAL 0
 
@@ -734,10 +745,10 @@ YY_DECL
 		}
 
 	{
-#line 66 "src/lexer.l"
+#line 77 "src/lexer.l"
 
 
-#line 741 "build/lex.yy.c"
+#line 752 "build/lex.yy.c"
 
 	while ( /*CONSTCOND*/1 )		/* loops until end-of-file is reached */
 		{
@@ -796,12 +807,12 @@ do_action:	/* This label is used only to access EOF actions. */
 
 case 1:
 YY_RULE_SETUP
-#line 68 "src/lexer.l"
+#line 79 "src/lexer.l"
 { /* ignore whitespace */ }
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
-#line 70 "src/lexer.l"
+#line 81 "src/lexer.l"
 {
           char c, aux = 'x'; 
           do{ 
@@ -820,12 +831,12 @@ YY_RULE_SETUP
 case 3:
 /* rule 3 can match eol */
 YY_RULE_SETUP
-#line 85 "src/lexer.l"
+#line 96 "src/lexer.l"
 { lineNum++; }
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
-#line 87 "src/lexer.l"
+#line 98 "src/lexer.l"
 {
             push(&lexStack, yytext);
 
@@ -834,7 +845,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 93 "src/lexer.l"
+#line 104 "src/lexer.l"
 {
             enum yytokentype token;
 
@@ -843,7 +854,6 @@ YY_RULE_SETUP
             }
 
             if (token == ID) {
-                bzero(lexStack.stack[lexStack.top + 1], MAXLEXEME);
                 push(&lexStack, yytext);
             };
 
@@ -852,159 +862,159 @@ YY_RULE_SETUP
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 108 "src/lexer.l"
+#line 118 "src/lexer.l"
 {
     return ABREPARENTESES;
    }
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 112 "src/lexer.l"
+#line 122 "src/lexer.l"
 {
     return FECHAPARENTESES;
    } 
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
-#line 116 "src/lexer.l"
+#line 126 "src/lexer.l"
 {
     return ABRECOLCHETES;
    }	      
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
-#line 121 "src/lexer.l"
+#line 131 "src/lexer.l"
 {
     return FECHACOLCHETES;
    }	      
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
-#line 126 "src/lexer.l"
+#line 136 "src/lexer.l"
 {
     return ABRECHAVES;
    }
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
-#line 130 "src/lexer.l"
+#line 140 "src/lexer.l"
 {
     return FECHACHAVES;	
    }
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
-#line 135 "src/lexer.l"
+#line 145 "src/lexer.l"
 {
     return ATRIB;
   }	
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
-#line 139 "src/lexer.l"
+#line 149 "src/lexer.l"
 {
     return COMMA;
   }	
 	YY_BREAK
 case 14:
 YY_RULE_SETUP
-#line 143 "src/lexer.l"
+#line 153 "src/lexer.l"
 {
     return SEMICOLON;
   }
 	YY_BREAK
 case 15:
 YY_RULE_SETUP
-#line 147 "src/lexer.l"
+#line 157 "src/lexer.l"
 {
     return SOMA;
    }	
 	YY_BREAK
 case 16:
 YY_RULE_SETUP
-#line 151 "src/lexer.l"
+#line 161 "src/lexer.l"
 {
     return SUB;
    }  
 	YY_BREAK
 case 17:
 YY_RULE_SETUP
-#line 155 "src/lexer.l"
+#line 165 "src/lexer.l"
 {
     return MULT;
    }	
 	YY_BREAK
 case 18:
 YY_RULE_SETUP
-#line 159 "src/lexer.l"
+#line 169 "src/lexer.l"
 {
     return DIV;
    } 
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
-#line 163 "src/lexer.l"
+#line 173 "src/lexer.l"
 {
     return EQ;
    }
 	YY_BREAK
 case 20:
 YY_RULE_SETUP
-#line 167 "src/lexer.l"
+#line 177 "src/lexer.l"
 {
     return NEQ;
     }
 	YY_BREAK
 case 21:
 YY_RULE_SETUP
-#line 171 "src/lexer.l"
+#line 181 "src/lexer.l"
 {
     return LT;
   }
 	YY_BREAK
 case 22:
 YY_RULE_SETUP
-#line 175 "src/lexer.l"
+#line 185 "src/lexer.l"
 {
     return GT;
   }
 	YY_BREAK
 case 23:
 YY_RULE_SETUP
-#line 179 "src/lexer.l"
+#line 189 "src/lexer.l"
 {
         return LET;
       }
 	YY_BREAK
 case 24:
 YY_RULE_SETUP
-#line 183 "src/lexer.l"
+#line 193 "src/lexer.l"
 {	
         return GET;
       }
 	YY_BREAK
 case YY_STATE_EOF(INITIAL):
-#line 187 "src/lexer.l"
+#line 197 "src/lexer.l"
 {
         return 0;
     }
 	YY_BREAK
 case 25:
 YY_RULE_SETUP
-#line 191 "src/lexer.l"
+#line 201 "src/lexer.l"
 {
     printf(ANSI_COLOR_RED "\nERRO LÉXICO: " ANSI_COLOR_RESET ANSI_COLOR_WHITE "\"%s\" ", yytext);
     printf(ANSI_COLOR_RED "LINHA: " ANSI_COLOR_WHITE "%d" ANSI_COLOR_RESET "\n", lineNum);
     lexical_errors++;
-    return ERRO;
+    /* Descarta o caractere inválido e continua escaneando */
 }
 	YY_BREAK
 case 26:
 YY_RULE_SETUP
-#line 198 "src/lexer.l"
+#line 208 "src/lexer.l"
 ECHO;
 	YY_BREAK
-#line 1008 "build/lex.yy.c"
+#line 1018 "build/lex.yy.c"
 
 	case YY_END_OF_BUFFER:
 		{
@@ -2007,7 +2017,7 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 198 "src/lexer.l"
+#line 208 "src/lexer.l"
 
 
 int verifyReservedWord(enum yytokentype *token){
@@ -2051,12 +2061,7 @@ enum yytokentype getToken(void){
     yyin = fileINPUT;
 
     if (firstTime) {
-        
-        initStack(&lexStack);
-
-        for (int i = 0; i < 4; i++){
-          bzero(lexStack.stack[i], MAXLEXEME);
-        }
+                clearStack(&lexStack);
     }
 
     firstTime = 0;

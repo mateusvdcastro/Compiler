@@ -1,13 +1,7 @@
-/* syntactic errors */
-void func(void) { // Missing parameter name and closing parenthesis
-   return;
-}
+/* Declarar uma funcao como o nome de uma variavel */
 
-int main(void) {
-    int a = 5; // Missing semicolon
-    
-    if (a > 0 ){ // Invalid operation
-        a = a + 1;
-    }
-    
+int func;
+
+int func(void){
+    return;
 }

@@ -18,7 +18,14 @@ int isFull(Stack *lexStack);
 int isEmpty(Stack *lexStack);
 
 void initStack(Stack *lexStack) {
+    lexStack->top = -1; 
+}
+
+void clearStack(Stack *lexStack) {
     lexStack->top = -1;
+    for (int i = 0; i < MAXSTACK; i++) {
+        memset(lexStack->stack[i], 0, MAXLEXEME);
+    }
 }
 
 void push(Stack *lexStack, const char* lexeme) {
@@ -27,7 +34,9 @@ void push(Stack *lexStack, const char* lexeme) {
         return;
     }
     lexStack->top++;
-    strcpy(lexStack->stack[lexStack->top], lexeme);
+    memset(lexStack->stack[lexStack->top], 0, MAXLEXEME);
+    strncpy(lexStack->stack[lexStack->top], lexeme, MAXLEXEME - 1);
+    lexStack->stack[lexStack->top][MAXLEXEME - 1] = '\0';
 
     //printf("Pushed lexeme to lexeme stack: %s\n", lexeme);
 }
@@ -38,14 +47,16 @@ void pop(Stack *lexStack, char* lexeme) {
         return;
     }
     if (lexeme != NULL) {  // Add this check
-        strcpy(lexeme, lexStack->stack[lexStack->top]);
+        strncpy(lexeme, lexStack->stack[lexStack->top], MAXLEXEME - 1);
+        lexeme[MAXLEXEME - 1] = '\0';
     }
+    memset(lexStack->stack[lexStack->top], 0, MAXLEXEME);
     lexStack->top--;
     //printf("Popped lexeme from lexeme stack: %s\n", lexeme);
 }
 
 int isFull(Stack *lexStack) {
-    return lexStack->top == 3;
+    return lexStack->top >= (MAXSTACK - 1);
 }
 
 int isEmpty(Stack *lexStack) {
@@ -98,7 +109,6 @@ WHITESPACE [ \t]+
             }
 
             if (token == ID) {
-                bzero(lexStack.stack[lexStack.top + 1], MAXLEXEME);
                 push(&lexStack, yytext);
             };
 
@@ -192,7 +202,7 @@ WHITESPACE [ \t]+
     printf(ANSI_COLOR_RED "\nERRO LÉXICO: " ANSI_COLOR_RESET ANSI_COLOR_WHITE "\"%s\" ", yytext);
     printf(ANSI_COLOR_RED "LINHA: " ANSI_COLOR_WHITE "%d" ANSI_COLOR_RESET "\n", lineNum);
     lexical_errors++;
-    return ERRO;
+    /* Descarta o caractere inválido e continua escaneando */
 }
 
 %%
@@ -238,12 +248,7 @@ enum yytokentype getToken(void){
     yyin = fileINPUT;
 
     if (firstTime) {
-        
-        initStack(&lexStack);
-
-        for (int i = 0; i < 4; i++){
-          bzero(lexStack.stack[i], MAXLEXEME);
-        }
+                clearStack(&lexStack);
     }
 
     firstTime = 0;
