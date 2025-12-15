@@ -132,7 +132,7 @@ type_specifier		: INT {
 					;
 
 fun_declaration		: type_specifier fun_id ABREPARENTESES params FECHAPARENTESES compound_decl {
-						printf("FUN_DECLARATION\n");
+						//printf("FUN_DECLARATION\n");
 
 						$$ = $1;
 
@@ -321,7 +321,7 @@ selection_decl		: IF ABREPARENTESES expression FECHAPARENTESES statement %prec I
 					;
 
 iteration_decl		: WHILE ABREPARENTESES expression FECHAPARENTESES statement {
-						printf("ITERATION_DECLARATION\n");
+						//printf("ITERATION_DECLARATION\n");
 
 						$$ = newNode();
 						strcpy($$->lexeme, "WHILE");
@@ -521,7 +521,7 @@ factor				: ABREPARENTESES expression FECHAPARENTESES {
 						$$->expKind = ConstK;
 
 						pop(&lexStack, $$->lexeme);
-						printf("FACTOR NUM: %s\n", $$->lexeme);
+						//printf("FACTOR NUM: %s\n", $$->lexeme);
 
 						nodes[nodeCount++] = $$;
 					}

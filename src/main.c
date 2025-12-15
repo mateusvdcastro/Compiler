@@ -114,11 +114,9 @@ int main (int argc, char *argv[]) {
         fclose(fileINPUT);
         return 1;
     } else {
-        printf("=== ÁRVORE DE SINTAXE ===\n");
-        showTree(syntaxTree, 0);
-
+        
         // Criar e inicializar tabela de símbolos
-        printf("\n=== ANÁLISE SEMÂNTICA ===\n");
+        printf("\n============== ANÁLISE SEMÂNTICA ============== \n");
         Item **symbolTable = startable();
         
         if (symbolTable == NULL) {
@@ -128,19 +126,24 @@ int main (int argc, char *argv[]) {
             fclose(fileINPUT);
             return 1;
         }
-
+        
         // Executar análise semântica
         analyzeTree(syntaxTree, symbolTable, "global");
-
-        // Exibir tabela de símbolos
-        printable(symbolTable);
-
+        
         // Verificar se houve erros semânticos
         if (semanticError > 0) {
             printf("Total de erros semânticos: %d\n\n", semanticError);
         } else {
             printf("Análise semântica concluída sem erros.\n\n");
         }
+        
+        // Exibir tabela de símbolos
+        printf("============== ÁRVORE DE SINTAXE ============== \n");
+        showTree(syntaxTree, 0);
+
+
+        printable(symbolTable);
+
 
         // Liberar recursos
         destructable(symbolTable);

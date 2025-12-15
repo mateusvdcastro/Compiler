@@ -15,6 +15,8 @@ typedef struct item {
     char Scope[MAXLEXEME];
     StmtKind Statement;
     typeType DataType;
+    int paramCount;         /* Número de parâmetros (para funções) */
+    int *paramKinds;         /* Lista dinâmica de StmtKind para parâmetros (VarParamK ou VetParamK) */
     NodeLine *lines;
     struct item *next;
     struct item *prev;
@@ -32,6 +34,9 @@ void addline(Item *num, int line_value);
 
 //Insere itens na tabela de simbolos
 void insertable(Item *table[], StmtKind Statement, typeType DataType, char *name, char *scope, int line);
+
+//Insere item com contagem de parâmetros (para funções)
+void insertableWithParams(Item *table[], StmtKind Statement, typeType DataType, char *name, char *scope, int line, int paramCount);
 
 //Remove itens na tabela de simbolos
 void removetable(Item *table[], Item *num);

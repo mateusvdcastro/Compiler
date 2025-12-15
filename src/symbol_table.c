@@ -5,7 +5,7 @@
 
 #define MAX 211
 
-//Cria uma tabela com valores neutros
+//Cria uma tabela com valores zerados
 Item **startable() {
     Item **table = (Item **)calloc(MAX, sizeof(Item*));    
     return table;
@@ -56,6 +56,10 @@ void addline(Item *num, int line_value){
 }
 
 void insertable(Item *table[], StmtKind Statement, typeType DataType, char *name, char *scope, int line){
+    insertableWithParams(table, Statement, DataType, name, scope, line, 0);
+}
+
+void insertableWithParams(Item *table[], StmtKind Statement, typeType DataType, char *name, char *scope, int line, int paramCount){
     unsigned int idx = longhash(name);
 
     /* Se já existe um identificador com mesmo nome e mesmo escopo (ou escopo global),
@@ -83,6 +87,8 @@ void insertable(Item *table[], StmtKind Statement, typeType DataType, char *name
 
     new->Statement = Statement;
     new->DataType  = DataType;
+    new->paramCount = paramCount;
+    new->paramKinds = NULL;
     new->lines     = NULL;
 
     /* adiciona linha de ocorrência */
@@ -134,6 +140,11 @@ void removetable(Item *table[], Item *num){
         NodeLine *tmp = ln->next;
         free(ln);
         ln = tmp;
+    }
+
+    if (num->paramKinds) {
+        free(num->paramKinds);
+        num->paramKinds = NULL;
     }
 
     free(num);
@@ -197,6 +208,7 @@ void destructable(Item *table[]){
             }
 
             /* libera item (strings são arrays fixos em Item, não devem ser free()) */
+            if (item->paramKinds) free(item->paramKinds);
             free(item);
 
             item = nextItem;
