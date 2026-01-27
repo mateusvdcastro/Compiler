@@ -1,0 +1,322 @@
+/* ========================================================================
+ * ARQUIVO DE TESTE DE ERROS SINTÁTICOS
+ * Este arquivo contém todos os tipos de erros sintáticos que o parser cobre
+ * ======================================================================== */
+
+/* ------------------------------------------------------------------------
+ * SEÇÃO 1: ERROS EM DECLARAÇÃO DE VARIÁVEIS
+ * ------------------------------------------------------------------------ */
+
+/* Erro 1: Falta de identificador na declaração de variável */
+int ;
+
+/* Erro 2: Uso de palavra-chave em vez de identificador */
+int while;
+
+/* Erro 3: Falta de ponto e vírgula na declaração de variável */
+int a
+
+/* Erro 4: Declaração de array com erro no tamanho */
+int arr[void];
+
+/* Erro 5: Declaração de array sem tamanho */
+int arr[];
+
+#TODO
+/* Erro 6: Declaração de array com expressão no tamanho */
+int arr[x + 1];
+
+/* Erro 7: Declaração de array sem colchetes de fechamento */
+int arr[10;
+
+/* Erro 8: Declaração de array sem número */
+int arr[];
+
+/* ------------------------------------------------------------------------
+ * SEÇÃO 2: ERROS EM DECLARAÇÃO DE FUNÇÕES
+ * ------------------------------------------------------------------------ */
+
+/* Erro 9: Função sem nome */
+int (int x) {
+    return x;
+}
+
+/* Erro 10: Função sem parênteses de abertura */
+int foo int x) {
+    return x;
+}
+
+/* Erro 11: Função sem parênteses de fechamento */
+int foo(int x {
+    return x;
+}
+
+/* Erro 12: Função sem chaves de abertura do corpo */
+int foo(int x)
+    return x;
+}
+
+/* Erro 13: Função sem chaves de fechamento do corpo */
+int foo(int x) {
+    return x;
+
+/* Erro 14: Parâmetro sem tipo */
+int foo(x) {
+    return x;
+}
+
+/* Erro 15: Parâmetro array sem colchetes de fechamento */
+int foo(int arr[) {
+    return 0;
+}
+
+/* Erro 16: Parâmetros separados incorretamente (sem vírgula) */
+int bar(int a int b) {
+    return a + b;
+}
+
+/* ------------------------------------------------------------------------
+ * SEÇÃO 3: ERROS EM EXPRESSÕES
+ * ------------------------------------------------------------------------ */
+
+int teste_expressoes(void) {
+    int x;
+    int y;
+    int arr[10];
+    
+    /* Erro 17: Atribuição sem ponto e vírgula */
+    x = 5
+    
+    /* Erro 18: Expressão incompleta */
+    x = ;
+    
+    /* Erro 19: Operador sem operandos */
+    x = + ;
+    
+    /* Erro 20: Expressão com operadores consecutivos */
+    x = 5 + * 3;
+    
+    /* Erro 21: Parênteses não balanceados (falta fecha) */
+    x = (5 + 3;
+    
+    /* Erro 22: Parênteses não balanceados (falta abre) */
+    x = 5 + 3);
+    
+    /* Erro 23: Array sem índice */
+    arr[] = 5;
+    
+    /* Erro 24: Array sem colchete de fechamento */
+    arr[5 = 10;
+    
+    /* Erro 25: Array sem colchete de abertura */
+    arr 5] = 10;
+}
+
+/* ------------------------------------------------------------------------
+ * SEÇÃO 4: ERROS EM COMANDOS IF
+ * ------------------------------------------------------------------------ */
+
+int teste_if(void) {
+    int x;
+    
+    /* Erro 26: IF sem parênteses de abertura */
+    if x > 0)
+        x = 1;
+    
+    /* Erro 27: IF sem parênteses de fechamento */
+    if (x > 0
+        x = 1;
+    
+    /* Erro 28: IF sem condição */
+    if ()
+        x = 1;
+    
+    /* Erro 29: IF com condição mal formada */
+    if (x >)
+        x = 1;
+    
+    /* Erro 30: IF sem comando */
+    if (x > 0)
+    
+    /* Erro 31: IF-ELSE com erro na condição */
+    if (x >) 
+        x = 1;
+    else
+        x = 0;
+}
+
+/* ------------------------------------------------------------------------
+ * SEÇÃO 5: ERROS EM COMANDOS WHILE
+ * ------------------------------------------------------------------------ */
+
+int teste_while(void) {
+    int x;
+    
+    /* Erro 32: WHILE sem parênteses de abertura */
+    while x > 0)
+        x = x - 1;
+    
+    /* Erro 33: WHILE sem parênteses de fechamento */
+    while (x > 0
+        x = x - 1;
+    
+    /* Erro 34: WHILE sem condição */
+    while ()
+        x = x - 1;
+    
+    /* Erro 35: WHILE com condição mal formada */
+    while (x <)
+        x = x - 1;
+    
+    /* Erro 36: WHILE sem parênteses */
+    while x > 0
+        x = x - 1;
+}
+
+/* ------------------------------------------------------------------------
+ * SEÇÃO 6: ERROS EM RETURN
+ * ------------------------------------------------------------------------ */
+
+int teste_return(void) {
+    int x;
+    
+    /* Erro 37: RETURN sem ponto e vírgula */
+    return 5
+    
+    /* Erro 38: RETURN com expressão mal formada */
+    return +;
+    
+    /* Erro 39: RETURN com expressão incompleta */
+    return x +;
+}
+
+/* ------------------------------------------------------------------------
+ * SEÇÃO 7: ERROS EM CHAMADAS DE FUNÇÃO
+ * ------------------------------------------------------------------------ */
+
+int teste_chamadas(void) {
+    int x;
+    
+    /* Erro 40: Chamada sem parênteses de abertura */
+    x = foo);
+    
+    /* Erro 41: Chamada sem parênteses de fechamento */
+    x = foo(;
+    
+    /* Erro 42: Argumentos mal formados */
+    x = foo(1 2);
+    
+    /* Erro 43: Argumento com expressão incompleta */
+    x = foo(x +);
+    
+    /* Erro 44: Vírgula sem argumento depois */
+    x = foo(1, );
+}
+
+/* ------------------------------------------------------------------------
+ * SEÇÃO 8: ERROS EM BLOCOS COMPOSTOS
+ * ------------------------------------------------------------------------ */
+
+int teste_blocos(void) {
+    /* Erro 45: Bloco sem chave de abertura */
+    int x;
+    x = 5;
+    }
+    
+    /* Erro 46: Bloco sem chave de fechamento */
+    {
+        int y;
+        y = 10;
+    
+    /* Erro 47: Declaração local mal formada dentro de bloco */
+    {
+        int ;
+        x = 5;
+    }
+}
+
+/* ------------------------------------------------------------------------
+ * SEÇÃO 9: ERROS COMBINADOS E COMPLEXOS
+ * ------------------------------------------------------------------------ */
+
+/* Erro 48: Múltiplos erros em sequência */
+int funcao_errada {
+    int 
+    x = + ;
+    if ()
+        return
+}
+
+/* Erro 49: Declaração de variável com tipo void (inválido) */
+void x;
+
+/* Erro 50: Array com índice vazio em declaração local */
+void teste(void) {
+    int arr[];
+}
+
+/* Erro 51: Operadores relacionais sem operandos */
+int teste_relacional(void) {
+    int x;
+    x = (5 >);
+    x = (< 3);
+    x = (==);
+}
+
+/* Erro 52: Falta de tipo na declaração */
+x;
+
+/* Erro 53: Múltiplos operadores de atribuição */
+int teste_atrib(void) {
+    int x;
+    x = = 5;
+}
+
+/* Erro 54: Expressão começando com operador */
+int teste_expr(void) {
+    int x;
+    x = * 5;
+}
+
+/* Erro 55: Declaração de função sem tipo de retorno */
+funcao() {
+    return 0;
+}
+
+/* Erro 56: Falta ponto e vírgula em múltiplos lugares */
+int multi_erros(void) {
+    int x
+    int y
+    x = 5
+    y = 10
+    return x + y
+}
+
+/* ------------------------------------------------------------------------
+ * SEÇÃO 10: ERROS EM ESTRUTURAS ANINHADAS
+ * ------------------------------------------------------------------------ */
+
+int teste_aninhado(void) {
+    /* Erro 57: IF aninhado com erro */
+    if (x > 0)
+        if (y >)
+            x = 1;
+    
+    /* Erro 58: WHILE aninhado com erro */
+    while (x > 0)
+        while (y <)
+            x = x - 1;
+    
+    /* Erro 59: Bloco aninhado com erro */
+    {
+        {
+            int x
+        }
+    }
+}
+
+/* Erro 60: Final do arquivo sem fechar estruturas */
+int ultima_funcao(void) {
+    int x;
+    if (x > 0) {
+        x = 1;

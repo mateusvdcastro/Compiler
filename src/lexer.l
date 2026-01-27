@@ -1,0 +1,263 @@
+%{
+#include <string.h>
+#include "../build/parser.tab.h"
+#include "globals.h"
+
+int lineNum = 1;
+int yylex(void);
+
+char id[MAXLEXEME];
+
+int verifyReservedWord(enum yytokentype *token);
+
+int firstTime = 1;
+
+int lexical_errors = 0;
+
+int isFull(Stack *lexStack);
+int isEmpty(Stack *lexStack);
+
+void initStack(Stack *lexStack) {
+    lexStack->top = -1; 
+}
+
+void clearStack(Stack *lexStack) {
+    lexStack->top = -1;
+    for (int i = 0; i < MAXSTACK; i++) {
+        memset(lexStack->stack[i], 0, MAXLEXEME);
+    }
+}
+
+void push(Stack *lexStack, const char* lexeme) {
+    if (isFull(lexStack)) {
+        printf("Stack Lexeme Overflow\n");
+        return;
+    }
+    lexStack->top++;
+    memset(lexStack->stack[lexStack->top], 0, MAXLEXEME);
+    strncpy(lexStack->stack[lexStack->top], lexeme, MAXLEXEME - 1);
+    lexStack->stack[lexStack->top][MAXLEXEME - 1] = '\0';
+
+    //printf("Pushed lexeme to lexeme stack: %s\n", lexeme);
+}
+
+void pop(Stack *lexStack, char* lexeme) {
+    if (isEmpty(lexStack)) {
+        printf("Stack Lexeme Underflow\n");
+        return;
+    }
+    if (lexeme != NULL) {  // Add this check
+        strncpy(lexeme, lexStack->stack[lexStack->top], MAXLEXEME - 1);
+        lexeme[MAXLEXEME - 1] = '\0';
+    }
+    memset(lexStack->stack[lexStack->top], 0, MAXLEXEME);
+    lexStack->top--;
+    //printf("Popped lexeme from lexeme stack: %s\n", lexeme);
+}
+
+int isFull(Stack *lexStack) {
+    return lexStack->top >= (MAXSTACK - 1);
+}
+
+int isEmpty(Stack *lexStack) {
+    return lexStack->top == -1;
+}
+
+%}
+
+%option noyywrap
+
+DIGIT    [0-9]
+NUMBER    {DIGIT}+
+LETTER     [a-zA-Z]
+IDENT     {LETTER}({LETTER}|{DIGIT})*
+NEWLINE   \r?\n
+WHITESPACE [ \t]+
+
+%%
+
+{WHITESPACE}    { /* ignore whitespace */ }
+
+"/*"	{
+          char c, aux = 'x'; 
+          do{ 
+            c = input();
+            if (c == EOF) break;
+
+            if (c == '\n') {
+                lineNum++;
+            }
+            if (c == '*'){
+                aux = input();
+            }
+          } while (aux != '/');
+        }
+
+{NEWLINE}    { lineNum++; }
+
+{NUMBER} {
+            push(&lexStack, yytext);
+
+            return NUM; 
+         }
+
+{IDENT} {
+            enum yytokentype token;
+
+            if(!verifyReservedWord(&token)){
+                token = ID;
+            }
+
+            if (token == ID) {
+                push(&lexStack, yytext);
+            };
+
+            return token;
+         }
+
+"(" {
+    return ABREPARENTESES;
+   }
+
+")" {
+    return FECHAPARENTESES;
+   } 
+
+"[" {
+    return ABRECOLCHETES;
+   }	      
+          
+          
+"]" {
+    return FECHACOLCHETES;
+   }	      
+
+          
+"{" {
+    return ABRECHAVES;
+   }
+          
+"}" {
+    return FECHACHAVES;	
+   }
+
+          
+"=" {
+    return ATRIB;
+  }	
+    
+"," {
+    return COMMA;
+  }	
+  
+";" {
+    return SEMICOLON;
+  }
+  
+"+" {
+    return SOMA;
+   }	
+   
+"-" {
+    return SUB;
+   }  
+   
+"*" {
+    return MULT;
+   }	
+   
+"/" {
+    return DIV;
+   } 
+
+"==" {
+    return EQ;
+   }
+
+"!=" {
+    return NEQ;
+    }
+
+"<" {
+    return LT;
+  }
+
+">" {
+    return GT;
+  }
+
+"<=" {
+        return LET;
+      }
+
+">=" {	
+        return GET;
+      }
+    
+<<EOF>> {
+        return 0;
+    }
+
+.   {
+    printf(ANSI_COLOR_RED "\nERRO LÉXICO: " ANSI_COLOR_RESET ANSI_COLOR_WHITE "\"%s\" ", yytext);
+    printf(ANSI_COLOR_RED "LINHA: " ANSI_COLOR_WHITE "%d" ANSI_COLOR_RESET "\n", lineNum);
+    lexical_errors++;
+    /* Descarta o caractere inválido e continua escaneando */
+}
+
+%%
+
+int verifyReservedWord(enum yytokentype *token){
+  char aux[20];
+  int flag = 0;
+  
+  if(strcmp(yytext, "if") == 0){
+      strcpy(aux, "if");
+      *token = IF;
+      flag =  1;
+  }
+  else if(strcmp(yytext, "int") == 0){
+      strcpy(aux, "int");
+      *token = INT;
+      flag =  1;
+  }
+  else if(strcmp(yytext, "else") == 0){
+      strcpy(aux, "else");
+      *token = ELSE;
+      flag =  1;
+  }
+  else if(strcmp(yytext, "return") == 0){
+      strcpy(aux, "return");
+      *token = RETURN;
+      flag =  1;
+  }
+  else if(strcmp(yytext, "void") == 0){
+      strcpy(aux, "void");
+      *token = VOID;
+      flag =  1;
+  }
+  else if(strcmp(yytext, "while") == 0){
+      strcpy(aux, "while");
+      *token = WHILE;
+      flag =  1;
+  }
+  return flag;
+}
+
+enum yytokentype getToken(void){
+    yyin = fileINPUT;
+
+    if (firstTime) {
+        clearStack(&lexStack);
+    }
+
+    firstTime = 0;
+
+    enum yytokentype currentToken;
+
+    currentToken = yylex();
+
+    if(currentToken == ID) strcpy(id, yytext);
+
+    return currentToken;
+}
