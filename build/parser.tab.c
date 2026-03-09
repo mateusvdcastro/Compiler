@@ -1374,7 +1374,7 @@ yyreduce:
   case 13: /* fun_declaration: type_specifier fun_id ABREPARENTESES params FECHAPARENTESES compound_decl  */
 #line 134 "src/parser.y"
                                                                                                     {
-						printf("FUN_DECLARATION\n");
+						//printf("FUN_DECLARATION\n");
 
 						yyval = yyvsp[-5];
 
@@ -1680,7 +1680,7 @@ yyreduce:
   case 39: /* iteration_decl: WHILE ABREPARENTESES expression FECHAPARENTESES statement  */
 #line 323 "src/parser.y"
                                                                                     {
-						printf("ITERATION_DECLARATION\n");
+						//printf("ITERATION_DECLARATION\n");
 
 						yyval = newNode();
 						strcpy(yyval->lexeme, "WHILE");
@@ -2014,7 +2014,7 @@ yyreduce:
 						yyval->expKind = ConstK;
 
 						pop(&lexStack, yyval->lexeme);
-						printf("FACTOR NUM: %s\n", yyval->lexeme);
+						//printf("FACTOR NUM: %s\n", $$->lexeme);
 
 						nodes[nodeCount++] = yyval;
 					}

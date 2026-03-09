@@ -18,7 +18,7 @@ clean_output:
 	rm -f $(OUTPUT_DIR)/logs/*.log
 	rm -f $(OUTPUT_DIR)/*.txt
 
-compiler: $(BUILD_DIR)/main.o $(BUILD_DIR)/parser.tab.o $(BUILD_DIR)/lex.yy.o $(BUILD_DIR)/syntax_tree.o $(BUILD_DIR)/symbol_table.o $(BUILD_DIR)/semantic.o
+compiler: $(BUILD_DIR)/main.o $(BUILD_DIR)/parser.tab.o $(BUILD_DIR)/lex.yy.o $(BUILD_DIR)/syntax_tree.o $(BUILD_DIR)/symbol_table.o $(BUILD_DIR)/semantic.o $(BUILD_DIR)/codInterm.o
 	$(CC) $(CFLAGS) -o $@ $^ -lfl
 
 $(BUILD_DIR)/main.o: $(SRC_DIR)/main.c $(BUILD_DIR)/parser.tab.h
@@ -37,6 +37,9 @@ $(BUILD_DIR)/semantic.o: $(SRC_DIR)/semantic.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
 $(BUILD_DIR)/lex.yy.o: $(BUILD_DIR)/lex.yy.c
+	$(CC) $(CFLAGS) -c $< -o $@
+
+$(BUILD_DIR)/codInterm.o: $(SRC_DIR)/codInterm.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
 $(BUILD_DIR)/lex.yy.c: $(SRC_DIR)/lexer.l $(BUILD_DIR)/parser.tab.h

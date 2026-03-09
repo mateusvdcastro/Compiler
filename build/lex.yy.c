@@ -2061,7 +2061,7 @@ enum yytokentype getToken(void){
     yyin = fileINPUT;
 
     if (firstTime) {
-                clearStack(&lexStack);
+        clearStack(&lexStack);
     }
 
     firstTime = 0;
