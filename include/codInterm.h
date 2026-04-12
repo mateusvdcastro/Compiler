@@ -1,27 +1,25 @@
-#ifndef CodInterm_H
-#define CodInterm_H 1
+#ifndef _COD_INTERM_H_
+#define _COD_INTERM_H_ 1
 
+#include <stdio.h>
 #include "tabela_simbolos.h"
 #include "globals.h"
 
 #define MAX_INSTRUCTIONS 1000
-#define $zero 31
-#define $ra 30
-#define $fp 29
-#define $sp 28
-#define $temp 27
-#define $s2 25
-#define $s1 24
-#define $s0 23
-#define $temp2 22
 
+/*
+ * booldReg field in ADDRESS:
+ * 0 = literal/symbol
+ * 1 = virtual register
+ * 2 = label
+ */
 typedef enum { Empty, IntConst, String } addressType;
 
 typedef struct address {
     addressType type;
-    int val; // For constants
-    int booldReg; // Number (0), Reg (1), Label (2)
-    char *name; // For labels
+    int val;
+    int booldReg;
+    char *name;
 } ADDRESS;
 
 typedef struct instruction {
@@ -31,9 +29,11 @@ typedef struct instruction {
     ADDRESS arg3;
 } INSTRUCTION;
 
-extern INSTRUCTION** intermediateCode;
+extern INSTRUCTION **intermediateCode;
+extern int intermediateCodeCount;
 
-
-void buildIntermediateCode(NODEPOINTER syntaxTree, Item *symbolTable[], int boolean);
+void buildIntermediateCode(NODEPOINTER syntaxTree, Item *symbolTable[], int traverseSiblings);
+void printIntermediateCode(FILE *out);
+void freeIntermediateCode(void);
 
 #endif

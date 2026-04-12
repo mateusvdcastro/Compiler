@@ -3,6 +3,7 @@
 #include "globals.h"
 #include "parser.tab.h"
 #include "semantica.h"
+#include "codInterm.h"
 
 FILE * fileINPUT = NULL;
 FILE * fileCOPY = NULL;
@@ -144,6 +145,14 @@ int main (int argc, char *argv[]) {
 
         printable(symbolTable);
 
+        printf("\n============== CODIGO INTERMEDIARIO ============== \n");
+        if (semanticError == 0) {
+            buildIntermediateCode(syntaxTree, symbolTable, 1);
+            printIntermediateCode(stdout);
+            freeIntermediateCode();
+        } else {
+            printf("Geracao de codigo intermediario ignorada devido a erros semanticos.\n\n");
+        }
 
         // Liberar recursos
         destructable(symbolTable);
