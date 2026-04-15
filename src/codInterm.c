@@ -12,39 +12,11 @@
 INSTRUCTION **intermediateCode = NULL;
 int intermediateCodeCount = 0;
 
-static int intermediateCodeCapacity = 0;
-static int tempCounter = 0;
-static int labelCounter = 0;
+int intermediateCodeCapacity = 0;
+int tempCounter = 0;
+int labelCounter = 0;
 
-static ADDRESS makeEmptyAddress(void);
-static ADDRESS makeConstAddress(int value);
-static ADDRESS makeRegisterAddress(int reg);
-static ADDRESS makeStringAddress(const char *name, int booldReg);
-static INSTRUCTION *createInstruction(const char *operatorName, ADDRESS arg1, ADDRESS arg2, ADDRESS arg3);
-static void ensureIntermediateCapacity(void);
-static void emitInstruction(const char *operatorName, ADDRESS arg1, ADDRESS arg2, ADDRESS arg3);
-static void freeAddress(ADDRESS *address);
-static const char *mapArithmeticOperator(const char *lexeme);
-static const char *mapRelationalOperator(const char *lexeme);
-static ADDRESS ensureRegister(ADDRESS valueAddress);
-static ADDRESS generateExpression(TreeNode *tree, Item *symbolTable[], const char *scope);
-static void generateNode(TreeNode *tree, Item *symbolTable[], const char *scope, int traverseSiblings);
-static void generateStatement(TreeNode *tree, Item *symbolTable[], const char *scope);
-static void generateFunction(TreeNode *tree, Item *symbolTable[]);
-static void generateDeclaration(TreeNode *tree, Item *symbolTable[], const char *scope);
-static char *duplicateString(const char *source);
-static char *qualifyWithScope(const char *scope, const char *name);
-static char *resolveSymbolName(Item *symbolTable[], const char *name, const char *scope);
-static const char *getDeclarationName(TreeNode *tree);
-static const char *getParameterName(TreeNode *tree);
-static int getArraySize(TreeNode *tree);
-static int nextLabelId(void);
-static ADDRESS makeLabelAddress(int id);
-static int isVoidFunction(Item *symbolTable[], const char *functionName);
-static void addressToString(const ADDRESS *address, char *buffer, size_t size);
-
-
-static char *duplicateString(const char *source) {
+char *duplicateString(const char *source) {
     size_t size;
     char *copy;
 
@@ -63,7 +35,7 @@ static char *duplicateString(const char *source) {
     return copy;
 }
 
-static ADDRESS makeEmptyAddress(void) {
+ADDRESS makeEmptyAddress(void) {
     ADDRESS address;
 
     address.type = Empty;
@@ -74,7 +46,7 @@ static ADDRESS makeEmptyAddress(void) {
     return address;
 }
 
-static ADDRESS makeConstAddress(int value) {
+ADDRESS makeConstAddress(int value) {
     ADDRESS address;
 
     address.type = IntConst;
@@ -85,7 +57,7 @@ static ADDRESS makeConstAddress(int value) {
     return address;
 }
 
-static ADDRESS makeRegisterAddress(int reg) {
+ADDRESS makeRegisterAddress(int reg) {
     ADDRESS address;
 
     address.type = IntConst;
@@ -96,7 +68,7 @@ static ADDRESS makeRegisterAddress(int reg) {
     return address;
 }
 
-static ADDRESS makeStringAddress(const char *name, int booldReg) {
+ADDRESS makeStringAddress(const char *name, int booldReg) {
     ADDRESS address;
 
     address.type = String;
@@ -107,7 +79,7 @@ static ADDRESS makeStringAddress(const char *name, int booldReg) {
     return address;
 }
 
-static INSTRUCTION *createInstruction(const char *operatorName, ADDRESS arg1, ADDRESS arg2, ADDRESS arg3) {
+INSTRUCTION *createInstruction(const char *operatorName, ADDRESS arg1, ADDRESS arg2, ADDRESS arg3) {
     INSTRUCTION *instruction = (INSTRUCTION *)malloc(sizeof(INSTRUCTION));
 
     if (instruction == NULL) {
@@ -122,7 +94,7 @@ static INSTRUCTION *createInstruction(const char *operatorName, ADDRESS arg1, AD
     return instruction;
 }
 
-static void ensureIntermediateCapacity(void) {
+void ensureIntermediateCapacity(void) {
     INSTRUCTION **newBuffer;
     int newCapacity;
 
@@ -152,7 +124,7 @@ static void ensureIntermediateCapacity(void) {
     intermediateCodeCapacity = newCapacity;
 }
 
-static void emitInstruction(const char *operatorName, ADDRESS arg1, ADDRESS arg2, ADDRESS arg3) {
+void emitInstruction(const char *operatorName, ADDRESS arg1, ADDRESS arg2, ADDRESS arg3) {
     INSTRUCTION *instruction;
 
     ensureIntermediateCapacity();
@@ -172,7 +144,7 @@ static void emitInstruction(const char *operatorName, ADDRESS arg1, ADDRESS arg2
     intermediateCode[intermediateCodeCount++] = instruction;
 }
 
-static void freeAddress(ADDRESS *address) {
+void freeAddress(ADDRESS *address) {
     if (address == NULL) {
         return;
     }
@@ -212,7 +184,7 @@ void freeIntermediateCode(void) {
     intermediateCodeCapacity = 0;
 }
 
-static const char *mapArithmeticOperator(const char *lexeme) {
+const char *mapArithmeticOperator(const char *lexeme) {
     if (lexeme == NULL) {
         return NULL;
     }
@@ -233,7 +205,7 @@ static const char *mapArithmeticOperator(const char *lexeme) {
     return NULL;
 }
 
-static const char *mapRelationalOperator(const char *lexeme) {
+const char *mapRelationalOperator(const char *lexeme) {
     if (lexeme == NULL) {
         return NULL;
     }
@@ -260,7 +232,7 @@ static const char *mapRelationalOperator(const char *lexeme) {
     return NULL;
 }
 
-static char *qualifyWithScope(const char *scope, const char *name) {
+char *qualifyWithScope(const char *scope, const char *name) {
     size_t scopeSize;
     size_t nameSize;
     size_t sepSize;
@@ -286,7 +258,7 @@ static char *qualifyWithScope(const char *scope, const char *name) {
     return qualified;
 }
 
-static char *resolveSymbolName(Item *symbolTable[], const char *name, const char *scope) {
+char *resolveSymbolName(Item *symbolTable[], const char *name, const char *scope) {
     Item *item;
 
     if (name == NULL) {
@@ -308,7 +280,7 @@ static char *resolveSymbolName(Item *symbolTable[], const char *name, const char
     return duplicateString(name);
 }
 
-static const char *getDeclarationName(TreeNode *tree) {
+const char *getDeclarationName(TreeNode *tree) {
     if (tree == NULL) {
         return NULL;
     }
@@ -329,7 +301,7 @@ static const char *getDeclarationName(TreeNode *tree) {
     return NULL;
 }
 
-static const char *getParameterName(TreeNode *tree) {
+const char *getParameterName(TreeNode *tree) {
     if (tree == NULL) {
         return NULL;
     }
@@ -345,7 +317,7 @@ static const char *getParameterName(TreeNode *tree) {
     return NULL;
 }
 
-static int getArraySize(TreeNode *tree) {
+int getArraySize(TreeNode *tree) {
     int size;
 
     if (tree == NULL || tree->stmtKind != VetDeclK) {
@@ -364,18 +336,18 @@ static int getArraySize(TreeNode *tree) {
     return size;
 }
 
-static int nextLabelId(void) {
+int nextLabelId(void) {
     return labelCounter++;
 }
 
-static ADDRESS makeLabelAddress(int id) {
+ADDRESS makeLabelAddress(int id) {
     char buffer[32];
 
     snprintf(buffer, sizeof(buffer), "%s%d", LABEL_PREFIX, id);
     return makeStringAddress(buffer, 2);
 }
 
-static int isVoidFunction(Item *symbolTable[], const char *functionName) {
+int isVoidFunction(Item *symbolTable[], const char *functionName) {
     Item *functionItem;
 
     if (symbolTable == NULL || functionName == NULL) {
@@ -390,7 +362,7 @@ static int isVoidFunction(Item *symbolTable[], const char *functionName) {
     return functionItem->DataType == Type_void;
 }
 
-static ADDRESS ensureRegister(ADDRESS valueAddress) {
+ADDRESS ensureRegister(ADDRESS valueAddress) {
     ADDRESS destination;
 
     if (valueAddress.booldReg == 1) {
@@ -410,7 +382,7 @@ static ADDRESS ensureRegister(ADDRESS valueAddress) {
     return destination;
 }
 
-static void generateDeclaration(TreeNode *tree, Item *symbolTable[], const char *scope) {
+void generateDeclaration(TreeNode *tree, Item *symbolTable[], const char *scope) {
     ADDRESS symbolAddress;
     char *resolvedName;
     const char *declName;
@@ -438,7 +410,7 @@ static void generateDeclaration(TreeNode *tree, Item *symbolTable[], const char 
     free(resolvedName);
 }
 
-static ADDRESS generateExpression(TreeNode *tree, Item *symbolTable[], const char *scope) {
+ADDRESS generateExpression(TreeNode *tree, Item *symbolTable[], const char *scope) {
     ADDRESS destination;
     ADDRESS leftAddress;
     ADDRESS rightAddress;
@@ -583,7 +555,7 @@ static ADDRESS generateExpression(TreeNode *tree, Item *symbolTable[], const cha
     }
 }
 
-static void generateFunction(TreeNode *tree, Item *symbolTable[]) {
+void generateFunction(TreeNode *tree, Item *symbolTable[]) {
     TreeNode *parameter;
     TreeNode *body;
     const char *functionName;
@@ -623,7 +595,7 @@ static void generateFunction(TreeNode *tree, Item *symbolTable[]) {
     emitInstruction("END", makeStringAddress(functionName, 0), makeEmptyAddress(), makeEmptyAddress());
 }
 
-static void generateStatement(TreeNode *tree, Item *symbolTable[], const char *scope) {
+void generateStatement(TreeNode *tree, Item *symbolTable[], const char *scope) {
     ADDRESS conditionAddress;
     ADDRESS returnAddress;
     int falseLabel;
@@ -690,7 +662,7 @@ static void generateStatement(TreeNode *tree, Item *symbolTable[], const char *s
     }
 }
 
-static void generateNode(TreeNode *tree, Item *symbolTable[], const char *scope, int traverseSiblings) {
+void generateNode(TreeNode *tree, Item *symbolTable[], const char *scope, int traverseSiblings) {
     if (tree == NULL) {
         return;
     }
@@ -719,7 +691,7 @@ void buildIntermediateCode(NODEPOINTER syntaxTree, Item *symbolTable[], int trav
     generateNode(syntaxTree, symbolTable, "global", traverseSiblings != 0);
 }
 
-static void addressToString(const ADDRESS *address, char *buffer, size_t size) {
+void addressToString(const ADDRESS *address, char *buffer, size_t size) {
     if (buffer == NULL || size == 0) {
         return;
     }
@@ -745,6 +717,34 @@ static void addressToString(const ADDRESS *address, char *buffer, size_t size) {
     }
 
     snprintf(buffer, size, "_");
+}
+
+void addressToQuadString(const ADDRESS *address, char *buffer, size_t size) {
+    if (buffer == NULL || size == 0) {
+        return;
+    }
+
+    if (address == NULL || address->type == Empty) {
+        snprintf(buffer, size, "-");
+        return;
+    }
+
+    if (address->booldReg == 1) {
+        snprintf(buffer, size, "$t%d", address->val);
+        return;
+    }
+
+    if (address->type == IntConst) {
+        snprintf(buffer, size, "%d", address->val);
+        return;
+    }
+
+    if (address->type == String && address->name != NULL) {
+        snprintf(buffer, size, "%s", address->name);
+        return;
+    }
+
+    snprintf(buffer, size, "-");
 }
 
 void printIntermediateCode(FILE *out) {
@@ -780,4 +780,36 @@ void printIntermediateCode(FILE *out) {
     }
 
     fprintf(out, "===================================================\n");
+}
+
+void printIntermediateQuadruples(FILE *out) {
+    int i;
+
+    if (out == NULL) {
+        out = stdout;
+    }
+
+    fprintf(out, "\n============== QUADRUPLAS ==============\n");
+
+    for (i = 0; i < intermediateCodeCount; i++) {
+        INSTRUCTION *instruction = intermediateCode[i];
+        char arg1[96];
+        char arg2[96];
+        char arg3[96];
+        const char *opName;
+
+        if (instruction == NULL) {
+            continue;
+        }
+
+        opName = (instruction->operator != NULL) ? instruction->operator : "-";
+
+        addressToQuadString(&instruction->arg1, arg1, sizeof(arg1));
+        addressToQuadString(&instruction->arg2, arg2, sizeof(arg2));
+        addressToQuadString(&instruction->arg3, arg3, sizeof(arg3));
+
+        fprintf(out, "(%s, %s, %s, %s)\n", opName, arg1, arg2, arg3);
+    }
+
+    fprintf(out, "=========================================\n");
 }

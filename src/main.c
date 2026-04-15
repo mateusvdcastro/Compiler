@@ -148,7 +148,9 @@ int main (int argc, char *argv[]) {
         printf("\n============== CODIGO INTERMEDIARIO ============== \n");
         if (semanticError == 0) {
             buildIntermediateCode(syntaxTree, symbolTable, 1);
+            emitInstruction("HALT", makeEmptyAddress(), makeEmptyAddress(), makeEmptyAddress()); // HALT at the end of the code
             printIntermediateCode(stdout);
+            printIntermediateQuadruples(stdout);
             freeIntermediateCode();
         } else {
             printf("Geracao de codigo intermediario ignorada devido a erros semanticos.\n\n");
