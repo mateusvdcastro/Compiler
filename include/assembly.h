@@ -21,7 +21,7 @@ typedef enum{
     typeI, // Instrucoes do tipo I
     typeJ, // Instrucoes do tipo J
     typeLabel // Label de funcoes ou de pulos
-} tipoInstrucao;
+} instruction_type_t;
 
 /* Struct para armazenar as informacoes
 de instrucoes do tipo R */
@@ -57,7 +57,7 @@ typedef struct label_type{
 } label_type_t;
 
 typedef struct assembly{
-    tipoInstrucao tipo; // Tipo da instrucao
+    instruction_type_t type; // Tipo da instrucao
     i_type_t * type_i; // Ponteiro para a struct do tipo I
     r_type_t * type_r; // Ponteiro para a struct do tipo R
     j_type_t * type_j; // Ponteiro para a struct do tipo J
@@ -69,7 +69,7 @@ extern int assemblyCount;
 
 void assembly();
 void initializeAssembly();
-ASSEMBLY * createAssemblyNode(tipoInstrucao tipo, char *nome);
+ASSEMBLY * createAssemblyNode(instruction_type_t type, char *nome);
 void printAssembly();
 void freeAssembly();
 
