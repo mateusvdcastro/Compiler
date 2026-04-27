@@ -151,6 +151,11 @@ int main (int argc, char *argv[]) {
             emitInstruction("HALT", makeEmptyAddress(), makeEmptyAddress(), makeEmptyAddress()); // HALT at the end of the code
             printIntermediateCode(stdout);
             printIntermediateQuadruples(stdout);
+
+            printf("\n============== CODIGO DE MONTAGEM ============== \n");
+            assembly();
+            //printAssembly();
+
             freeIntermediateCode();
         } else {
             printf("Geracao de codigo intermediario ignorada devido a erros semanticos.\n\n");

@@ -4,6 +4,9 @@
 #include "codInterm.h"
 #include "assembly.h"
 
+ASSEMBLY **assemblyInstructions = NULL;
+int assemblyCount = 0;
+
 const char * op_names[] = {
     "ADD", "SUB", "MUL", "DIV",
     "AND", "OR", "NOT",
@@ -12,11 +15,10 @@ const char * op_names[] = {
     "GOTO", "IFF", "PARAM", "CALL", "RET", "LABEL", "FUN",
 };
 
-void generateAssembly(INSTRUCTION *instruction){
-    // Gerar código de montagem com base na instrução intermediária
-    // Esta função deve ser implementada para traduzir cada tipo de instrução intermediária
-    // para a representação de código de montagem correspondente.
-};
+void generateAssembly(INSTRUCTION *instruction);
+// Gerar código de montagem com base na instrução intermediária
+// Esta função deve ser implementada para traduzir cada tipo de instrução intermediária
+// para a representação de código de montagem correspondente.
 
 
 void assembly (){
@@ -27,9 +29,8 @@ void assembly (){
     jumpInstruction->type_j->labelImediato = "main";
     assemblyInstructions[assemblyCount++] = jumpInstruction;
 
-    while (int i =0; < intermediateCodeCount){
+    for (int i = 0; i < intermediateCodeCount; i++){
         generateAssembly(intermediateCode[i]);
-        i++;
     }
 }
 
@@ -84,121 +85,117 @@ ASSEMBLY * createAssemblyNode(instruction_type_t type, char *nome){
 }
 
 int aritmeticOp(INSTRUCTION * instruction, ASSEMBLY ** newInstruction){
-    switch (instruction->operator) {
-        case "ADD":
-            *newInstruction = createAssemblyNode(typeR, "add");
-            (*newInstruction)->type_r->rd = instruction->arg1.val; // Registrador destino
-            (*newInstruction)->type_r->rs = instruction->arg2.val; // Registrador fonte 1
-            (*newInstruction)->type_r->rt = instruction->arg3.val; // Registrador fonte 2
-        case "SUB":
-            *newInstruction = createAssemblyNode(typeR, "sub");
-            (*newInstruction)->type_r->rd = instruction->arg1.val; // Registrador destino
-            (*newInstruction)->type_r->rs = instruction->arg2.val; // Registrador fonte 1
-            (*newInstruction)->type_r->rt = instruction->arg3.val; // Registrador fonte 2
-        case "MUL":
-            *newInstruction = createAssemblyNode(typeR, "mul");
-            (*newInstruction)->type_r->rd = instruction->arg1.val; // Registrador destino
-            (*newInstruction)->type_r->rs = instruction->arg2.val; // Registrador fonte 1
-            (*newInstruction)->type_r->rt = instruction->arg3.val; // Registrador fonte 2
-        case "DIV":
-            *newInstruction = createAssemblyNode(typeR, "div");
-            (*newInstruction)->type_r->rd = instruction->arg1.val; // Registrador destino
-            (*newInstruction)->type_r->rs = instruction->arg2.val; // Registrador fonte 1
-            (*newInstruction)->type_r->rt = instruction->arg3.val; // Registrador fonte 2
-        case "AND":
-            *newInstruction = createAssemblyNode(typeR, "and");
-            (*newInstruction)->type_r->rd = instruction->arg1.val; // Registrador destino
-            (*newInstruction)->type_r->rs = instruction->arg2.val; // Registrador fonte 1
-            (*newInstruction)->type_r->rt = instruction->arg3.val; // Registrador fonte 2
-
-        case "OR":
-            *newInstruction = createAssemblyNode(typeR, "or");
-            (*newInstruction)->type_r->rd = instruction->arg1.val; // Registrador destino
-            (*newInstruction)->type_r->rs = instruction->arg2.val; // Registrador fonte 1
-            (*newInstruction)->type_r->rt = instruction->arg3.val; // Registrador fonte 2
-        default:
-            return 0;
+    if (strcmp(instruction->operator, "ADD") == 0) {
+        *newInstruction = createAssemblyNode(typeR, "add");
+        (*newInstruction)->type_r->rd = instruction->arg1.val; // Registrador destino
+        (*newInstruction)->type_r->rs = instruction->arg2.val; // Registrador fonte 1
+        (*newInstruction)->type_r->rt = instruction->arg3.val; // Registrador fonte 2
+    } else if (strcmp(instruction->operator, "SUB") == 0) {
+        *newInstruction = createAssemblyNode(typeR, "sub");
+        (*newInstruction)->type_r->rd = instruction->arg1.val; // Registrador destino
+        (*newInstruction)->type_r->rs = instruction->arg2.val; // Registrador fonte 1
+        (*newInstruction)->type_r->rt = instruction->arg3.val; // Registrador fonte 2
+    } else if (strcmp(instruction->operator, "MULT") == 0) {
+        *newInstruction = createAssemblyNode(typeR, "mul");
+        (*newInstruction)->type_r->rd = instruction->arg1.val; // Registrador destino
+        (*newInstruction)->type_r->rs = instruction->arg2.val; // Registrador fonte 1
+        (*newInstruction)->type_r->rt = instruction->arg3.val; // Registrador fonte 2
+    } else if (strcmp(instruction->operator, "DIV") == 0) {
+        *newInstruction = createAssemblyNode(typeR, "div");
+        (*newInstruction)->type_r->rd = instruction->arg1.val; // Registrador destino
+        (*newInstruction)->type_r->rs = instruction->arg2.val; // Registrador fonte 1
+        (*newInstruction)->type_r->rt = instruction->arg3.val; // Registrador fonte 2
+    } else if (strcmp(instruction->operator, "AND") == 0) {
+        *newInstruction = createAssemblyNode(typeR, "and");
+        (*newInstruction)->type_r->rd = instruction->arg1.val; // Registrador destino
+        (*newInstruction)->type_r->rs = instruction->arg2.val; // Registrador fonte 1
+        (*newInstruction)->type_r->rt = instruction->arg3.val; // Registrador fonte 2
+    } else if (strcmp(instruction->operator, "OR") == 0) {
+        *newInstruction = createAssemblyNode(typeR, "or");
+        (*newInstruction)->type_r->rd = instruction->arg1.val; // Registrador destino
+        (*newInstruction)->type_r->rs = instruction->arg2.val; // Registrador fonte 1
+        (*newInstruction)->type_r->rt = instruction->arg3.val; // Registrador fonte 2
+    } else {
+        return 0;
     }
     return 1;
 }
 
 
 int relationalOp(INSTRUCTION * instruction, ASSEMBLY ** newInstruction){
-    switch (instruction->operator) {
-        case "EQ":
-            *newInstruction = createAssemblyNode(typeR, "xor");
-            (*newInstruction)->type_r->rd = instruction->arg1.val; 
-            (*newInstruction)->type_r->rs = instruction->arg2.val; 
-            (*newInstruction)->type_r->rt = instruction->arg3.val; 
+    int rd;
+    
+    if (strcmp(instruction->operator, "EQ") == 0) {
+        *newInstruction = createAssemblyNode(typeR, "xor");
+        (*newInstruction)->type_r->rd = instruction->arg1.val; 
+        (*newInstruction)->type_r->rs = instruction->arg2.val; 
+        (*newInstruction)->type_r->rt = instruction->arg3.val; 
 
-            assemblyInstructions[assemblyCount++] = *newInstruction;
+        assemblyInstructions[assemblyCount++] = *newInstruction;
 
-            (*newInstruction) = createAssemblyNode(typeI, "slti");
-            (*newInstruction)->type_I->rt = instruction->arg1.val; 
-            (*newInstruction)->type_I->rs = instruction->arg1.val; 
-            (*newInstruction)->type_I->imediato = 1; // Valor imediato
-        case "NEQ":
-            *newInstruction = createAssemblyNode(typeR, "slt");
-            (*newInstruction)->type_r->rd = instruction->arg1.val; 
-            (*newInstruction)->type_r->rs = instruction->arg2.val; 
-            (*newInstruction)->type_r->rt = instruction->arg3.val; 
+        (*newInstruction) = createAssemblyNode(typeI, "slti");
+        (*newInstruction)->type_i->rt = instruction->arg1.val; 
+        (*newInstruction)->type_i->rs = instruction->arg1.val; 
+        (*newInstruction)->type_i->imediato = 1; // Valor imediato
+    } else if (strcmp(instruction->operator, "NEQ") == 0) {
+        *newInstruction = createAssemblyNode(typeR, "slt");
+        (*newInstruction)->type_r->rd = $temp; 
+        (*newInstruction)->type_r->rs = instruction->arg2.val; 
+        (*newInstruction)->type_r->rt = instruction->arg3.val; 
 
-            assemblyInstructions[assemblyCount++] = *newInstruction;
+        assemblyInstructions[assemblyCount++] = *newInstruction;
 
-            (*newInstruction) = createAssemblyNode(typeR, "slt");
-            (*newInstruction)->type_r->rd = $temp; 
-            (*newInstruction)->type_r->rs = instruction->arg3.val; 
-            (*newInstruction)->type_r->rt = instruction->arg2.val; 
+        (*newInstruction) = createAssemblyNode(typeR, "slt");
+        (*newInstruction)->type_r->rd = instruction->arg1.val; 
+        (*newInstruction)->type_r->rs = instruction->arg3.val; 
+        (*newInstruction)->type_r->rt = instruction->arg2.val; 
 
-            assemblyInstructions[assemblyCount++] = *newInstruction;
+        assemblyInstructions[assemblyCount++] = *newInstruction;
 
-            (*newInstruction) = createAssemblyNode(typerR, "or");
-            (*newInstruction)->type_r->rd = instruction->arg1.val; 
-            (*newInstruction)->type_r->rs = $temp; 
-            (*newInstruction)->type_r->rt = instruction->arg1.val;
+        (*newInstruction) = createAssemblyNode(typeR, "or");
+        (*newInstruction)->type_r->rd = instruction->arg1.val; 
+        (*newInstruction)->type_r->rs = $temp; 
+        (*newInstruction)->type_r->rt = instruction->arg1.val;
+    } else if (strcmp(instruction->operator, "LT") == 0) {
+        *newInstruction = createAssemblyNode(typeR, "slt");
+        (*newInstruction)->type_r->rd = instruction->arg1.val; 
+        (*newInstruction)->type_r->rs = instruction->arg2.val; 
+        (*newInstruction)->type_r->rt = instruction->arg3.val; 
+    } else if (strcmp(instruction->operator, "GT") == 0) {
+        *newInstruction = createAssemblyNode(typeR, "slt");
+        (*newInstruction)->type_r->rd = instruction->arg1.val; 
+        (*newInstruction)->type_r->rs = instruction->arg2.val; 
+        (*newInstruction)->type_r->rt = instruction->arg3.val; 
+    } else if (strcmp(instruction->operator, "GET") == 0) {
+        *newInstruction = createAssemblyNode(typeR, "slt");
+        (*newInstruction)->type_r->rd = instruction->arg1.val; 
+        (*newInstruction)->type_r->rs = instruction->arg2.val; 
+        (*newInstruction)->type_r->rt = instruction->arg3.val; 
 
-            
-        case "LT":
-            *newInstruction = createAssemblyNode(typeR, "slt");
-            (*newInstruction)->type_r->rd = instruction->arg1.val; 
-            (*newInstruction)->type_r->rs = instruction->arg2.val; 
-            (*newInstruction)->type_r->rt = instruction->arg3.val; 
-        case "GT":
-            *newInstruction = createAssemblyNode(typeR, "slt");
-            (*newInstruction)->type_r->rd = instruction->arg1.val; 
-            (*newInstruction)->type_r->rs = instruction->arg2.val; 
-            (*newInstruction)->type_r->rt = instruction->arg3.val; 
-        case "GET":
-            *newInstruction = createAssemblyNode(typeR, "slt");
-            (*newInstruction)->type_r->rd = instruction->arg1.val; 
-            (*newInstruction)->type_r->rs = instruction->arg2.val; 
-            (*newInstruction)->type_r->rt = instruction->arg3.val; 
+        assemblyInstructions[assemblyCount++] = *newInstruction;
 
-            assemblyInstructions[assemblyCount++] = *newInstruction;
+        rd = (*newInstruction)->type_r->rd;
 
-            int rd = (*newInstruction)->type_r->rd;
+        *newInstruction = createAssemblyNode(typeR, "xori");
+        (*newInstruction)->type_r->rd = rd; 
+        (*newInstruction)->type_r->rs = rd; 
+        (*newInstruction)->type_r->rt = 1; 
+    } else if (strcmp(instruction->operator, "LET") == 0) {
+        *newInstruction = createAssemblyNode(typeR, "slt");
+        (*newInstruction)->type_r->rd = instruction->arg1.val; 
+        (*newInstruction)->type_r->rs = instruction->arg2.val; 
+        (*newInstruction)->type_r->rt = instruction->arg3.val; 
 
-            *newInstruction = createAssemblyNode(typeR, "xori");
-            (*newInstruction)->type_r->rd = rd; 
-            (*newInstruction)->type_r->rs = rd; 
-            (*newInstruction)->type_r->rt = 1; 
-        
-        case "LET":
-            *newInstruction = createAssemblyNode(typeR, "slt");
-            (*newInstruction)->type_r->rd = instruction->arg1.val; 
-            (*newInstruction)->type_r->rs = instruction->arg2.val; 
-            (*newInstruction)->type_r->rt = instruction->arg3.val; 
+        assemblyInstructions[assemblyCount++] = *newInstruction;
 
-            assemblyInstructions[assemblyCount++] = *newInstruction;
+        rd = (*newInstruction)->type_r->rd;
 
-            int rd = (*newInstruction)->type_r->rd;
-
-            *newInstruction = createAssemblyNode(typeR, "xori");
-            (*newInstruction)->type_r->rd = rd; 
-            (*newInstruction)->type_r->rs = rd; 
-            (*newInstruction)->type_r->rt = 1; 
-        default:
-            return 0;
+        *newInstruction = createAssemblyNode(typeR, "xori");
+        (*newInstruction)->type_r->rd = rd; 
+        (*newInstruction)->type_r->rs = rd; 
+        (*newInstruction)->type_r->rt = 1; 
+    } else {
+        return 0;
     }
     return 1;   
 }
