@@ -150,10 +150,10 @@ int main (int argc, char *argv[]) {
             buildIntermediateCode(syntaxTree, symbolTable, 1);
             emitInstruction("HALT", makeEmptyAddress(), makeEmptyAddress(), makeEmptyAddress()); // HALT at the end of the code
             printIntermediateCode(stdout);
-            printIntermediateQuadruples(stdout);
+            //printIntermediateQuadruples(stdout);
 
-            printf("\n============== CODIGO DE MONTAGEM ============== \n");
-            assembly();
+            //printf("\n============== CODIGO DE MONTAGEM ============== \n");
+            //assembly();
             //printAssembly();
 
             freeIntermediateCode();

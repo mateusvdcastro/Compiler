@@ -570,7 +570,7 @@ void generateFunction(TreeNode *tree, Item *symbolTable[]) {
 
     emitInstruction("FUN", makeStringAddress(functionName, 0), makeEmptyAddress(), makeEmptyAddress());
 
-    parameter = tree->child[0];
+    parameter = tree->child[0]; // Lista de parametros é o primeiro filho da declaração de função
     if (parameter != NULL && !(parameter->nodeKind == StmtK && parameter->stmtKind == ParamVoid)) {
         while (parameter != NULL) {
             parameterName = getParameterName(parameter);
@@ -754,7 +754,7 @@ void printIntermediateCode(FILE *out) {
         out = stdout;
     }
 
-    fprintf(out, "\n============== CODIGO INTERMEDIARIO ==============\n");
+    //fprintf(out, "\n============== CODIGO INTERMEDIARIO ==============\n");
 
     for (i = 0; i < intermediateCodeCount; i++) {
         INSTRUCTION *instruction = intermediateCode[i];

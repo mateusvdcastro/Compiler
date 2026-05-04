@@ -5,16 +5,16 @@
 #define MAX_CHAR_NAME 5 /* Maximum characters in mnemonic */
 #define MAX_ASSEMBLY 10000 /* Maximum number of assembly instructions */
 
-#define $zero 31
-#define $ra 30
-#define $fp 29
-#define $sp 28
-#define $temp 27
-#define $pilha 26
-#define $s2 25
-#define $s1 24
-#define $s0 23
-#define $temp2 22
+#define $zero 31 // Sempre que eu precisar do valor 0, eu uso esse registrador, pois ele sempre tem o valor 0
+#define $ra 30 // retorno de funcao Jump Register
+#define $fp 29 // Frame Pointer (endereco do inicio da pilha de ativacao da funcao atual)
+#define $sp 28 // Stack Pointer (endereco do topo da pilha de ativacao da funcao atual)
+#define $temp 27 // Registrador para instruções que exigem registradores temporarios
+#define $pilha 26 // Parametros da pilha (endereço das pilhas dos parametros)
+#define $s2 25 // remover
+#define $s1 24 //remover
+#define $s0 23 // remover
+#define $temp2 22 // Remover
 
 typedef enum{
     typeR, // Instrucoes do tipo R

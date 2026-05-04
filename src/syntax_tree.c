@@ -138,18 +138,18 @@ void showTree(NODEPOINTER root, int num) {
     if (root->nodeKind == StmtK) {
         printf("(Stmt: ");
         switch (root->stmtKind) {
-            case IfK: printf("If"); break;
-            case WhileK: printf("While"); break;
-            case ReturnInK: printf("ReturnInt"); break;
-            case ReturnVoidK: printf("ReturnVoid"); break;
-            case CallK: printf("Call"); break;
-            case VarDeclK: printf("VarDecl"); break;
-            case VetDeclK: printf("ArrayDecl"); break;
-            case FunDeclK: printf("FunDecl"); break;
-            case CompK: printf("Compound"); break;
-            case VarParamK: printf("VarParam"); break;
-            case VetParamK: printf("ArrayParam"); break;
-            case ParamVoid: printf("VoidParam"); break;
+            case IfK: printf("IfK"); break;
+            case WhileK: printf("WhileK"); break;
+            case ReturnInK: printf("ReturnInK"); break;
+            case ReturnVoidK: printf("ReturnVoidK"); break;
+            case CallK: printf("CallK"); break;
+            case VarDeclK: printf("VarDeclK"); break;
+            case VetDeclK: printf("VetDeclK"); break;
+            case FunDeclK: printf("FunDeclK"); break;
+            case CompK: printf("CompK"); break;
+            case VarParamK: printf("VarParamK"); break;
+            case VetParamK: printf("VetParamK"); break;
+            case ParamVoid: printf("ParamVoid"); break;
             default: printf("Unknown"); break;
         }
         printf(")");

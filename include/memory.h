@@ -8,9 +8,9 @@ typedef enum type {
     vector,
     integerArg,
     vectorArg,
-    control,
-    return,
-    temp
+    control, // Andereço da variável que está afrente deve retornar um valor para a função que está abaixo na pilha de chamadas de função
+    return, // Valor de retorno de função
+    temp // espaço para qualquer operação que precise
 } TYPE_VAR;
 
 typedef struct variable {
