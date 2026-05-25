@@ -152,8 +152,8 @@ int main (int argc, char *argv[]) {
             printIntermediateCode(stdout);
             //printIntermediateQuadruples(stdout);
 
-            //printf("\n============== CODIGO DE MONTAGEM ============== \n");
-            //assembly();
+            printf("\n============== CODIGO DE MONTAGEM ============== \n");
+            assembly();
             //printAssembly();
 
             freeIntermediateCode();

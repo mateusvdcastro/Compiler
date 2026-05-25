@@ -35,6 +35,8 @@ void assembly (){
     for (int i = 0; i < intermediateCodeCount; i++){
         generateAssembly(intermediateCode[i]);
     }
+
+    printMemory();
 }
 
 void initializeAssembly(){
@@ -57,6 +59,7 @@ ASSEMBLY * createAssemblyNode(instruction_type_t type, char *nome){
 
     switch (type) {
         case typeR:
+            printf("Criando nó de instrução R: %s\n", nome);
             newNode->type_r = (r_type_t *)malloc(sizeof(r_type_t));
             newNode->type_r->nome = strdup(nome);
             newNode->type_r->rd = -1;
@@ -65,6 +68,7 @@ ASSEMBLY * createAssemblyNode(instruction_type_t type, char *nome){
             newNode->type_r->shamt = 0;
             break;
         case typeI:
+            printf("Criando nó de instrução I: %s\n", nome);
             newNode->type_i = (i_type_t *)malloc(sizeof(i_type_t));
             newNode->type_i->nome = strdup(nome);
             newNode->type_i->rs = -1;
@@ -73,6 +77,7 @@ ASSEMBLY * createAssemblyNode(instruction_type_t type, char *nome){
             newNode->type_i->label = -1;
             break;
         case typeJ:
+            printf("Criando nó de instrução J: %s\n", nome);
             newNode->type_j = (j_type_t *)malloc(sizeof(j_type_t));
             newNode->type_j->nome = strdup(nome);
             newNode->type_j->labelImediato = NULL;
@@ -212,5 +217,27 @@ void generateAssembly(INSTRUCTION *instruction){
         assemblyInstructions[assemblyCount++] = newInstruction;
     } else if (relationalOp(instruction, &newInstruction)){
         assemblyInstructions[assemblyCount++] = newInstruction;
-    } 
+    } else if (!strcmp(instruction->operator, "FUN")){
+        printf("Gerando código para função: %s\n", instruction->arg1.name);
+        newInstruction = createAssemblyNode(typeLabel, instruction->arg1.name);
+        newInstruction->type_label->is_dynamic = 0; // Função tem label estático
+
+        //TODO: Set label address
+
+        assemblyInstructions[assemblyCount++] = newInstruction;
+
+        insertFunction(&memoryVector, instruction->arg1.name);
+
+        if (!strcmp(instruction->arg1.name, "main")){
+            //TODO: Set main function address
+        } else {
+            newInstruction = createAssemblyNode(typeI, "sw");
+            newInstruction->type_i->rt = $ra; //
+            newInstruction->type_i->rs = $fp; //
+            //TODO: Set offset for return address in the stack frame
+            newInstruction->type_i->imediato = -4; // Endereço relativo para salvar o endereço de retorno
+            assemblyInstructions[assemblyCount++] = newInstruction;
+
+        }
+    }
 }

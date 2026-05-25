@@ -1,7 +1,0 @@
-/* Declarar uma funcao como o nome de uma variavel */
-
-int func;
-
-int func(void){
-    return;
-}
