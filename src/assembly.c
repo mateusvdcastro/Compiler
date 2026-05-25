@@ -3,7 +3,10 @@
 #include <string.h>
 #include "codInterm.h"
 #include "assembly.h"
+#include "memory.h"
 
+MEMORY memoryVector;
+FUNCTION_MEMORY *currentFunction = NULL; // Pointer to the current function's memory frame
 ASSEMBLY **assemblyInstructions = NULL;
 int assemblyCount = 0;
 
@@ -36,15 +39,16 @@ void assembly (){
 
 void initializeAssembly(){
     assemblyInstructions = (ASSEMBLY **)malloc(MAX_ASSEMBLY * sizeof(ASSEMBLY *));
-    assemblyCount = 0;
-
+    
     for (int i = 0; i < MAX_ASSEMBLY; i++) {
         assemblyInstructions[i] = NULL;
     }
+    
+    assemblyCount = 0;
 
-    // initializeLabels
-    // initialize memory management for assembly instructions
-    // currentFunctionn = memoryVector.functions
+    //TODO: Initialize labels
+    initializeMemory(&memoryVector);
+    currentFunction = memoryVector.functions; // Start with the global scope
 }
 
 ASSEMBLY * createAssemblyNode(instruction_type_t type, char *nome){

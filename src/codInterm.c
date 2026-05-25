@@ -15,6 +15,7 @@ int intermediateCodeCount = 0;
 int intermediateCodeCapacity = 0;
 int tempCounter = 0;
 int labelCounter = 0;
+static Item **currentSymbolTable = NULL;
 
 char *duplicateString(const char *source) {
     size_t size;
@@ -40,7 +41,7 @@ ADDRESS makeEmptyAddress(void) {
 
     address.type = Empty;
     address.val = 0;
-    address.booldReg = 0;
+    address.booldReg = 0; // 
     address.name = NULL;
 
     return address;
@@ -73,7 +74,7 @@ ADDRESS makeStringAddress(const char *name, int booldReg) {
 
     address.type = String;
     address.val = 0;
-    address.booldReg = booldReg;
+    address.booldReg = booldReg; // Permite marcar um endereço de string como um registrador, se necessário
     address.name = duplicateString(name);
 
     return address;
@@ -280,6 +281,10 @@ char *resolveSymbolName(Item *symbolTable[], const char *name, const char *scope
     return duplicateString(name);
 }
 
+static int lexemeStartsWithDigit(const char *lexeme) {
+    return (lexeme != NULL && lexeme[0] >= '0' && lexeme[0] <= '9');
+}
+
 const char *getDeclarationName(TreeNode *tree) {
     if (tree == NULL) {
         return NULL;
@@ -290,12 +295,19 @@ const char *getDeclarationName(TreeNode *tree) {
     }
 
     if (tree->stmtKind == VetDeclK) {
-        if (tree->child[1] != NULL) {
-            return tree->child[1]->lexeme;
+        TreeNode *a = tree->child[0];
+        TreeNode *b = tree->child[1];
+
+        if (a != NULL && b != NULL) {
+            int aIsNum = lexemeStartsWithDigit(a->lexeme);
+            int bIsNum = lexemeStartsWithDigit(b->lexeme);
+
+            if (aIsNum && !bIsNum) return b->lexeme;
+            if (!aIsNum && bIsNum) return a->lexeme;
         }
-        if (tree->child[0] != NULL) {
-            return tree->child[0]->lexeme;
-        }
+
+        if (a != NULL) return a->lexeme;
+        if (b != NULL) return b->lexeme;
     }
 
     return NULL;
@@ -318,22 +330,88 @@ const char *getParameterName(TreeNode *tree) {
 }
 
 int getArraySize(TreeNode *tree) {
+    TreeNode *sizeNode = NULL;
     int size;
 
     if (tree == NULL || tree->stmtKind != VetDeclK) {
         return 1;
     }
 
-    if (tree->child[0] == NULL) {
+    if (tree->child[0] != NULL && tree->child[1] != NULL) {
+        int c0IsNum = lexemeStartsWithDigit(tree->child[0]->lexeme);
+        int c1IsNum = lexemeStartsWithDigit(tree->child[1]->lexeme);
+
+        if (c0IsNum && !c1IsNum) sizeNode = tree->child[0];
+        else if (!c0IsNum && c1IsNum) sizeNode = tree->child[1];
+    }
+
+    if (sizeNode == NULL) {
+        sizeNode = tree->child[0];
+    }
+
+    if (sizeNode == NULL) {
         return 1;
     }
 
-    size = atoi(tree->child[0]->lexeme);
+    size = atoi(sizeNode->lexeme);
     if (size <= 0) {
         return 1;
     }
 
     return size;
+}
+
+static int isVectorStmtKind(StmtKind kind) {
+    return (kind == VetDeclK || kind == VetParamK);
+}
+
+static const char *irDataType(typeType type) {
+    return (type == Type_void) ? "VOID" : "INT";
+}
+
+static void splitQualifiedName(const char *qualified,
+                               char *scope, size_t scopeSize,
+                               char *name, size_t nameSize) {
+    const char *sep;
+    size_t scopeLen;
+
+    if (scope != NULL && scopeSize > 0) scope[0] = '\0';
+    if (name != NULL && nameSize > 0) name[0] = '\0';
+
+    if (qualified == NULL || qualified[0] == '\0') {
+        if (scope != NULL && scopeSize > 0) snprintf(scope, scopeSize, "global");
+        return;
+    }
+
+    sep = strstr(qualified, LOCAL_SCOPE_SEP);
+    if (sep == NULL) {
+        if (scope != NULL && scopeSize > 0) snprintf(scope, scopeSize, "global");
+        if (name != NULL && nameSize > 0) snprintf(name, nameSize, "%s", qualified);
+        return;
+    }
+
+    scopeLen = (size_t)(sep - qualified);
+    if (scope != NULL && scopeSize > 0) {
+        if (scopeLen >= scopeSize) scopeLen = scopeSize - 1;
+        memcpy(scope, qualified, scopeLen);
+        scope[scopeLen] = '\0';
+    }
+
+    if (name != NULL && nameSize > 0) {
+        snprintf(name, nameSize, "%s", sep + strlen(LOCAL_SCOPE_SEP));
+    }
+}
+
+static Item *resolveItemForQualifiedName(const char *qualifiedName,
+                                         char *scopeOut, size_t scopeOutSize,
+                                         char *nameOut, size_t nameOutSize) {
+    splitQualifiedName(qualifiedName, scopeOut, scopeOutSize, nameOut, nameOutSize);
+
+    if (currentSymbolTable == NULL || scopeOut == NULL || nameOut == NULL || nameOut[0] == '\0') {
+        return NULL;
+    }
+
+    return searchtableAny(currentSymbolTable, nameOut, scopeOut);
 }
 
 int nextLabelId(void) {
@@ -683,6 +761,7 @@ void buildIntermediateCode(NODEPOINTER syntaxTree, Item *symbolTable[], int trav
 
     tempCounter = 0;
     labelCounter = 0;
+    currentSymbolTable = symbolTable;
 
     if (syntaxTree == NULL) {
         return;
@@ -769,6 +848,77 @@ void printIntermediateCode(FILE *out) {
         addressToString(&instruction->arg1, arg1, sizeof(arg1));
         addressToString(&instruction->arg2, arg2, sizeof(arg2));
         addressToString(&instruction->arg3, arg3, sizeof(arg3));
+
+        if (instruction->operator != NULL && strcmp(instruction->operator, "FUN") == 0) {
+            Item *funItem = NULL;
+            const char *funType = "INT";
+            int paramCount = 0;
+
+            if (currentSymbolTable != NULL &&
+                instruction->arg1.type == String &&
+                instruction->arg1.name != NULL) {
+                funItem = searchitemFunc(currentSymbolTable, instruction->arg1.name);
+                if (funItem != NULL) {
+                    funType = irDataType(funItem->DataType);
+                    paramCount = funItem->paramCount;
+                }
+            }
+
+            fprintf(out, "%04d: %-8s %s, %s, %d\n",
+                    i, instruction->operator, funType, arg1, paramCount);
+            continue;
+        }
+
+        if (instruction->operator != NULL && strcmp(instruction->operator, "ARG") == 0) {
+            char argScope[96];
+            char argName[96];
+            Item *argItem;
+            const char *argType = "INT";
+
+            argItem = resolveItemForQualifiedName(arg1, argScope, sizeof(argScope), argName, sizeof(argName));
+            if (argItem != NULL && isVectorStmtKind(argItem->Statement)) {
+                argType = "VET";
+            }
+            if (argName[0] == '\0') {
+                snprintf(argName, sizeof(argName), "%s", arg1);
+            }
+            if (argScope[0] == '\0') {
+                snprintf(argScope, sizeof(argScope), "global");
+            }
+
+            fprintf(out, "%04d: %-8s %s, %s, %s\n",
+                    i, instruction->operator, argType, argName, argScope);
+            continue;
+        }
+
+        if (instruction->operator != NULL && strcmp(instruction->operator, "ALLOC") == 0) {
+            char allocScope[96];
+            char allocName[96];
+            Item *allocItem;
+            int isVector = 0;
+            const char *allocSize = "-";
+
+            allocItem = resolveItemForQualifiedName(arg1, allocScope, sizeof(allocScope), allocName, sizeof(allocName));
+            if (allocItem != NULL && isVectorStmtKind(allocItem->Statement)) {
+                isVector = 1;
+            }
+            if (!isVector && instruction->arg2.type == IntConst && instruction->arg2.val > 1) {
+                isVector = 1;
+            }
+            if (isVector) {
+                allocSize = arg2;
+            }
+            if (allocName[0] == '\0') {
+                snprintf(allocName, sizeof(allocName), "%s", arg1);
+            }
+            if (allocScope[0] == '\0') {
+                snprintf(allocScope, sizeof(allocScope), "global");
+            }
+
+            fprintf(out, "%04d: %-8s %s, %s, %s\n",
+                    i, instruction->operator, allocName, allocScope, allocSize);
+            continue;
+        }
 
         if (instruction->arg2.type == Empty && instruction->arg3.type == Empty) {
             fprintf(out, "%04d: %-8s %s\n", i, instruction->operator, arg1);

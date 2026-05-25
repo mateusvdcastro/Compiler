@@ -1,7 +1,7 @@
-#ifdef MEMORY_H
+#ifndef MEMORY_H
 #define MEMORY_H 1
 
-#define MAX_PARAM 1000;
+#define MAX_PARAM 1000
 
 typedef enum type {
     integer,
@@ -9,7 +9,7 @@ typedef enum type {
     integerArg,
     vectorArg,
     control, // Andereço da variável que está afrente deve retornar um valor para a função que está abaixo na pilha de chamadas de função
-    return, // Valor de retorno de função
+    ret_value, // Valor de retorno de função
     temp // espaço para qualquer operação que precise
 } TYPE_VAR;
 
@@ -36,5 +36,7 @@ typedef struct memory {
 extern MEMORY memoryVector;
 extern FUNCTION_MEMORY *currentFunction;
 extern FUNCTION_MEMORY *global;
+
+void initializeMemory(MEMORY *memory);
 
 #endif // MEMORY_H

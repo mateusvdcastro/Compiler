@@ -11,6 +11,29 @@ int semanticError = 0;
 
 FunctionContext currentFunc = {"global", Type_void, 0, 0, 0};
 
+static TreeNode *getDeclIdNode(TreeNode *tree){
+    if (!tree) return NULL;
+
+    if (tree->stmtKind == VetDeclK) {
+        TreeNode *a = tree->child[0];
+        TreeNode *b = tree->child[1];
+
+        if (a && b) {
+            int aIsNum = (a->lexeme[0] >= '0' && a->lexeme[0] <= '9');
+            int bIsNum = (b->lexeme[0] >= '0' && b->lexeme[0] <= '9');
+
+            if (aIsNum && !bIsNum) return b;
+            if (!aIsNum && bIsNum) return a;
+        }
+
+        if (a) return a;
+        if (b) return b;
+        return NULL;
+    }
+
+    return tree->child[0];
+}
+
 // Conta parâmetros de uma função a partir do nó de parâmetros
 int countFunctionParams(TreeNode *paramNode) {
     if (!paramNode || paramNode->stmtKind == ParamVoid) {
@@ -62,20 +85,23 @@ void analyzeStmt(TreeNode *tree, Item *table[], char *scope) {
 
     // Declaração de variável local ou vetor local
     else if (tree->stmtKind == VarDeclK || tree->stmtKind == VetDeclK) {
+        TreeNode *idNode = getDeclIdNode(tree);
+        if (!idNode) return;
+
         // Não é escopo "global" — é uma declaração local dentro de uma função
         if (strcmp(scope, "global") != 0) {
             if (strcmp(tree->lexeme, "INT") == 0) {
                 // Verificar duplicata NO ESCOPO LOCAL ATUAL
-                Item *existing = searchtable(table, tree->child[0]->lexeme, scope, tree->stmtKind);
+                Item *existing = searchtable(table, idNode->lexeme, scope, tree->stmtKind);
                 if (existing) {
-                    showSemanticError(ErrVarRedecl, tree->child[0]->lexeme, tree->lineNum);
+                    showSemanticError(ErrVarRedecl, idNode->lexeme, tree->lineNum);
                 } else {
                     insertable(table, tree->stmtKind, Type_int,
-                               tree->child[0]->lexeme, scope, tree->lineNum);
+                               idNode->lexeme, scope, tree->lineNum);
                 }
             } else {
                 // void não pode ser usado em declaração de variável
-                showSemanticError(ErrVoidVarDecl, tree->child[0]->lexeme, tree->lineNum);
+                showSemanticError(ErrVoidVarDecl, idNode->lexeme, tree->lineNum);
             }
         }
     }
@@ -274,20 +300,22 @@ void insertGlobalDeclarations(TreeNode *tree, Item *table[]) {
                 }
             }
         }
-    } else if (tree->nodeKind == StmtK && 
+    } else if (tree->nodeKind == StmtK &&
                (tree->stmtKind == VarDeclK || tree->stmtKind == VetDeclK)) {
+        TreeNode *idNode = getDeclIdNode(tree);
+        if (!idNode) return;
         if (strcmp(tree->lexeme, "INT") == 0) {
             // Verificar duplicata
-            Item *existing = searchtable(table, tree->child[0]->lexeme, "global", tree->stmtKind);
+            Item *existing = searchtable(table, idNode->lexeme, "global", tree->stmtKind);
             if (existing) {
-                showSemanticError(ErrVarRedecl, tree->child[0]->lexeme, tree->lineNum);
+                showSemanticError(ErrVarRedecl, idNode->lexeme, tree->lineNum);
             } else {
                 insertable(table, tree->stmtKind, Type_int,
-                           tree->child[0]->lexeme, "global", tree->lineNum);
+                           idNode->lexeme, "global", tree->lineNum);
             }
         } else {
             // void não pode ser usado em declaração de variável
-            showSemanticError(ErrVoidVarDecl, tree->child[0]->lexeme, tree->lineNum);
+            showSemanticError(ErrVoidVarDecl, idNode->lexeme, tree->lineNum);
         }
     }
 
