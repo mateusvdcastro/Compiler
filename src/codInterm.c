@@ -15,7 +15,6 @@ int intermediateCodeCount = 0;
 int intermediateCodeCapacity = 0;
 int tempCounter = 0;
 int labelCounter = 0;
-static Item **currentSymbolTable = NULL;
 
 char *duplicateString(const char *source) {
     size_t size;
@@ -41,7 +40,7 @@ ADDRESS makeEmptyAddress(void) {
 
     address.type = Empty;
     address.val = 0;
-    address.booldReg = 0; // 
+    address.booldReg = 0; //
     address.name = NULL;
 
     return address;
@@ -361,59 +360,6 @@ int getArraySize(TreeNode *tree) {
     return size;
 }
 
-static int isVectorStmtKind(StmtKind kind) {
-    return (kind == VetDeclK || kind == VetParamK);
-}
-
-static const char *irDataType(typeType type) {
-    return (type == Type_void) ? "VOID" : "INT";
-}
-
-static void splitQualifiedName(const char *qualified,
-                               char *scope, size_t scopeSize,
-                               char *name, size_t nameSize) {
-    const char *sep;
-    size_t scopeLen;
-
-    if (scope != NULL && scopeSize > 0) scope[0] = '\0';
-    if (name != NULL && nameSize > 0) name[0] = '\0';
-
-    if (qualified == NULL || qualified[0] == '\0') {
-        if (scope != NULL && scopeSize > 0) snprintf(scope, scopeSize, "global");
-        return;
-    }
-
-    sep = strstr(qualified, LOCAL_SCOPE_SEP);
-    if (sep == NULL) {
-        if (scope != NULL && scopeSize > 0) snprintf(scope, scopeSize, "global");
-        if (name != NULL && nameSize > 0) snprintf(name, nameSize, "%s", qualified);
-        return;
-    }
-
-    scopeLen = (size_t)(sep - qualified);
-    if (scope != NULL && scopeSize > 0) {
-        if (scopeLen >= scopeSize) scopeLen = scopeSize - 1;
-        memcpy(scope, qualified, scopeLen);
-        scope[scopeLen] = '\0';
-    }
-
-    if (name != NULL && nameSize > 0) {
-        snprintf(name, nameSize, "%s", sep + strlen(LOCAL_SCOPE_SEP));
-    }
-}
-
-static Item *resolveItemForQualifiedName(const char *qualifiedName,
-                                         char *scopeOut, size_t scopeOutSize,
-                                         char *nameOut, size_t nameOutSize) {
-    splitQualifiedName(qualifiedName, scopeOut, scopeOutSize, nameOut, nameOutSize);
-
-    if (currentSymbolTable == NULL || scopeOut == NULL || nameOut == NULL || nameOut[0] == '\0') {
-        return NULL;
-    }
-
-    return searchtableAny(currentSymbolTable, nameOut, scopeOut);
-}
-
 int nextLabelId(void) {
     return labelCounter++;
 }
@@ -461,10 +407,11 @@ ADDRESS ensureRegister(ADDRESS valueAddress) {
 }
 
 void generateDeclaration(TreeNode *tree, Item *symbolTable[], const char *scope) {
-    ADDRESS symbolAddress;
-    char *resolvedName;
     const char *declName;
-    int allocationSize;
+    const char *declScope;
+    ADDRESS allocationSize;
+
+    (void)symbolTable;
 
     if (tree == NULL) {
         return;
@@ -475,17 +422,15 @@ void generateDeclaration(TreeNode *tree, Item *symbolTable[], const char *scope)
         return;
     }
 
-    resolvedName = resolveSymbolName(symbolTable, declName, scope);
-    if (resolvedName == NULL) {
-        return;
-    }
+    allocationSize = (tree->stmtKind == VetDeclK)
+        ? makeConstAddress(getArraySize(tree))
+        : makeEmptyAddress();
+    declScope = (scope != NULL) ? scope : "global";
 
-    allocationSize = (tree->stmtKind == VetDeclK) ? getArraySize(tree) : 1;
-
-    symbolAddress = makeStringAddress(resolvedName, 0);
-    emitInstruction("ALLOC", symbolAddress, makeConstAddress(allocationSize), makeEmptyAddress());
-
-    free(resolvedName);
+    emitInstruction("ALLOC",
+                    makeStringAddress(declName, 0),
+                    makeStringAddress(declScope, 0),
+                    allocationSize);
 }
 
 ADDRESS generateExpression(TreeNode *tree, Item *symbolTable[], const char *scope) {
@@ -635,29 +580,45 @@ ADDRESS generateExpression(TreeNode *tree, Item *symbolTable[], const char *scop
 
 void generateFunction(TreeNode *tree, Item *symbolTable[]) {
     TreeNode *parameter;
+    TreeNode *counter;
     TreeNode *body;
     const char *functionName;
+    const char *functionType;
     const char *parameterName;
-    char *resolvedName;
+    const char *parameterType;
+    int parameterCount = 0;
 
     if (tree == NULL || tree->child[1] == NULL) {
         return;
     }
 
     functionName = tree->child[1]->lexeme;
+    functionType = (strcmp(tree->lexeme, "VOID") == 0) ? "VOID" : "INT";
+    parameter = tree->child[0];
 
-    emitInstruction("FUN", makeStringAddress(functionName, 0), makeEmptyAddress(), makeEmptyAddress());
+    if (parameter != NULL && !(parameter->nodeKind == StmtK && parameter->stmtKind == ParamVoid)) {
+        counter = parameter;
+        while (counter != NULL) {
+            parameterCount++;
+            counter = counter->sibling;
+        }
+    }
 
-    parameter = tree->child[0]; // Lista de parametros é o primeiro filho da declaração de função
+    emitInstruction("FUN",
+                    makeStringAddress(functionType, 0),
+                    makeStringAddress(functionName, 0),
+                    makeConstAddress(parameterCount));
+
+    // Lista de parametros é o primeiro filho da declaração de função
     if (parameter != NULL && !(parameter->nodeKind == StmtK && parameter->stmtKind == ParamVoid)) {
         while (parameter != NULL) {
             parameterName = getParameterName(parameter);
             if (parameterName != NULL) {
-                resolvedName = resolveSymbolName(symbolTable, parameterName, functionName);
-                if (resolvedName != NULL) {
-                    emitInstruction("ARG", makeStringAddress(resolvedName, 0), makeEmptyAddress(), makeEmptyAddress());
-                    free(resolvedName);
-                }
+                parameterType = (parameter->stmtKind == VetParamK) ? "VET" : "INT";
+                emitInstruction("ARG",
+                                makeStringAddress(parameterType, 0),
+                                makeStringAddress(parameterName, 0),
+                                makeStringAddress(functionName, 0));
             }
             parameter = parameter->sibling;
         }
@@ -761,7 +722,6 @@ void buildIntermediateCode(NODEPOINTER syntaxTree, Item *symbolTable[], int trav
 
     tempCounter = 0;
     labelCounter = 0;
-    currentSymbolTable = symbolTable;
 
     if (syntaxTree == NULL) {
         return;
@@ -849,78 +809,19 @@ void printIntermediateCode(FILE *out) {
         addressToString(&instruction->arg2, arg2, sizeof(arg2));
         addressToString(&instruction->arg3, arg3, sizeof(arg3));
 
-        if (instruction->operator != NULL && strcmp(instruction->operator, "FUN") == 0) {
-            Item *funItem = NULL;
-            const char *funType = "INT";
-            int paramCount = 0;
-
-            if (currentSymbolTable != NULL &&
-                instruction->arg1.type == String &&
-                instruction->arg1.name != NULL) {
-                funItem = searchitemFunc(currentSymbolTable, instruction->arg1.name);
-                if (funItem != NULL) {
-                    funType = irDataType(funItem->DataType);
-                    paramCount = funItem->paramCount;
-                }
-            }
-
-            fprintf(out, "%04d: %-8s %s, %s, %d\n",
-                    i, instruction->operator, funType, arg1, paramCount);
-            continue;
-        }
-
-        if (instruction->operator != NULL && strcmp(instruction->operator, "ARG") == 0) {
-            char argScope[96];
-            char argName[96];
-            Item *argItem;
-            const char *argType = "INT";
-
-            argItem = resolveItemForQualifiedName(arg1, argScope, sizeof(argScope), argName, sizeof(argName));
-            if (argItem != NULL && isVectorStmtKind(argItem->Statement)) {
-                argType = "VET";
-            }
-            if (argName[0] == '\0') {
-                snprintf(argName, sizeof(argName), "%s", arg1);
-            }
-            if (argScope[0] == '\0') {
-                snprintf(argScope, sizeof(argScope), "global");
-            }
-
-            fprintf(out, "%04d: %-8s %s, %s, %s\n",
-                    i, instruction->operator, argType, argName, argScope);
-            continue;
-        }
-
         if (instruction->operator != NULL && strcmp(instruction->operator, "ALLOC") == 0) {
-            char allocScope[96];
-            char allocName[96];
-            Item *allocItem;
-            int isVector = 0;
-            const char *allocSize = "-";
-
-            allocItem = resolveItemForQualifiedName(arg1, allocScope, sizeof(allocScope), allocName, sizeof(allocName));
-            if (allocItem != NULL && isVectorStmtKind(allocItem->Statement)) {
-                isVector = 1;
-            }
-            if (!isVector && instruction->arg2.type == IntConst && instruction->arg2.val > 1) {
-                isVector = 1;
-            }
-            if (isVector) {
-                allocSize = arg2;
-            }
-            if (allocName[0] == '\0') {
-                snprintf(allocName, sizeof(allocName), "%s", arg1);
-            }
-            if (allocScope[0] == '\0') {
-                snprintf(allocScope, sizeof(allocScope), "global");
-            }
-
             fprintf(out, "%04d: %-8s %s, %s, %s\n",
-                    i, instruction->operator, allocName, allocScope, allocSize);
+                    i,
+                    instruction->operator,
+                    arg1,
+                    arg2,
+                    instruction->arg3.type == Empty ? "-" : arg3);
             continue;
         }
 
-        if (instruction->arg2.type == Empty && instruction->arg3.type == Empty) {
+        if (instruction->arg1.type == Empty && instruction->arg2.type == Empty && instruction->arg3.type == Empty) {
+            fprintf(out, "%04d: %-8s\n", i, instruction->operator);
+        } else if (instruction->arg2.type == Empty && instruction->arg3.type == Empty) {
             fprintf(out, "%04d: %-8s %s\n", i, instruction->operator, arg1);
         } else if (instruction->arg3.type == Empty) {
             fprintf(out, "%04d: %-8s %s, %s\n", i, instruction->operator, arg1, arg2);

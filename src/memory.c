@@ -107,6 +107,24 @@ void insertVariable(FUNCTION_MEMORY *function, char *name, TYPE_VAR type) {
     function->size++; // Increment the size of the function frame
 }
 
+FUNCTION_MEMORY* findFunction(MEMORY *memory, char *name) {
+    if (memory == NULL || name == NULL) {
+        return NULL;
+    }
+
+    FUNCTION_MEMORY *current = memory->functions;
+    while (current != NULL) {
+        if (strcmp(current->name, name) == 0) {
+            return current; // Function found
+        }
+        current = current->next;
+    }
+
+    printf("Erro: Função '%s' não encontrada na memória.\n", name);
+
+    return NULL; // Function not found
+}
+
 void printMemory(){
     FUNCTION_MEMORY *currentFunc = memoryVector.functions;
 

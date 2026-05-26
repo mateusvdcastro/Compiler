@@ -40,6 +40,7 @@ extern FUNCTION_MEMORY *global;
 void initializeMemory(MEMORY *memory);
 FUNCTION_MEMORY* insertFunction(MEMORY *memory, char *name);
 void insertVariable(FUNCTION_MEMORY *function, char *name, TYPE_VAR type);
+FUNCTION_MEMORY* findFunction(MEMORY *memory, char *name);
 void printMemory();
 
 #endif // MEMORY_H
