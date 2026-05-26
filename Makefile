@@ -54,7 +54,8 @@ $(BUILD_DIR)/assembly.o: $(SRC_DIR)/assembly.c
 $(BUILD_DIR)/memory.o: $(SRC_DIR)/memory.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
-$(BUILD_DIR)/
+$(BUILD_DIR)/binary.o: $(SRC_DIR)/binary.c
+	$(CC) $(CFLAGS) -c $< -o $@
 
 valgrind: compiler
 	@if [ -z "$(file)" ]; then \

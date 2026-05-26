@@ -39,7 +39,7 @@ typedef struct i_type{
     char *nome; // Nome da instrucao
     int rs; // Registrador fonte
     int rt; // Registrador destino
-    int imediato; // Valor imediato
+    int imediate; // Valor imediato
     int label; // Label para o branch
 } i_type_t;
 
@@ -47,7 +47,7 @@ typedef struct i_type{
 de instrucoes do tipo J */
 typedef struct j_type{
     char *nome; // Nome da instrucao
-    char *labelImediato; // Nome da Label para o jump
+    char *labelImediate; // Nome da Label para o jump
 } j_type_t;
 
 typedef struct label_type{
