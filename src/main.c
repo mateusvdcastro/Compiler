@@ -4,10 +4,14 @@
 #include "parser.tab.h"
 #include "semantica.h"
 #include "codInterm.h"
+#include "assembly.h"
+#include "binary.h"
+#include "memory.h"
 
 FILE * fileINPUT = NULL;
 FILE * fileCOPY = NULL;
 FILE * fileOUTPUT = NULL;
+FILE * outputFile_Assembly = NULL;
 
 extern int yylex_destroy(void);
 
@@ -90,6 +94,9 @@ void callOnlyLexicalAnalysis(char *argv){
 
 int main (int argc, char *argv[]) {
 
+    FILE * outputFile_Binary = fopen("binaryCode.txt", "w");
+    FILE * outputDebugFile_Binary = fopen("binaryCodeDebug.txt", "w");
+
     if (argc != 2){
         printf("Uso: %s <arquivo>\n", argv[0]);
         return 1;
@@ -153,8 +160,26 @@ int main (int argc, char *argv[]) {
             //printIntermediateQuadruples(stdout);
 
             printf("\n============== CODIGO DE MONTAGEM ============== \n");
+            outputFile_Assembly = fopen("assemblyCode.txt", "w");
+            if (outputFile_Assembly == NULL) {
+                printf("Erro: Não foi possível criar o arquivo de código de montagem.\n");
+                return 1;
+            }
+
+
             assembly();
-            //printAssembly();
+            printAssembly();
+            fclose(outputFile_Assembly);
+
+            printMemory();
+
+            printf("\n============== CODIGO BINARIO ============== \n");
+            binary(outputFile_Binary);
+            fclose(outputFile_Binary);
+
+            printf("\n============== CODIGO BINARIO (DEBUG) ============== \n");
+            binary_debug(outputDebugFile_Binary);
+            fclose(outputDebugFile_Binary);
 
             freeIntermediateCode();
         } else {

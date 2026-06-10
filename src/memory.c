@@ -125,19 +125,141 @@ FUNCTION_MEMORY* findFunction(MEMORY *memory, char *name) {
     return NULL; // Function not found
 }
 
+int get_sp(FUNCTION_MEMORY *function) {
+    if (function == NULL){
+        printf(ANSI_COLOR_RED); printf("Erro: "); printf(ANSI_COLOR_RESET);
+        printf("NULL passado como argumento em get_sp\n");
+        return -1;
+    }
+
+    return function->size == 0 ? 0 : function->size - 1; // Return the index of the last variable, or 0 if no variables
+}
+
+int get_fp(FUNCTION_MEMORY *function) {
+    if (function == NULL){
+        printf(ANSI_COLOR_RED); printf("Erro: "); printf(ANSI_COLOR_RESET);
+        printf("NULL passado como argumento em get_fp\n");
+        return -1;
+    }
+
+    if (function == global) {
+        return 0; // Global frame has no caller, so $fp is 0
+    }
+
+    return function->size; // Return the size of the function frame, which is the index for the next variable
+}
+
+int get_sp_relation(FUNCTION_MEMORY *function, VARIABLE *variable) {
+    if (function == NULL || variable == NULL){
+        printf(ANSI_COLOR_RED); printf("Erro: "); printf(ANSI_COLOR_RESET);
+        printf("NULL passado como argumento em get_sp_relation\n");
+        return -1;
+    }
+
+    return get_sp(function) - variable->index; // Calculate the offset from the current stack pointer to the variable
+}
+
+int get_fp_relation(FUNCTION_MEMORY *function, VARIABLE *variable) {
+    if (function == NULL || variable == NULL){
+        printf(ANSI_COLOR_RED); printf("Erro: "); printf(ANSI_COLOR_RESET);
+        printf("NULL passado como argumento em get_fp_relation\n");
+        return -1;
+    }
+
+    if (function == global) {
+        return variable->index; // In the global frame, the variable index is the offset from $fp
+    }
+
+    return variable->index - get_fp(function); //
+}
+
+void printType(VARIABLE *variable) {
+    switch (variable->type) {
+        case integer:
+            printf("INT");
+            break;
+        case integerArg:
+            printf("INT_ARG");
+            break;
+        case vector:
+            printf("VET");
+            break;
+        case vectorArg:
+            printf("VET_ARG");
+            break;
+        case control:
+            printf("CTRL");
+            break;
+        case ret_value:
+            printf("RET");
+            break;
+        case temp:
+            printf("TEMP");
+            break;
+        default:
+            printf("UNKNOWN");
+            break;
+    }
+}
+
 void printMemory(){
     FUNCTION_MEMORY *currentFunc = memoryVector.functions;
+    VARIABLE *currentVar = NULL;
 
-    //TODO: Melhorar a formatação da impressão da memória com sp e fp
-    while (currentFunc != NULL) {
-        printf("Função: %s\n", currentFunc->name);
-        VARIABLE *currentVar = currentFunc->tableVar;
-        while (currentVar != NULL) {
-            printf("  Variável: %s, Tipo: %d, Índice: %d, Global: %d\n", 
-                currentVar->name, currentVar->type, currentVar->index, currentVar->bool_global);
-            currentVar = currentVar->next;
+    for (int i = 0; i < memoryVector.globalSize; i++, aux = aux->next) {
+        printf("===============================================\n");
+        printf("\t\t%s: %d\n", aux->name, aux->size);
+        printf("===============================================\n");
+
+        int fp = get_fp(aux);
+        int sp = get_sp(aux);
+        int flag_sp = 0;
+        aux2 = aux->tableVar;
+
+        for (int j = 0; j < aux->size; j++, aux2 = aux2->next) {
+            if (j == sp) {
+                printf("SP -> ");
+                flag_sp = 1;
+            } else if (j == fp) {
+                printf("FP -> ");
+            } 
+
+            printf("\t%d: %s [$fp + %d] [$sp - %d] : ",
+                aux2->index, aux2->name, get_fp_relation(aux, aux2), get_sp_relation(aux, aux2));
+            
+            printType(aux2);
+            aux2->is_global ? printf(" (global)\n") : printf(" local\n");
+            printf("\n");
         }
-        currentFunc = currentFunc->next;
+
+        if (!flag_sp && strcmp(aux->name, "global")) {
+            printf("$sp -> \t%d:\n", sp);
+        }
+
+        flag_sp = 0;
+    }
+    printf("\n");
+}
+
+void freeMemory(){
+    FUNCTION_MEMORY *aux = memoryVector.functions;
+    FUNCTION_MEMORY *aux2 = aux;
+    VARIABLE *auxVar = NULL;
+    VARIABLE *auxVar2 = NULL;
+
+    while (aux != NULL){
+        auxVar = aux->tableVar;
+        while (auxVar != NULL){
+            auxVar2 = auxVar;
+            auxVar = auxVar->next;
+            free(auxVar2->name);
+            free(auxVar2);
+        }
+
+        aux2 = aux;
+        aux = aux->next;
+        free(aux2->name);
+        free(aux2);
     }
 }
 

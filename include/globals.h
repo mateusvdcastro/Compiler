@@ -30,6 +30,7 @@ extern Stack lexStack; // lexeme stack
 extern FILE * fileINPUT; // input file
 extern FILE * fileCOPY; // copy of the input file
 extern FILE * fileOUTPUT; // output file
+extern FILE * outputFile_Assembly; // output file for assembly code
 
 // Bring syntax tree types after MAXLEXEME is defined
 #include "syntax_tree.h"

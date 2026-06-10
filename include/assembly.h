@@ -26,7 +26,7 @@ typedef enum{
 /* Struct para armazenar as informacoes
 de instrucoes do tipo R */
 typedef struct r_type{
-    char *nome; // Nome da instrucao
+    char *name; // Nome da instrucao
     int rd; // Registrador destino
     int rt; // Registrador fonte
     int rs; // Registrador fonte
@@ -36,7 +36,7 @@ typedef struct r_type{
 /* Struct para armazenar as informacoes
 de instrucoes do tipo I */
 typedef struct i_type{
-    char *nome; // Nome da instrucao
+    char *name; // Nome da instrucao
     int rs; // Registrador fonte
     int rt; // Registrador destino
     int imediate; // Valor imediato
@@ -46,13 +46,13 @@ typedef struct i_type{
 /* Struct para armazenar as informacoes 
 de instrucoes do tipo J */
 typedef struct j_type{
-    char *nome; // Nome da instrucao
+    char *name; // Nome da instrucao
     char *labelImediate; // Nome da Label para o jump
 } j_type_t;
 
 typedef struct label_type{
     int is_dynamic; // Booleano para verificar se eh label(1) ou funcao(0)
-    char *nome; // Nome da label
+    char *name; // Nome da label
     int endereco; // Endereco da label
 } label_type_t;
 
@@ -69,7 +69,7 @@ extern int assemblyCount;
 
 void assembly();
 void initializeAssembly();
-ASSEMBLY * createAssemblyNode(instruction_type_t type, char *nome);
+ASSEMBLY * createAssemblyNode(instruction_type_t type, char *name);
 void printAssembly();
 void freeAssembly();
 

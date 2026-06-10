@@ -1,7 +1,9 @@
 #include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
 #include "binary.h"
 #include "codInterm.h"
-#include <assembly.h>
+#include "assembly.h"
 
 
 unsigned int get_opcode(char * name, instruction_type_t type){
@@ -91,6 +93,17 @@ unsigned int get_address(char* label){
     return 0; // TODO Label Adress
 }
 
+BIN_R* binaryNop(){
+    BIN_R* bin = (BIN_R*) malloc(sizeof(BIN_R));
+    bin->opcode = 0;
+    bin->rs = $zero;
+    bin->rt = $zero;
+    bin->rd = $zero;
+    bin->shamt = 0;
+    bin->funct = 0b000001; // TODO:
+    return bin;
+}
+
 BIN_R* binaryR(ASSEMBLY* instruction){
     BIN_R* bin = (BIN_R*) malloc(sizeof(BIN_R));
     bin->opcode = get_opcode(instruction->type_r->nome, instruction->type);
@@ -116,4 +129,79 @@ BIN_J* binaryJ(ASSEMBLY* instruction){
     bin->opcode = get_opcode(instruction->type_j->nome, instruction->type);
     bin->address = get_address(instruction->type_j->labelImediate); // TODO Label Adress
     return bin;
+}
+
+void printBits(size_t const size, void const * const ptr, FILE* archive) {
+    unsigned char *b = (unsigned char*) ptr;
+    unsigned char byte;
+    for (int i=size-1; i>=0; i--) {
+        for (int j=7; j>=0; j--) {
+            byte = (b[i] >> j) & 1;
+            fprintf(archive, "%u", byte);
+        }
+    }
+}
+
+void binary(FILE* archive){
+    BIN_I* bin_i;
+    BIN_R* bin_r;
+    BIN_J* bin_j;
+
+    for (int i = 0; i < assemblyCount; i++){
+        switch (assemblyInstructions[i]->type) {
+            case typeR:
+                bin_r = binaryR(assemblyInstructions[i]);
+                printBits(sizeof(*bin_r), &(*bin_r), archive);
+                free(bin_r);
+                break;
+            case typeI:
+                bin_i = binaryI(assemblyInstructions[i]);
+                printBits(sizeof(*bin_i), &(*bin_i), archive);
+                free(bin_i);
+                break;
+            case typeJ:
+                bin_j = binaryJ(assemblyInstructions[i]);
+                printBits(sizeof(*bin_j), &(*bin_j), archive);
+                free(bin_j);
+                break;
+            case typeLabel:
+                bin_r = binaryNop();
+                printBits(sizeof(*bin_r), &(*bin_r), archive);
+                free(bin_r);
+                break;
+        }
+        fprintf(archive, "\n");
+    }
+}
+
+void binary_debug(FILE* archive){
+    BIN_I* bin_i;
+    BIN_R* bin_r;
+    BIN_J* bin_j;
+
+    for (int i = 0; i < assemblyCount; i++){
+        switch (assemblyInstructions[i]->type) {
+            case typeR:
+                bin_r = binaryR(assemblyInstructions[i]);
+                printBits(sizeof(*bin_r), &(*bin_r), archive);
+                free(bin_r);
+                break;
+            case typeI:
+                bin_i = binaryI(assemblyInstructions[i]);
+                printBits(sizeof(*bin_i), &(*bin_i), archive);
+                free(bin_i);
+                break;
+            case typeJ:
+                bin_j = binaryJ(assemblyInstructions[i]);
+                printBits(sizeof(*bin_j), &(*bin_j), archive);
+                free(bin_j);
+                break;
+            case typeLabel:
+                bin_r = binaryNop();
+                printBits(sizeof(*bin_r), &(*bin_r), archive);
+                free(bin_r);
+                break;
+        }
+        fprintf(archive, " - %s\n", assemblyInstructions[i]->type == typeLabel ? assemblyInstructions[i]->type_label->nome : assemblyInstructions[i]->type_i != NULL ? assemblyInstructions[i]->type_i->nome : assemblyInstructions[i]->type_r != NULL ? assemblyInstructions[i]->type_r->nome : assemblyInstructions[i]->type_j->nome);
+    }
 }

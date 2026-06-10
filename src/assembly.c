@@ -29,14 +29,12 @@ void assembly (){
 
     /*Criar um Jump para a main */
     ASSEMBLY *jumpInstruction = createAssemblyNode(typeJ, "j");
-    jumpInstruction->type_j->labelImediato = "main";
+    jumpInstruction->type_j->labelImediate = "main";
     assemblyInstructions[assemblyCount++] = jumpInstruction;
 
     for (int i = 0; i < intermediateCodeCount; i++){
         generateAssembly(intermediateCode[i]);
     }
-
-    printMemory();
 }
 
 void initializeAssembly(){
@@ -48,43 +46,43 @@ void initializeAssembly(){
 
     assemblyCount = 0;
 
-    //TODO: Initialize labels
+    initializeLabels();
     initializeMemory(&memoryVector);
     currentFunction = memoryVector.functions; // Start with the global scope
 }
 
-ASSEMBLY * createAssemblyNode(instruction_type_t type, char *nome){
+ASSEMBLY * createAssemblyNode(instruction_type_t type, char *name){
     ASSEMBLY * newNode = (ASSEMBLY *)malloc(sizeof(ASSEMBLY));
     newNode->type = type;
 
     switch (type) {
         case typeR:
-            printf("Criando nó de instrução R: %s\n", nome);
+            printf("Criando nó de instrução R: %s\n", name);
             newNode->type_r = (r_type_t *)malloc(sizeof(r_type_t));
-            newNode->type_r->nome = strdup(nome);
+            newNode->type_r->name = strdup(name);
             newNode->type_r->rd = -1;
             newNode->type_r->rs = -1;
             newNode->type_r->rt = -1;
             newNode->type_r->shamt = 0;
             break;
         case typeI:
-            printf("Criando nó de instrução I: %s\n", nome);
+            printf("Criando nó de instrução I: %s\n", name);
             newNode->type_i = (i_type_t *)malloc(sizeof(i_type_t));
-            newNode->type_i->nome = strdup(nome);
+            newNode->type_i->name = strdup(name);
             newNode->type_i->rs = -1;
             newNode->type_i->rt = -1;
-            newNode->type_i->imediato = -1;
+            newNode->type_i->imediate = -1;
             newNode->type_i->label = -1;
             break;
         case typeJ:
-            printf("Criando nó de instrução J: %s\n", nome);
+            printf("Criando nó de instrução J: %s\n", name);
             newNode->type_j = (j_type_t *)malloc(sizeof(j_type_t));
-            newNode->type_j->nome = strdup(nome);
-            newNode->type_j->labelImediato = NULL;
+            newNode->type_j->name = strdup(name);
+            newNode->type_j->labelImediate = NULL;
             break;
         case typeLabel:
             newNode->type_label = (label_type_t *)malloc(sizeof(label_type_t));
-            newNode->type_label->nome = strdup(nome);
+            newNode->type_label->name = strdup(name);
             newNode->type_label->is_dynamic = -1;
             newNode->type_label->endereco = -1;
             break;
@@ -145,7 +143,7 @@ int relationalOp(INSTRUCTION * instruction, ASSEMBLY ** newInstruction){
         (*newInstruction) = createAssemblyNode(typeI, "slti");
         (*newInstruction)->type_i->rt = instruction->arg1.val;
         (*newInstruction)->type_i->rs = instruction->arg1.val;
-        (*newInstruction)->type_i->imediato = 1; // Valor imediato
+        (*newInstruction)->type_i->imediate = 1; // Valor imediato
     } else if (strcmp(instruction->operator, "NEQ") == 0) {
         *newInstruction = createAssemblyNode(typeR, "slt");
         (*newInstruction)->type_r->rd = $temp;
@@ -241,7 +239,7 @@ void generateAssembly(INSTRUCTION *instruction){
             newInstruction->type_i->rt = $ra; //
             newInstruction->type_i->rs = $fp; //
             //TODO: Set offset for return address in the stack frame
-            newInstruction->type_i->imediato = -4; // Endereço relativo para salvar o endereço de retorno
+            newInstruction->type_i->imediate = -4; // Endereço relativo para salvar o endereço de retorno
             assemblyInstructions[assemblyCount++] = newInstruction;
         }
     } else if (!strcmp(instruction->operator, "ARG")){
@@ -258,7 +256,7 @@ void generateAssembly(INSTRUCTION *instruction){
             newInstruction = createAssemblyNode(typeI, "addi");
             newInstruction->type_i->rt = $sp; // Stack Pointer
             newInstruction->type_i->rs = $sp; // Stack Pointer
-            newInstruction->type_i->imediato = 1; // Alocar espaço para o argumento
+            newInstruction->type_i->imediate = 1; // Alocar espaço para o argumento
             assemblyInstructions[assemblyCount++] = newInstruction;
         }
     } else if (!strcmp(instruction->operator, "LOAD")){
@@ -266,29 +264,19 @@ void generateAssembly(INSTRUCTION *instruction){
         newInstruction = createAssemblyNode(typeI, "lw");
         newInstruction->type_i->rt = instruction->arg1.val; // Registrador destino
         newInstruction->type_i->rs = instruction->arg2.val; // Registrador base
-        newInstruction->type_i->imediato = 1;
+        newInstruction->type_i->imediate = 1;
         assemblyInstructions[assemblyCount++] = newInstruction;
-    } else if (!strcmp(instruction->operator, "LOAD")){
-
-        FUNCTION_MEMORY *currentFunc = findFunction(&memoryVector, instruction->arg2.name);
-        int count = 0;
-
-        if (instruction->arg3.type == Empty){
-            insertVariable(currentFunction, instruction->arg1.name, vector);
-            count = 1;
-        }
-
     } else if (!strcmp(instruction->operator, "RET")){
         // TODO: FIX 
         newInstruction = createAssemblyNode(typeI, "lw");
         newInstruction->type_i->rt = $ra; // Load return address into $ra
         newInstruction->type_i->rs = $fp; // Base pointer for current function frame
-        newInstruction->type_i->imediato = -4; // Offset to return address in the stack frame
+        newInstruction->type_i->imediate = -4; // Offset to return address in the stack frame
         assemblyInstructions[assemblyCount++] = newInstruction;
 
         newInstruction = createAssemblyNode(typeJ, "jr");
-        newInstruction->type_j->nome = strdup("jr");
-        newInstruction->type_j->labelImediato = NULL; // Return to the address in $ra
+        newInstruction->type_j->name = strdup("jr");
+        newInstruction->type_j->labelImediate = NULL; // Return to the address in $ra
         assemblyInstructions[assemblyCount++] = newInstruction;
     } else if (!strcmp(instruction->operator, "END")){
         if (!strcmp(instruction->arg1.name,"main")){
@@ -298,7 +286,7 @@ void generateAssembly(INSTRUCTION *instruction){
         newInstruction = createAssemblyNode(typeI, "lw");
         newInstruction->type_i->rs = $fp;
         newInstruction->type_i->rt = $ra;
-        newInstruction->type_i->imediato = -4; // Offset to return address
+        newInstruction->type_i->imediate = -4; // Offset to return address
         assemblyInstructions[assemblyCount++] = newInstruction;
 
         newInstruction = createAssemblyNode(typeR, "jr");
@@ -308,5 +296,89 @@ void generateAssembly(INSTRUCTION *instruction){
         assemblyInstructions[assemblyCount++] = newInstruction;
     } else {
         printf("Operação '%s' não implementada na geração de código de montagem.\n", instruction->operator);
+    }
+}
+
+
+void type_reg(int reg){
+    switch (reg){
+        case $zero:
+            fprintf(outputFile_Assembly, "$zero");
+            break;
+        case $ra:
+            fprintf(outputFile_Assembly, "$ra");
+            break;
+        case $fp:
+            fprintf(outputFile_Assembly, "$fp");
+            break;
+        case $sp:
+            fprintf(outputFile_Assembly, "$sp");
+            break;
+        case $temp:
+            fprintf(outputFile_Assembly, "$temp");
+            break;
+        case $pilha:
+            fprintf(outputFile_Assembly, "$pilha");
+            break;
+        default:
+            fprintf(outputFile_Assembly, "$t%d", reg);
+            break;
+    }
+}
+
+
+void printAssembly(){
+    int i = 0;
+    i_type_t * type_i = NULL;
+    r_type_t * type_r = NULL;
+    j_type_t * type_j = NULL;
+    label_type_t * type_label = NULL;
+
+    fprintf(outputFile_Assembly, "============== Assembly ============== \n");
+
+    for (int i = 0; i < assemblyCount; i++){
+        fprintf(outputFile_Assembly, "%d: ", i);
+        if (i<10)
+            fprintf(outputFile_Assembly, " ");
+        if (assemblyInstructions[i]->type == typeI){
+            type_i = assemblyInstructions[i]->type_i;
+            fprintf(outputFile_Assembly, "\t%s ", type_i->name);
+            type_reg(type_i->rt);
+            fprintf(outputFile_Assembly, " ");
+
+            if (!strcmp(type_i->name, "lw") || !strcmp(type_i->name, "sw")){
+                fprintf(outputFile_Assembly, "%d(", type_i->imediate);
+                type_reg(type_i->rs);
+                fprintf(outputFile_Assembly, ")\n");
+            } else {
+                type_reg(type_i->rs);
+                fprintf(outputFile_Assembly, " ");
+                if (type_i->imediate != -1) fprintf(outputFile_Assembly, "Label %d\n", type_i->label);
+                else fprintf(outputFile_Assembly, "%d\n", type_i->imediate);
+            }
+        }
+        else if (assemblyInstructions[i]->type == typeR){
+            type_r = assemblyInstructions[i]->type_r;
+            fprintf(outputFile_Assembly, "\t%s ", type_r->name);
+            type_reg(type_r->rd);
+            fprintf(outputFile_Assembly, " ");
+            type_reg(type_r->rs);
+            fprintf(outputFile_Assembly, " ");
+            type_reg(type_r->rt);
+            fprintf(outputFile_Assembly, "\n");
+        }
+        else if (assemblyInstructions[i]->type == typeJ){
+            type_j = assemblyInstructions[i]->type_j;
+            fprintf(outputFile_Assembly, "\t%s ", type_j->name);
+            if (type_j->labelImediate != NULL) {
+                fprintf(outputFile_Assembly, "Label %s\n", type_j->labelImediate);
+            } else {
+                fprintf(outputFile_Assembly, "\n");
+            }
+        }
+        else if (assemblyInstructions[i]->type == typeLabel){
+            type_label = assemblyInstructions[i]->type_label;
+            fprintf(outputFile_Assembly, "%s:\n", type_label->name);
+        }
     }
 }
