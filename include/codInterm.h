@@ -24,9 +24,9 @@ typedef struct address {
 
 typedef struct instruction {
     char *operator;
-    ADDRESS arg1;
-    ADDRESS arg2;
-    ADDRESS arg3;
+    ADDRESS *arg1;
+    ADDRESS *arg2;
+    ADDRESS *arg3;
 } INSTRUCTION;
 
 void buildIntermediateCode(NODEPOINTER syntaxTree, Item *symbolTable[], int traverseSiblings);

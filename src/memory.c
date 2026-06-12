@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#include "globals.h"
 #include "memory.h"
 
 FUNCTION_MEMORY *global = NULL; // Pointer to a global scope frame
@@ -41,6 +42,49 @@ void initializeMemory(MEMORY *memory) {
     memory->functions = func_global; 
 }
 
+void apagar_temp(FUNCTION_MEMORY* funcao){
+    if(!funcao){
+        printf(ANSI_COLOR_RED); printf("Erro: "); printf(ANSI_COLOR_RESET);	
+        printf("NULL passado como argumento em apagar_temp!\n");
+        return;
+    }
+
+    VARIABLE* aux = funcao->tableVar;
+    VARIABLE* aux2 = aux;
+    
+    // Caso nao tenha parametros
+    if(funcao->size == 0){
+        printf("Nao ha temporarios a serem apagados!\n");
+        return;
+    }
+
+    // Caso so tenha um parametro
+    if(funcao->size == 1){
+        if(!strcmp(aux->name, "Param")){
+            free(aux);
+            funcao->size--;
+            funcao->tableVar = NULL;
+            return;
+        }
+    }
+
+    // Caso tenha mais de um parametro
+    while(aux->next != NULL){
+        aux2 = aux;
+        aux = aux->next;
+    }
+
+    if(!strcmp(aux->name, "Param")){
+        free(aux);
+        aux2->next = NULL;
+        funcao->size--;
+        return;
+    }
+
+    printf(ANSI_COLOR_RED); printf("Erro: "); printf(ANSI_COLOR_RESET);
+    printf("Param's nao apagados!\n");
+}
+
 
 FUNCTION_MEMORY* insertFunction(MEMORY *memory, char *name) {
     if (memory == NULL || name == NULL) {
@@ -56,6 +100,7 @@ FUNCTION_MEMORY* insertFunction(MEMORY *memory, char *name) {
     newFunc->name = strdup(name);
     newFunc->tableVar = NULL;
     newFunc->next = NULL;
+    FUNCTION_MEMORY *aux = NULL;
 
     insertVariable(newFunc, "Control Link", control); // Control Link
     insertVariable(newFunc, "Return Address", ret_value); // Return Address
@@ -65,14 +110,18 @@ FUNCTION_MEMORY* insertFunction(MEMORY *memory, char *name) {
     insertVariable(newFunc, "Register $sp", integer); // Stack Pointer Register
     
 
-    // Insert the new function at the end of the linked list
-    FUNCTION_MEMORY *current = memory->functions;
-    while (current->next != NULL) {
-        current = current->next;
+    if (memory->globalSize == 0) {
+        memory->functions = newFunc;
+        memory->globalSize++;
+        return newFunc;
     }
-    current->next = newFunc;
 
-    memory->globalSize++; // Increment the count of function frames
+    aux = memory->functions;
+    while (aux->next != NULL) {
+        aux = aux->next;
+    }
+    aux->next = newFunc;
+    memory->globalSize++;
 
     return newFunc;
 }
@@ -93,18 +142,91 @@ void insertVariable(FUNCTION_MEMORY *function, char *name, TYPE_VAR type) {
     newVar->name = strdup(name);
     newVar->next = NULL;
 
-    // Insert the new variable at the end of the variable list
-    if (function->tableVar == NULL) {
+    VARIABLE *aux = NULL;
+
+    if (function->tableVar == NULL){
         function->tableVar = newVar;
-    } else {
-        VARIABLE *current = function->tableVar;
-        while (current->next != NULL) {
-            current = current->next;
-        }
-        current->next = newVar;
+        newVar->index = function->size;
+        function->size++;
+        return;
     }
 
-    function->size++; // Increment the size of the function frame
+    if (type == integerArg || type == vectorArg) {
+        aux = function->tableVar;
+
+        if (aux->type != integerArg && aux->type != vectorArg){
+            newVar->next = function->tableVar;
+            function->tableVar = newVar;
+        } else {
+            while (aux->next != NULL && (aux->next->type == integerArg || aux->next->type == vectorArg))
+            {
+                aux = aux->next;
+            }
+            
+            VARIABLE * aux2 = aux->next;
+    
+            aux->next = newVar;
+            newVar->next = aux2;
+        }
+
+        function->size++;
+    
+        aux = function->tableVar;
+        for (int i = 0; aux != NULL; i++){
+            aux->index = i;
+            aux = aux->next;
+        }
+    
+        return;
+    }
+
+    aux = function->tableVar;
+    while (aux->next != NULL){
+        aux = aux->next;
+    }
+    aux->next = newVar;
+    newVar->index = function->size;
+    function->size++;
+}
+
+VARIABLE * get_variable(FUNCTION_MEMORY * function, char * variableName){
+    if (function == NULL){
+        printf(ANSI_COLOR_RED); printf("Erro: "); printf(ANSI_COLOR_RESET);
+        printf("NULL passado como argumento em get_variavel\n");
+        return NULL;
+    }
+
+    FUNCTION_MEMORY* aux = function;
+
+    VARIABLE* aux2 = NULL;
+    while (aux!=NULL){
+        aux2 = aux->tableVar;
+        while(aux2 != NULL){
+            if (strcmp(aux2->name, variableName) == 0){
+                return aux2;
+            }
+            aux2 = aux2->next;
+        }
+        aux = aux->next;
+    }
+
+    aux = global;
+
+    while (aux != NULL){
+        aux2 = aux->tableVar;
+        while (aux2 != NULL){
+            if (strcmp(aux2->name, variableName) == 0){
+                return aux2;
+            }
+            aux2 = aux2->next;
+        }
+        aux = aux->next;
+    }
+
+    printf(ANSI_COLOR_RED); printf("Erro: "); printf(ANSI_COLOR_RESET);
+    printf("Variavel %s nao encontrada\n", variableName);
+
+    return NULL;
 }
 
 FUNCTION_MEMORY* findFunction(MEMORY *memory, char *name) {
@@ -203,8 +325,8 @@ void printType(VARIABLE *variable) {
 }
 
 void printMemory(){
-    FUNCTION_MEMORY *currentFunc = memoryVector.functions;
-    VARIABLE *currentVar = NULL;
+    FUNCTION_MEMORY *aux = memoryVector.functions;
+    VARIABLE *aux2 = NULL;
 
     for (int i = 0; i < memoryVector.globalSize; i++, aux = aux->next) {
         printf("===============================================\n");
@@ -228,7 +350,7 @@ void printMemory(){
                 aux2->index, aux2->name, get_fp_relation(aux, aux2), get_sp_relation(aux, aux2));
             
             printType(aux2);
-            aux2->is_global ? printf(" (global)\n") : printf(" local\n");
+            aux2->bool_global ? printf(" (global)\n") : printf(" local\n");
             printf("\n");
         }
 
@@ -262,7 +384,6 @@ void freeMemory(){
         free(aux2);
     }
 }
-
 
 
 

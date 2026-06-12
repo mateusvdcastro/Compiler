@@ -35,6 +35,37 @@ char *duplicateString(const char *source) {
     return copy;
 }
 
+static ADDRESS *copyAddress(const ADDRESS *source) {
+    ADDRESS *copy;
+
+    if (source == NULL) {
+        return NULL;
+    }
+
+    copy = (ADDRESS *)malloc(sizeof(ADDRESS));
+    if (copy == NULL) {
+        return NULL;
+    }
+
+    copy->type = source->type;
+    copy->val = source->val;
+    copy->booldReg = source->booldReg;
+    copy->name = source->name != NULL ? duplicateString(source->name) : NULL;
+
+    return copy;
+}
+
+static void freeAddressValue(ADDRESS *address) {
+    if (address == NULL) {
+        return;
+    }
+
+    if (address->type == String && address->name != NULL) {
+        free(address->name);
+        address->name = NULL;
+    }
+}
+
 ADDRESS makeEmptyAddress(void) {
     ADDRESS address;
 
@@ -87,9 +118,22 @@ INSTRUCTION *createInstruction(const char *operatorName, ADDRESS arg1, ADDRESS a
     }
 
     instruction->operator = duplicateString(operatorName);
-    instruction->arg1 = arg1;
-    instruction->arg2 = arg2;
-    instruction->arg3 = arg3;
+    instruction->arg1 = copyAddress(&arg1);
+    instruction->arg2 = copyAddress(&arg2);
+    instruction->arg3 = copyAddress(&arg3);
+
+    freeAddressValue(&arg1);
+    freeAddressValue(&arg2);
+    freeAddressValue(&arg3);
+
+    if (instruction->arg1 == NULL || instruction->arg2 == NULL || instruction->arg3 == NULL) {
+        freeAddress(instruction->arg1);
+        freeAddress(instruction->arg2);
+        freeAddress(instruction->arg3);
+        free(instruction->operator);
+        free(instruction);
+        return NULL;
+    }
 
     return instruction;
 }
@@ -129,10 +173,16 @@ void emitInstruction(const char *operatorName, ADDRESS arg1, ADDRESS arg2, ADDRE
 
     ensureIntermediateCapacity();
     if (intermediateCode == NULL) {
+        freeAddressValue(&arg1);
+        freeAddressValue(&arg2);
+        freeAddressValue(&arg3);
         return;
     }
 
     if (intermediateCodeCount >= intermediateCodeCapacity) {
+        freeAddressValue(&arg1);
+        freeAddressValue(&arg2);
+        freeAddressValue(&arg3);
         return;
     }
 
@@ -153,6 +203,8 @@ void freeAddress(ADDRESS *address) {
         free(address->name);
         address->name = NULL;
     }
+
+    free(address);
 }
 
 void freeIntermediateCode(void) {
@@ -172,9 +224,9 @@ void freeIntermediateCode(void) {
         }
 
         free(instruction->operator);
-        freeAddress(&instruction->arg1);
-        freeAddress(&instruction->arg2);
-        freeAddress(&instruction->arg3);
+        freeAddress(instruction->arg1);
+        freeAddress(instruction->arg2);
+        freeAddress(instruction->arg3);
         free(instruction);
     }
 
@@ -805,9 +857,9 @@ void printIntermediateCode(FILE *out) {
             continue;
         }
 
-        addressToString(&instruction->arg1, arg1, sizeof(arg1));
-        addressToString(&instruction->arg2, arg2, sizeof(arg2));
-        addressToString(&instruction->arg3, arg3, sizeof(arg3));
+        addressToString(instruction->arg1, arg1, sizeof(arg1));
+        addressToString(instruction->arg2, arg2, sizeof(arg2));
+        addressToString(instruction->arg3, arg3, sizeof(arg3));
 
         if (instruction->operator != NULL && strcmp(instruction->operator, "ALLOC") == 0) {
             fprintf(out, "%04d: %-8s %s, %s, %s\n",
@@ -815,15 +867,15 @@ void printIntermediateCode(FILE *out) {
                     instruction->operator,
                     arg1,
                     arg2,
-                    instruction->arg3.type == Empty ? "-" : arg3);
+                    instruction->arg3->type == Empty ? "-" : arg3);
             continue;
         }
 
-        if (instruction->arg1.type == Empty && instruction->arg2.type == Empty && instruction->arg3.type == Empty) {
+        if (instruction->arg1->type == Empty && instruction->arg2->type == Empty && instruction->arg3->type == Empty) {
             fprintf(out, "%04d: %-8s\n", i, instruction->operator);
-        } else if (instruction->arg2.type == Empty && instruction->arg3.type == Empty) {
+        } else if (instruction->arg2->type == Empty && instruction->arg3->type == Empty) {
             fprintf(out, "%04d: %-8s %s\n", i, instruction->operator, arg1);
-        } else if (instruction->arg3.type == Empty) {
+        } else if (instruction->arg3->type == Empty) {
             fprintf(out, "%04d: %-8s %s, %s\n", i, instruction->operator, arg1, arg2);
         } else {
             fprintf(out, "%04d: %-8s %s, %s, %s\n", i, instruction->operator, arg1, arg2, arg3);
@@ -855,9 +907,9 @@ void printIntermediateQuadruples(FILE *out) {
 
         opName = (instruction->operator != NULL) ? instruction->operator : "-";
 
-        addressToQuadString(&instruction->arg1, arg1, sizeof(arg1));
-        addressToQuadString(&instruction->arg2, arg2, sizeof(arg2));
-        addressToQuadString(&instruction->arg3, arg3, sizeof(arg3));
+        addressToQuadString(instruction->arg1, arg1, sizeof(arg1));
+        addressToQuadString(instruction->arg2, arg2, sizeof(arg2));
+        addressToQuadString(instruction->arg3, arg3, sizeof(arg3));
 
         fprintf(out, "(%s, %s, %s, %s)\n", opName, arg1, arg2, arg3);
     }

@@ -11,10 +11,6 @@
 #define $sp 28 // Stack Pointer (endereco do topo da pilha de ativacao da funcao atual)
 #define $temp 27 // Registrador para instruções que exigem registradores temporarios
 #define $pilha 26 // Parametros da pilha (endereço das pilhas dos parametros)
-#define $s2 25 // remover
-#define $s1 24 //remover
-#define $s0 23 // remover
-#define $temp2 22 // Remover
 
 typedef enum{
     typeR, // Instrucoes do tipo R
@@ -39,7 +35,7 @@ typedef struct i_type{
     char *name; // Nome da instrucao
     int rs; // Registrador fonte
     int rt; // Registrador destino
-    int imediate; // Valor imediato
+    int immediate; // Valor imediato
     int label; // Label para o branch
 } i_type_t;
 
@@ -47,7 +43,7 @@ typedef struct i_type{
 de instrucoes do tipo J */
 typedef struct j_type{
     char *name; // Nome da instrucao
-    char *labelImediate; // Nome da Label para o jump
+    char *labelImmediate; // Nome da Label para o jump
 } j_type_t;
 
 typedef struct label_type{

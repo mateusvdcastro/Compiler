@@ -1,14 +1,22 @@
 ============== Assembly ============== 
 0:  	j Label main
 1:  add:
-2:  	sw $ra -4($fp)
-3:  	lw $t0 1($t0)
-4:  	lw $t1 1($t0)
+2:  	sw $ra -5($fp)
+3:  	lw $t0 -1($fp)
+4:  	lw $t1 -1($fp)
 5:  	add $t2 $t0 $t1
-6:  	lw $ra -4($fp)
-7:  	jr 
-8:  	lw $ra -4($fp)
+6:  	lw $temp -6($fp)
+7:  	sw $temp 2($t2)
+8:  	lw $ra -5($fp)
 9:  	jr $zero $ra $zero
 10: main:
-11: 	lw $ra -4($fp)
-12: 	jr 
+11: 	ori $fp $zero 6
+12: 	add $fp $fp $zero
+13: 	ori $sp $zero 5
+14: 	add $sp $sp $zero
+15: 	addi $pilha $zero 4000
+16: 	addi $sp $sp 1
+17: 	ori $t3 $zero 3
+18: 	sw $t3 0($pilha)
+19: 	ori $t4 $zero 4
+20: 	sw $t4 1($pilha)

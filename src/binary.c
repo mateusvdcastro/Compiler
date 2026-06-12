@@ -4,6 +4,8 @@
 #include "binary.h"
 #include "codInterm.h"
 #include "assembly.h"
+#include "memory.h"
+#include "label.h"
 
 
 unsigned int get_opcode(char * name, instruction_type_t type){
@@ -90,7 +92,7 @@ unsigned int get_immediate(int immediate){
 }
 
 unsigned int get_address(char* label){
-    return 0; // TODO Label Adress
+    return getLabelAddress(label);
 }
 
 BIN_R* binaryNop(){
@@ -106,28 +108,28 @@ BIN_R* binaryNop(){
 
 BIN_R* binaryR(ASSEMBLY* instruction){
     BIN_R* bin = (BIN_R*) malloc(sizeof(BIN_R));
-    bin->opcode = get_opcode(instruction->type_r->nome, instruction->type);
+    bin->opcode = get_opcode(instruction->type_r->name, instruction->type);
     bin->rs = get_register(instruction->type_r->rs);
     bin->rt = get_register(instruction->type_r->rt);
     bin->rd = get_register(instruction->type_r->rd);
     bin->shamt = get_shamt(instruction->type_r->shamt);
-    bin->funct = get_funct(instruction->type_r->nome);
+    bin->funct = get_funct(instruction->type_r->name);
     return bin;
 }
 
 BIN_I* binaryI(ASSEMBLY* instruction){
     BIN_I* bin = (BIN_I*) malloc(sizeof(BIN_I));
-    bin->opcode = get_opcode(instruction->type_i->nome, instruction->type);
+    bin->opcode = get_opcode(instruction->type_i->name, instruction->type);
     bin->rs = get_register(instruction->type_i->rs);
     bin->rt = get_register(instruction->type_i->rt);
-    bin->immediate = get_immediate(instruction->type_i->imediate); // TODO BEQ e BNE
+    bin->immediate = get_immediate(instruction->type_i->immediate); // TODO BEQ e BNE
     return bin;
 }
 
 BIN_J* binaryJ(ASSEMBLY* instruction){
     BIN_J* bin = (BIN_J*) malloc(sizeof(BIN_J));
-    bin->opcode = get_opcode(instruction->type_j->nome, instruction->type);
-    bin->address = get_address(instruction->type_j->labelImediate); // TODO Label Adress
+    bin->opcode = get_opcode(instruction->type_j->name, instruction->type);
+    bin->address = get_address(instruction->type_j->labelImmediate); // TODO Label Adress
     return bin;
 }
 
@@ -178,6 +180,7 @@ void binary_debug(FILE* archive){
     BIN_I* bin_i;
     BIN_R* bin_r;
     BIN_J* bin_j;
+    const char *name;
 
     for (int i = 0; i < assemblyCount; i++){
         switch (assemblyInstructions[i]->type) {
@@ -202,6 +205,10 @@ void binary_debug(FILE* archive){
                 free(bin_r);
                 break;
         }
-        fprintf(archive, " - %s\n", assemblyInstructions[i]->type == typeLabel ? assemblyInstructions[i]->type_label->nome : assemblyInstructions[i]->type_i != NULL ? assemblyInstructions[i]->type_i->nome : assemblyInstructions[i]->type_r != NULL ? assemblyInstructions[i]->type_r->nome : assemblyInstructions[i]->type_j->nome);
+        name = assemblyInstructions[i]->type == typeLabel ? assemblyInstructions[i]->type_label->name :
+               assemblyInstructions[i]->type == typeI ? assemblyInstructions[i]->type_i->name :
+               assemblyInstructions[i]->type == typeR ? assemblyInstructions[i]->type_r->name :
+               assemblyInstructions[i]->type_j->name;
+        fprintf(archive, " - %s\n", name);
     }
 }
