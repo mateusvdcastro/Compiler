@@ -2,8 +2,8 @@
 0:  	j Label main
 1:  add:
 2:  	sw $ra -5($fp)
-3:  	lw $t0 -1($fp)
-4:  	lw $t1 -1($fp)
+3:  	lw $t0 -8($fp)
+4:  	lw $t1 -7($fp)
 5:  	add $t2 $t0 $t1
 6:  	lw $temp -6($fp)
 7:  	sw $temp 2($t2)
@@ -20,3 +20,19 @@
 18: 	sw $t3 0($pilha)
 19: 	ori $t4 $zero 4
 20: 	sw $t4 1($pilha)
+21: 	lw $temp 1($pilha)
+22: 	sw $temp 2($sp)
+23: 	lw $temp 0($pilha)
+24: 	sw $temp 1($sp)
+25: 	add $temp $fp $zero
+26: 	addi $temp $temp -7
+27: 	sw $temp 3($sp)
+28: 	addi $fp $fp 7
+29: 	addi $sp $sp 8
+30: 	jal Label add
+31: 	subi $fp $fp 7
+32: 	subi $sp $sp 8
+33: 	lw $t5 -5($fp)
+34: 	add $t0 $zero $t5
+35: 	sw $t5 -1($fp)
+36: 	halt Label $zero

@@ -578,7 +578,7 @@ ADDRESS generateExpression(TreeNode *tree, Item *symbolTable[], const char *scop
                 }
 
                 emitInstruction("ASSIGN", makeStringAddress(resolvedName, 0), rightAddress, makeEmptyAddress());
-                emitInstruction("STORE", rightAddress, makeStringAddress(resolvedName, 0), makeEmptyAddress());
+                emitInstruction("STORE", makeStringAddress(resolvedName, 0), rightAddress, makeEmptyAddress());
                 free(resolvedName);
                 return rightAddress;
             }
@@ -595,7 +595,7 @@ ADDRESS generateExpression(TreeNode *tree, Item *symbolTable[], const char *scop
                 }
 
                 emitInstruction("ASSIGN", makeStringAddress(resolvedName, 0), rightAddress, indexAddress);
-                emitInstruction("STORE", rightAddress, makeStringAddress(resolvedName, 0), indexAddress);
+                emitInstruction("STORE", makeStringAddress(resolvedName, 0), rightAddress, indexAddress);
                 free(resolvedName);
                 return rightAddress;
             }

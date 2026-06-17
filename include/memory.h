@@ -47,6 +47,7 @@ int get_sp(FUNCTION_MEMORY *function);
 int get_fp_relation(FUNCTION_MEMORY *function, VARIABLE *variable);
 int get_sp_relation(FUNCTION_MEMORY *function, VARIABLE *variable);
 void freeMemory(void);
+void delete_temp(FUNCTION_MEMORY *function);
 void printMemory();
 
 #endif // MEMORY_H

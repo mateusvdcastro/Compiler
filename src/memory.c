@@ -229,6 +229,46 @@ VARIABLE * get_variable(FUNCTION_MEMORY * function, char * variableName){
     return NULL;
 }
 
+void delete_temp(FUNCTION_MEMORY *function) {
+    if (!function){
+        printf(ANSI_COLOR_RED); printf("Erro: "); printf(ANSI_COLOR_RESET);
+        printf("NULL passado como argumento em delete_temp\n");
+        return;
+    }
+
+    VARIABLE *aux = function->tableVar;
+    VARIABLE *aux2 = aux;
+
+    if (function->size == 0){
+        printf("Nao ha temporarios a serem deletados!\n");
+        return;
+    }
+
+    if (function->size == 1){
+        if (!strcmp(aux->name, "Param")){
+            free(aux);
+            function->tableVar = NULL;
+            function->size--;
+            return;
+        }
+    }
+
+    while (aux->next != NULL){
+        aux2 = aux;
+        aux = aux->next;
+    }
+
+    if (!strcmp(aux->name, "Param")){
+        free(aux);
+        aux2->next = NULL;
+        function->size--;
+        return;
+    }
+
+    printf(ANSI_COLOR_RED); printf("Erro: "); printf(ANSI_COLOR_RESET);
+    printf("Param's nao deletados!\n");
+}
+
 FUNCTION_MEMORY* findFunction(MEMORY *memory, char *name) {
     if (memory == NULL || name == NULL) {
         return NULL;

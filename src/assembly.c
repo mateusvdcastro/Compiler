@@ -21,6 +21,21 @@ const char * op_names[] = {
 
 void generateAssembly(INSTRUCTION *instruction);
 
+static char *getLocalName(char *name) {
+    char *separator;
+
+    if (name == NULL) {
+        return NULL;
+    }
+
+    separator = strstr(name, "::");
+    if (separator != NULL) {
+        return separator + 2;
+    }
+
+    return name;
+}
+
 void assembly (){
     initializeAssembly();
 
@@ -214,7 +229,11 @@ void generateAssembly(INSTRUCTION *instruction){
     } else if (relationalOp(instruction, &newInstruction)){
         assemblyInstructions[assemblyCount++] = newInstruction;
     } else if (!strcmp(instruction->operator, "ASSIGN")) {
-        return;
+        newInstruction = createAssemblyNode(typeR, "add");
+        newInstruction->type_r->rd = instruction->arg1->val;
+        newInstruction->type_r->rs = $zero;
+        newInstruction->type_r->rt = instruction->arg2->val;
+        assemblyInstructions[assemblyCount++] = newInstruction;
     } else if (!strcmp(instruction->operator, "LOADI")) {
         int aux_register = $zero;
 
@@ -344,7 +363,12 @@ void generateAssembly(INSTRUCTION *instruction){
             assemblyInstructions[assemblyCount++] = newInstruction;
         }
     } else if (!strcmp(instruction->operator, "LOAD")){
-        VARIABLE *var = get_variable(currentFunction, instruction->arg2->name);
+        char *variableName = getLocalName(instruction->arg2->name);
+        VARIABLE *var = get_variable(currentFunction, variableName);
+
+        if (var == NULL) {
+            return;
+        }
 
         newInstruction = createAssemblyNode(typeI, "lw");
         newInstruction->type_i->rt = instruction->arg1->val;
@@ -381,6 +405,182 @@ void generateAssembly(INSTRUCTION *instruction){
         newInstruction->type_i->rs = instruction->arg1->val;
         newInstruction->type_i->immediate = 2;
         assemblyInstructions[assemblyCount++] = newInstruction;
+    } else if (!strcmp(instruction->operator, "GOTO")){
+        newInstruction = createAssemblyNode(typeJ, "j");
+        newInstruction->type_j->labelImmediate = strdup("Label ########");
+        sprintf(newInstruction->type_j->labelImmediate, "Label %d", instruction->arg1->val);
+        assemblyInstructions[assemblyCount++] = newInstruction;
+
+    } else if (!strcmp(instruction->operator, "HALT")){
+        newInstruction = createAssemblyNode(typeJ, "halt");
+        newInstruction->type_j->labelImmediate = strdup("$zero");
+        assemblyInstructions[assemblyCount++] = newInstruction;
+    } else if (!strcmp(instruction->operator, "STORE")) {
+        if (!instruction->arg3){
+            return;
+        }
+
+        char *variableName = getLocalName(instruction->arg1->name);
+        VARIABLE *var = get_variable(currentFunction, variableName);
+
+        if (var == NULL) {
+            return;
+        }
+
+        if (instruction->arg3->type != Empty){
+            //Store de um valor em um vetor
+
+            if (var->type == vector){
+                newInstruction = createAssemblyNode(typeI, "addi");
+                newInstruction->type_i->rt = $temp;
+                newInstruction->type_i->rs = $fp;
+                newInstruction->type_i->immediate = get_fp_relation(currentFunction, var);
+                assemblyInstructions[assemblyCount++] = newInstruction;
+
+                newInstruction = createAssemblyNode(typeR, "add");
+                newInstruction->type_r->rd = $temp;
+                newInstruction->type_r->rs = $temp;
+                newInstruction->type_r->rt = instruction->arg3->val;
+                assemblyInstructions[assemblyCount++] = newInstruction;
+
+                newInstruction = createAssemblyNode(typeI, "sw");
+                newInstruction->type_i->rt = instruction->arg2->val;
+                newInstruction->type_i->rs = $temp;
+                newInstruction->type_i->immediate = 0;
+                assemblyInstructions[assemblyCount++] = newInstruction;
+            } else {
+                newInstruction = createAssemblyNode(typeI, "lw");
+                newInstruction->type_i->rt = $temp;
+                newInstruction->type_i->rs = $fp;
+                newInstruction->type_i->immediate = get_fp_relation(currentFunction, var);
+                assemblyInstructions[assemblyCount++] = newInstruction;
+
+                newInstruction = createAssemblyNode(typeR, "add");
+                newInstruction->type_r->rd = $temp;
+                newInstruction->type_r->rs = $temp;
+                newInstruction->type_r->rt = instruction->arg3->val;
+                assemblyInstructions[assemblyCount++] = newInstruction;
+
+                newInstruction = createAssemblyNode(typeI, "sw");
+                newInstruction->type_i->rt = instruction->arg2->val;
+                newInstruction->type_i->rs = $temp;
+                newInstruction->type_i->immediate = 0;
+                assemblyInstructions[assemblyCount++] = newInstruction;
+            }
+        } else {
+            //Store de um valor em uma variavel
+
+            newInstruction = createAssemblyNode(typeI, "sw");
+            newInstruction->type_i->rt = instruction->arg2->val;
+            newInstruction->type_i->rs = $fp;
+            newInstruction->type_i->immediate = get_fp_relation(currentFunction, var);
+            assemblyInstructions[assemblyCount++] = newInstruction;
+        }
+    } else if (!strcmp(instruction->operator, "CALL")){
+        if (!instruction->arg3){
+            printf("Erro: Chamada sem registrador de destino.\n");
+            return;
+        }
+
+        if (!strcmp(instruction->arg1->name, "output")){
+            delete_temp(findFunction(&memoryVector, "parameters"));
+
+            newInstruction = createAssemblyNode(typeI, "lw");
+            newInstruction->type_i->rt = $temp;
+            newInstruction->type_i->rs = $pilha;
+            newInstruction->type_i->immediate = findFunction(&memoryVector, "parameters")->size;
+            assemblyInstructions[assemblyCount++] = newInstruction;
+
+            newInstruction = createAssemblyNode(typeI, "out");
+            newInstruction->type_i->rt = $temp;
+            newInstruction->type_i->rs = $zero;
+            newInstruction->type_i->immediate = 0;
+            assemblyInstructions[assemblyCount++] = newInstruction;
+
+            return;
+        }
+        if (!strcmp(instruction->arg1->name, "input")){
+            newInstruction = createAssemblyNode(typeI, "in");
+            newInstruction->type_i->rt = instruction->arg3->val;
+            newInstruction->type_i->rs = $zero;
+            newInstruction->type_i->immediate = 0;
+            assemblyInstructions[assemblyCount++] = newInstruction;
+
+            return;
+        }
+
+        for (int i = instruction->arg2->val; i > 0; i--){
+
+            delete_temp(findFunction(&memoryVector, "parameters"));
+
+            newInstruction = createAssemblyNode(typeI, "lw");
+            newInstruction->type_i->rt = $temp;
+            newInstruction->type_i->rs = $pilha;
+            newInstruction->type_i->immediate = findFunction(&memoryVector, "parameters")->size;
+            assemblyInstructions[assemblyCount++] = newInstruction;
+
+            newInstruction = createAssemblyNode(typeI, "sw");
+            newInstruction->type_i->rt = $temp;
+            newInstruction->type_i->rs = $sp;
+            newInstruction->type_i->immediate = i;
+            assemblyInstructions[assemblyCount++] = newInstruction;
+        }
+
+        newInstruction = createAssemblyNode(typeR, "add");
+        newInstruction->type_r->rt = $zero;
+        newInstruction->type_r->rs = $fp;
+        newInstruction->type_r->rd = $temp;
+        assemblyInstructions[assemblyCount++] = newInstruction;
+
+        newInstruction = createAssemblyNode(typeI, "addi");
+        newInstruction->type_i->rt = $temp;
+        newInstruction->type_i->rs = $temp;
+        newInstruction->type_i->immediate = get_fp_relation(currentFunction, get_variable(currentFunction, "Control Link"));
+        assemblyInstructions[assemblyCount++] = newInstruction;
+
+        newInstruction = createAssemblyNode(typeI, "sw");
+        newInstruction->type_i->rt = $temp;
+        newInstruction->type_i->rs = $sp;
+        newInstruction->type_i->immediate = instruction->arg2->val + 1;
+        assemblyInstructions[assemblyCount++] = newInstruction;
+
+        newInstruction = createAssemblyNode(typeI, "addi");
+        newInstruction->type_i->rt = $fp;
+        newInstruction->type_i->rs = $fp;
+        newInstruction->type_i->immediate = get_sp(currentFunction) + 1;
+        assemblyInstructions[assemblyCount++] = newInstruction;
+
+        FUNCTION_MEMORY *calledFunc = findFunction(&memoryVector, instruction->arg1->name);
+
+        newInstruction = createAssemblyNode(typeI, "addi");
+        newInstruction->type_i->rt = $sp;
+        newInstruction->type_i->rs = $sp;
+        newInstruction->type_i->immediate = get_sp(calledFunc) + 1;
+        assemblyInstructions[assemblyCount++] = newInstruction;
+
+        newInstruction = createAssemblyNode(typeJ, "jal");
+        newInstruction->type_j->labelImmediate = strdup(instruction->arg1->name);
+        assemblyInstructions[assemblyCount++] = newInstruction;
+
+        newInstruction = createAssemblyNode(typeI, "subi");
+        newInstruction->type_i->rt = $fp;
+        newInstruction->type_i->rs = $fp;
+        newInstruction->type_i->immediate = get_sp(currentFunction) + 1;
+        assemblyInstructions[assemblyCount++] = newInstruction;
+
+        newInstruction = createAssemblyNode(typeI, "subi");
+        newInstruction->type_i->rt = $sp;
+        newInstruction->type_i->rs = $sp;
+        newInstruction->type_i->immediate = get_sp(calledFunc) + 1;
+        assemblyInstructions[assemblyCount++] = newInstruction;
+
+        if (instruction->arg3->type != Empty){
+            newInstruction = createAssemblyNode(typeI, "lw");
+            newInstruction->type_i->rt = instruction->arg3->val;
+            newInstruction->type_i->rs = $fp;
+            newInstruction->type_i->immediate = get_fp_relation(currentFunction, get_variable(currentFunction, "Return Value"));
+            assemblyInstructions[assemblyCount++] = newInstruction;
+        }
     } else if (!strcmp(instruction->operator, "END")){
         if (!strcmp(instruction->arg1->name,"main")){
             return;
