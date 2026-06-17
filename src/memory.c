@@ -308,7 +308,7 @@ int get_fp(FUNCTION_MEMORY *function) {
         return 0; // Global frame has no caller, so $fp is 0
     }
 
-    return function->size; // Return the size of the function frame, which is the index for the next variable
+    return 0; // Return the size of the function frame, which is the index for the next variable
 }
 
 int get_sp_relation(FUNCTION_MEMORY *function, VARIABLE *variable) {

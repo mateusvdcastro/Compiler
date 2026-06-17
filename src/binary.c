@@ -119,10 +119,17 @@ BIN_R* binaryR(ASSEMBLY* instruction){
 
 BIN_I* binaryI(ASSEMBLY* instruction){
     BIN_I* bin = (BIN_I*) malloc(sizeof(BIN_I));
+    char labelName[32];
+
     bin->opcode = get_opcode(instruction->type_i->name, instruction->type);
     bin->rs = get_register(instruction->type_i->rs);
     bin->rt = get_register(instruction->type_i->rt);
-    bin->immediate = get_immediate(instruction->type_i->immediate); // TODO BEQ e BNE
+    if (instruction->type_i->label != -1) {
+        snprintf(labelName, sizeof(labelName), "Label %d", instruction->type_i->label);
+        bin->immediate = get_immediate(getLabelAddress(labelName));
+    } else {
+        bin->immediate = get_immediate(instruction->type_i->immediate);
+    }
     return bin;
 }
 

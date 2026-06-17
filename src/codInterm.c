@@ -417,10 +417,25 @@ int nextLabelId(void) {
 }
 
 ADDRESS makeLabelAddress(int id) {
-    char buffer[32];
+    ADDRESS address;
 
-    snprintf(buffer, sizeof(buffer), "%s%d", LABEL_PREFIX, id);
-    return makeStringAddress(buffer, 2);
+    address.type = IntConst;
+    address.val = id;
+    address.booldReg = 2;
+    address.name = NULL;
+
+    return address;
+}
+
+static int isArraySymbol(Item *symbolTable[], const char *name, const char *scope) {
+    Item *item;
+
+    if (symbolTable == NULL || name == NULL || scope == NULL) {
+        return 0;
+    }
+
+    item = searchtableAny(symbolTable, (char *)name, (char *)scope);
+    return item != NULL && (item->Statement == VetDeclK || item->Statement == VetParamK);
 }
 
 int isVoidFunction(Item *symbolTable[], const char *functionName) {
@@ -483,6 +498,23 @@ void generateDeclaration(TreeNode *tree, Item *symbolTable[], const char *scope)
                     makeStringAddress(declName, 0),
                     makeStringAddress(declScope, 0),
                     allocationSize);
+}
+
+static int lastInstructionIsEmptyRet(void) {
+    INSTRUCTION *instruction;
+
+    if (intermediateCodeCount <= 0) {
+        return 0;
+    }
+
+    instruction = intermediateCode[intermediateCodeCount - 1];
+
+    return instruction != NULL
+        && instruction->operator != NULL
+        && strcmp(instruction->operator, "RET") == 0
+        && instruction->arg1 != NULL && instruction->arg1->type == Empty
+        && instruction->arg2 != NULL && instruction->arg2->type == Empty
+        && instruction->arg3 != NULL && instruction->arg3->type == Empty;
 }
 
 ADDRESS generateExpression(TreeNode *tree, Item *symbolTable[], const char *scope) {
@@ -548,7 +580,7 @@ ADDRESS generateExpression(TreeNode *tree, Item *symbolTable[], const char *scop
             rightAddress = ensureRegister(generateExpression(tree->child[1], symbolTable, scope));
 
             destination = makeRegisterAddress(tempCounter++);
-            emitInstruction(mappedOperator, destination, leftAddress, rightAddress);
+            emitInstruction(mappedOperator, leftAddress, rightAddress, destination);
             return destination;
 
         case OpRel:
@@ -561,7 +593,7 @@ ADDRESS generateExpression(TreeNode *tree, Item *symbolTable[], const char *scop
             rightAddress = ensureRegister(generateExpression(tree->child[1], symbolTable, scope));
 
             destination = makeRegisterAddress(tempCounter++);
-            emitInstruction(mappedOperator, destination, leftAddress, rightAddress);
+            emitInstruction(mappedOperator, leftAddress, rightAddress, destination);
             return destination;
 
         case AssignK:
@@ -577,10 +609,11 @@ ADDRESS generateExpression(TreeNode *tree, Item *symbolTable[], const char *scop
                     return rightAddress;
                 }
 
-                emitInstruction("ASSIGN", makeStringAddress(resolvedName, 0), rightAddress, makeEmptyAddress());
-                emitInstruction("STORE", makeStringAddress(resolvedName, 0), rightAddress, makeEmptyAddress());
+                destination = makeRegisterAddress(tempCounter++);
+                emitInstruction("ASSIGN", destination, rightAddress, makeEmptyAddress());
+                emitInstruction("STORE", makeStringAddress(resolvedName, 0), destination, makeEmptyAddress());
                 free(resolvedName);
-                return rightAddress;
+                return destination;
             }
 
             if (tree->child[0]->expKind == VetK) {
@@ -594,10 +627,11 @@ ADDRESS generateExpression(TreeNode *tree, Item *symbolTable[], const char *scop
                     indexAddress = ensureRegister(generateExpression(tree->child[0]->child[0], symbolTable, scope));
                 }
 
-                emitInstruction("ASSIGN", makeStringAddress(resolvedName, 0), rightAddress, indexAddress);
-                emitInstruction("STORE", makeStringAddress(resolvedName, 0), rightAddress, indexAddress);
+                destination = makeRegisterAddress(tempCounter++);
+                emitInstruction("ASSIGN", destination, rightAddress, makeEmptyAddress());
+                emitInstruction("STORE", makeStringAddress(resolvedName, 0), destination, indexAddress);
                 free(resolvedName);
-                return rightAddress;
+                return destination;
             }
 
             return rightAddress;
@@ -608,8 +642,18 @@ ADDRESS generateExpression(TreeNode *tree, Item *symbolTable[], const char *scop
             TreeNode *argumentNode = tree->child[0];
 
             while (argumentNode != NULL) {
-                argumentAddress = ensureRegister(generateExpression(argumentNode, symbolTable, scope));
-                emitInstruction("PARAM", argumentAddress, makeEmptyAddress(), makeEmptyAddress());
+                if (argumentNode->expKind == IdK && isArraySymbol(symbolTable, argumentNode->lexeme, scope)) {
+                    resolvedName = resolveSymbolName(symbolTable, argumentNode->lexeme, scope);
+                    argumentAddress = makeRegisterAddress(tempCounter++);
+                    emitInstruction("PARAM",
+                                    argumentAddress,
+                                    makeStringAddress("VET", 0),
+                                    makeStringAddress(resolvedName != NULL ? resolvedName : argumentNode->lexeme, 0));
+                    free(resolvedName);
+                } else {
+                    argumentAddress = ensureRegister(generateExpression(argumentNode, symbolTable, scope));
+                    emitInstruction("PARAM", argumentAddress, makeStringAddress("INT", 0), makeEmptyAddress());
+                }
 
                 argumentCount++;
                 argumentNode = argumentNode->sibling;
@@ -679,11 +723,15 @@ void generateFunction(TreeNode *tree, Item *symbolTable[]) {
     body = tree->child[2];
     generateNode(body, symbolTable, functionName, 1);
 
-    if (strcmp(tree->lexeme, "VOID") == 0) {
+    if (strcmp(tree->lexeme, "VOID") == 0 && !lastInstructionIsEmptyRet()) {
         emitInstruction("RET", makeEmptyAddress(), makeEmptyAddress(), makeEmptyAddress());
     }
 
     emitInstruction("END", makeStringAddress(functionName, 0), makeEmptyAddress(), makeEmptyAddress());
+
+    if (strcmp(functionName, "main") == 0) {
+        emitInstruction("HALT", makeEmptyAddress(), makeEmptyAddress(), makeEmptyAddress());
+    }
 }
 
 void generateStatement(TreeNode *tree, Item *symbolTable[], const char *scope) {
@@ -779,6 +827,11 @@ void buildIntermediateCode(NODEPOINTER syntaxTree, Item *symbolTable[], int trav
         return;
     }
 
+    emitInstruction("GOTO",
+                    makeStringAddress("main", 0),
+                    makeEmptyAddress(),
+                    makeEmptyAddress());
+
     generateNode(syntaxTree, symbolTable, "global", traverseSiblings != 0);
 }
 
@@ -794,6 +847,11 @@ void addressToString(const ADDRESS *address, char *buffer, size_t size) {
 
     if (address->booldReg == 1) {
         snprintf(buffer, size, "r%d", address->val);
+        return;
+    }
+
+    if (address->booldReg == 2) {
+        snprintf(buffer, size, "%s%d", LABEL_PREFIX, address->val);
         return;
     }
 
@@ -822,6 +880,11 @@ void addressToQuadString(const ADDRESS *address, char *buffer, size_t size) {
 
     if (address->booldReg == 1) {
         snprintf(buffer, size, "$t%d", address->val);
+        return;
+    }
+
+    if (address->booldReg == 2) {
+        snprintf(buffer, size, "%s%d", LABEL_PREFIX, address->val);
         return;
     }
 

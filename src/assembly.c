@@ -36,12 +36,16 @@ static char *getLocalName(char *name) {
     return name;
 }
 
+static void formatLabelName(char *buffer, size_t size, int labelId) {
+    if (buffer == NULL || size == 0) {
+        return;
+    }
+
+    snprintf(buffer, size, "Label %d", labelId);
+}
+
 void assembly (){
     initializeAssembly();
-
-    ASSEMBLY *jumpInstruction = createAssemblyNode(typeJ, "j");
-    jumpInstruction->type_j->labelImmediate = "main";
-    assemblyInstructions[assemblyCount++] = jumpInstruction;
 
     for (int i = 0; i < intermediateCodeCount; i++){
         generateAssembly(intermediateCode[i]);
@@ -109,34 +113,34 @@ ASSEMBLY * createAssemblyNode(instruction_type_t type, char *name){
 int aritmeticOp(INSTRUCTION * instruction, ASSEMBLY ** newInstruction){
     if (strcmp(instruction->operator, "ADD") == 0) {
         *newInstruction = createAssemblyNode(typeR, "add");
-        (*newInstruction)->type_r->rd = instruction->arg1->val;
-        (*newInstruction)->type_r->rs = instruction->arg2->val;
-        (*newInstruction)->type_r->rt = instruction->arg3->val;
+        (*newInstruction)->type_r->rd = instruction->arg3->val;
+        (*newInstruction)->type_r->rs = instruction->arg1->val;
+        (*newInstruction)->type_r->rt = instruction->arg2->val;
     } else if (strcmp(instruction->operator, "SUB") == 0) {
         *newInstruction = createAssemblyNode(typeR, "sub");
-        (*newInstruction)->type_r->rd = instruction->arg1->val;
-        (*newInstruction)->type_r->rs = instruction->arg2->val;
-        (*newInstruction)->type_r->rt = instruction->arg3->val;
+        (*newInstruction)->type_r->rd = instruction->arg3->val;
+        (*newInstruction)->type_r->rs = instruction->arg1->val;
+        (*newInstruction)->type_r->rt = instruction->arg2->val;
     } else if (strcmp(instruction->operator, "MULT") == 0) {
         *newInstruction = createAssemblyNode(typeR, "mult");
-        (*newInstruction)->type_r->rd = instruction->arg1->val;
-        (*newInstruction)->type_r->rs = instruction->arg2->val;
-        (*newInstruction)->type_r->rt = instruction->arg3->val;
+        (*newInstruction)->type_r->rd = instruction->arg3->val;
+        (*newInstruction)->type_r->rs = instruction->arg1->val;
+        (*newInstruction)->type_r->rt = instruction->arg2->val;
     } else if (strcmp(instruction->operator, "DIV") == 0) {
         *newInstruction = createAssemblyNode(typeR, "div");
-        (*newInstruction)->type_r->rd = instruction->arg1->val;
-        (*newInstruction)->type_r->rs = instruction->arg2->val;
-        (*newInstruction)->type_r->rt = instruction->arg3->val;
+        (*newInstruction)->type_r->rd = instruction->arg3->val;
+        (*newInstruction)->type_r->rs = instruction->arg1->val;
+        (*newInstruction)->type_r->rt = instruction->arg2->val;
     } else if (strcmp(instruction->operator, "AND") == 0) {
         *newInstruction = createAssemblyNode(typeR, "and");
-        (*newInstruction)->type_r->rd = instruction->arg1->val;
-        (*newInstruction)->type_r->rs = instruction->arg2->val;
-        (*newInstruction)->type_r->rt = instruction->arg3->val;
+        (*newInstruction)->type_r->rd = instruction->arg3->val;
+        (*newInstruction)->type_r->rs = instruction->arg1->val;
+        (*newInstruction)->type_r->rt = instruction->arg2->val;
     } else if (strcmp(instruction->operator, "OR") == 0) {
         *newInstruction = createAssemblyNode(typeR, "or");
-        (*newInstruction)->type_r->rd = instruction->arg1->val;
-        (*newInstruction)->type_r->rs = instruction->arg2->val;
-        (*newInstruction)->type_r->rt = instruction->arg3->val;
+        (*newInstruction)->type_r->rd = instruction->arg3->val;
+        (*newInstruction)->type_r->rs = instruction->arg1->val;
+        (*newInstruction)->type_r->rt = instruction->arg2->val;
     } else {
         return 0;
     }
@@ -148,73 +152,73 @@ int relationalOp(INSTRUCTION * instruction, ASSEMBLY ** newInstruction){
 
     if (strcmp(instruction->operator, "EQ") == 0) {
         *newInstruction = createAssemblyNode(typeR, "xor");
-        (*newInstruction)->type_r->rd = instruction->arg1->val;
-        (*newInstruction)->type_r->rs = instruction->arg2->val;
-        (*newInstruction)->type_r->rt = instruction->arg3->val;
-
-        assemblyInstructions[assemblyCount++] = *newInstruction;
-
-        (*newInstruction) = createAssemblyNode(typeI, "slti");
-        (*newInstruction)->type_i->rt = instruction->arg1->val;
-        (*newInstruction)->type_i->rs = instruction->arg1->val;
-        (*newInstruction)->type_i->immediate = 1;
-    } else if (strcmp(instruction->operator, "NEQ") == 0) {
-        *newInstruction = createAssemblyNode(typeR, "slt");
-        (*newInstruction)->type_r->rd = $temp;
-        (*newInstruction)->type_r->rs = instruction->arg2->val;
-        (*newInstruction)->type_r->rt = instruction->arg3->val;
-
-        assemblyInstructions[assemblyCount++] = *newInstruction;
-
-        (*newInstruction) = createAssemblyNode(typeR, "slt");
-        (*newInstruction)->type_r->rd = instruction->arg1->val;
-        (*newInstruction)->type_r->rs = instruction->arg3->val;
+        (*newInstruction)->type_r->rd = instruction->arg3->val;
+        (*newInstruction)->type_r->rs = instruction->arg1->val;
         (*newInstruction)->type_r->rt = instruction->arg2->val;
 
         assemblyInstructions[assemblyCount++] = *newInstruction;
 
-        (*newInstruction) = createAssemblyNode(typeR, "or");
-        (*newInstruction)->type_r->rd = instruction->arg1->val;
-        (*newInstruction)->type_r->rs = $temp;
+        (*newInstruction) = createAssemblyNode(typeI, "slti");
+        (*newInstruction)->type_i->rt = instruction->arg3->val;
+        (*newInstruction)->type_i->rs = instruction->arg3->val;
+        (*newInstruction)->type_i->immediate = 1;
+    } else if (strcmp(instruction->operator, "NEQ") == 0) {
+        *newInstruction = createAssemblyNode(typeR, "slt");
+        (*newInstruction)->type_r->rd = $temp;
+        (*newInstruction)->type_r->rs = instruction->arg1->val;
+        (*newInstruction)->type_r->rt = instruction->arg2->val;
+
+        assemblyInstructions[assemblyCount++] = *newInstruction;
+
+        (*newInstruction) = createAssemblyNode(typeR, "slt");
+        (*newInstruction)->type_r->rd = instruction->arg3->val;
+        (*newInstruction)->type_r->rs = instruction->arg2->val;
         (*newInstruction)->type_r->rt = instruction->arg1->val;
+
+        assemblyInstructions[assemblyCount++] = *newInstruction;
+
+        (*newInstruction) = createAssemblyNode(typeR, "or");
+        (*newInstruction)->type_r->rd = instruction->arg3->val;
+        (*newInstruction)->type_r->rs = $temp;
+        (*newInstruction)->type_r->rt = instruction->arg3->val;
     } else if (strcmp(instruction->operator, "LT") == 0) {
         *newInstruction = createAssemblyNode(typeR, "slt");
-        (*newInstruction)->type_r->rd = instruction->arg1->val;
-        (*newInstruction)->type_r->rs = instruction->arg2->val;
-        (*newInstruction)->type_r->rt = instruction->arg3->val;
+        (*newInstruction)->type_r->rd = instruction->arg3->val;
+        (*newInstruction)->type_r->rs = instruction->arg1->val;
+        (*newInstruction)->type_r->rt = instruction->arg2->val;
     } else if (strcmp(instruction->operator, "GT") == 0) {
         *newInstruction = createAssemblyNode(typeR, "slt");
-        (*newInstruction)->type_r->rd = instruction->arg1->val;
+        (*newInstruction)->type_r->rd = instruction->arg3->val;
         (*newInstruction)->type_r->rs = instruction->arg2->val;
-        (*newInstruction)->type_r->rt = instruction->arg3->val;
+        (*newInstruction)->type_r->rt = instruction->arg1->val;
     } else if (strcmp(instruction->operator, "GET") == 0) {
         *newInstruction = createAssemblyNode(typeR, "slt");
-        (*newInstruction)->type_r->rd = instruction->arg1->val;
-        (*newInstruction)->type_r->rs = instruction->arg2->val;
-        (*newInstruction)->type_r->rt = instruction->arg3->val;
+        (*newInstruction)->type_r->rd = instruction->arg3->val;
+        (*newInstruction)->type_r->rs = instruction->arg1->val;
+        (*newInstruction)->type_r->rt = instruction->arg2->val;
 
         assemblyInstructions[assemblyCount++] = *newInstruction;
 
         rd = (*newInstruction)->type_r->rd;
 
-        *newInstruction = createAssemblyNode(typeR, "xori");
-        (*newInstruction)->type_r->rd = rd;
-        (*newInstruction)->type_r->rs = rd;
-        (*newInstruction)->type_r->rt = 1;
+        *newInstruction = createAssemblyNode(typeI, "xori");
+        (*newInstruction)->type_i->rt = rd;
+        (*newInstruction)->type_i->rs = rd;
+        (*newInstruction)->type_i->immediate = 1;
     } else if (strcmp(instruction->operator, "LET") == 0) {
         *newInstruction = createAssemblyNode(typeR, "slt");
-        (*newInstruction)->type_r->rd = instruction->arg1->val;
+        (*newInstruction)->type_r->rd = instruction->arg3->val;
         (*newInstruction)->type_r->rs = instruction->arg2->val;
-        (*newInstruction)->type_r->rt = instruction->arg3->val;
+        (*newInstruction)->type_r->rt = instruction->arg1->val;
 
         assemblyInstructions[assemblyCount++] = *newInstruction;
 
         rd = (*newInstruction)->type_r->rd;
 
-        *newInstruction = createAssemblyNode(typeR, "xori");
-        (*newInstruction)->type_r->rd = rd;
-        (*newInstruction)->type_r->rs = rd;
-        (*newInstruction)->type_r->rt = 1;
+        *newInstruction = createAssemblyNode(typeI, "xori");
+        (*newInstruction)->type_i->rt = rd;
+        (*newInstruction)->type_i->rs = rd;
+        (*newInstruction)->type_i->immediate = 1;
     } else {
         return 0;
     }
@@ -283,11 +287,14 @@ void generateAssembly(INSTRUCTION *instruction){
             assemblyInstructions[assemblyCount++] = newInstruction;
         }
     } else if (!strcmp(instruction->operator, "LABEL")) {
-        newInstruction = createAssemblyNode(typeLabel, instruction->arg1->name);
+        char labelName[32];
+
+        formatLabelName(labelName, sizeof(labelName), instruction->arg1->val);
+        newInstruction = createAssemblyNode(typeLabel, labelName);
         newInstruction->type_label->is_dynamic = 1;
         newInstruction->type_label->endereco = assemblyCount;
 
-        insertLabel(instruction->arg1->name, assemblyCount);
+        insertLabel(labelName, assemblyCount);
         assemblyInstructions[assemblyCount++] = newInstruction;
     } else if (!strcmp(instruction->operator, "FUN")){
         char *functionName = instruction->arg2->name;
@@ -338,7 +345,7 @@ void generateAssembly(INSTRUCTION *instruction){
             newInstruction = createAssemblyNode(typeI, "sw");
             newInstruction->type_i->rt = $ra;
             newInstruction->type_i->rs = $fp;
-            newInstruction->type_i->immediate = get_fp_relation(currentFunction, get_variable(currentFunction, "Return Address"));
+            newInstruction->type_i->immediate = get_fp_relation(currentFunction, get_variable(currentFunction, "Return Address")) + instruction->arg3->val;
             assemblyInstructions[assemblyCount++] = newInstruction;
         }
     } else if (!strcmp(instruction->operator, "ARG")){
@@ -382,6 +389,28 @@ void generateAssembly(INSTRUCTION *instruction){
             return;
         }
 
+        if (instruction->arg2->type == String && !strcmp(instruction->arg2->name, "VET")) {
+            VARIABLE *var = get_variable(currentFunction, getLocalName(instruction->arg3->name));
+
+            if (var == NULL) {
+                return;
+            }
+
+            if (var->type == vectorArg) {
+                newInstruction = createAssemblyNode(typeI, "lw");
+                newInstruction->type_i->rt = instruction->arg1->val;
+                newInstruction->type_i->rs = $fp;
+                newInstruction->type_i->immediate = get_fp_relation(currentFunction, var);
+                assemblyInstructions[assemblyCount++] = newInstruction;
+            } else {
+                newInstruction = createAssemblyNode(typeI, "addi");
+                newInstruction->type_i->rt = instruction->arg1->val;
+                newInstruction->type_i->rs = $fp;
+                newInstruction->type_i->immediate = get_fp_relation(currentFunction, var);
+                assemblyInstructions[assemblyCount++] = newInstruction;
+            }
+        }
+
         newInstruction = createAssemblyNode(typeI, "sw");
         newInstruction->type_i->rt = instruction->arg1->val;
         newInstruction->type_i->rs = $pilha;
@@ -401,14 +430,29 @@ void generateAssembly(INSTRUCTION *instruction){
         assemblyInstructions[assemblyCount++] = newInstruction;
 
         newInstruction = createAssemblyNode(typeI, "sw");
-        newInstruction->type_i->rt = $temp;
-        newInstruction->type_i->rs = instruction->arg1->val;
+        newInstruction->type_i->rt = instruction->arg1->val;
+        newInstruction->type_i->rs = $temp;
         newInstruction->type_i->immediate = 2;
         assemblyInstructions[assemblyCount++] = newInstruction;
+    } else if (!strcmp(instruction->operator, "IFF")){
+        newInstruction = createAssemblyNode(typeI, "beq");
+        newInstruction->type_i->rs = $zero;
+        newInstruction->type_i->rt = instruction->arg1->val;
+        newInstruction->type_i->label = instruction->arg2->val;
+        assemblyInstructions[assemblyCount++] = newInstruction;
     } else if (!strcmp(instruction->operator, "GOTO")){
+        char labelName[32];
+        const char *targetName;
+
+        if (instruction->arg1->type == String && instruction->arg1->name != NULL) {
+            targetName = instruction->arg1->name;
+        } else {
+            formatLabelName(labelName, sizeof(labelName), instruction->arg1->val);
+            targetName = labelName;
+        }
+
         newInstruction = createAssemblyNode(typeJ, "j");
-        newInstruction->type_j->labelImmediate = strdup("Label ########");
-        sprintf(newInstruction->type_j->labelImmediate, "Label %d", instruction->arg1->val);
+        newInstruction->type_j->labelImmediate = strdup(targetName);
         assemblyInstructions[assemblyCount++] = newInstruction;
 
     } else if (!strcmp(instruction->operator, "HALT")){
@@ -671,7 +715,7 @@ void printAssembly(){
             type_j = assemblyInstructions[i]->type_j;
             fprintf(outputFile_Assembly, "\t%s ", type_j->name);
             if (type_j->labelImmediate != NULL) {
-                fprintf(outputFile_Assembly, "Label %s\n", type_j->labelImmediate);
+                fprintf(outputFile_Assembly, "%s\n", type_j->labelImmediate);
             } else {
                 fprintf(outputFile_Assembly, "\n");
             }
