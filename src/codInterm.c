@@ -8,6 +8,8 @@
 
 #define LABEL_PREFIX "L"
 #define LOCAL_SCOPE_SEP "::"
+#define FIRST_TEMP_REGISTER 0
+#define TEMP_REGISTER_COUNT 26
 
 INSTRUCTION **intermediateCode = NULL;
 int intermediateCodeCount = 0;
@@ -15,6 +17,19 @@ int intermediateCodeCount = 0;
 int intermediateCodeCapacity = 0;
 int tempCounter = 0;
 int labelCounter = 0;
+
+static ADDRESS makeTempRegisterAddress(void) {
+    if (tempCounter >= TEMP_REGISTER_COUNT) {
+        fprintf(stderr,
+                "Erro: limite de registradores temporarios excedido (%d disponiveis: r%d..r%d).\n",
+                TEMP_REGISTER_COUNT,
+                FIRST_TEMP_REGISTER,
+                FIRST_TEMP_REGISTER + TEMP_REGISTER_COUNT - 1);
+        exit(1);
+    }
+
+    return makeRegisterAddress(FIRST_TEMP_REGISTER + tempCounter++);
+}
 
 char *duplicateString(const char *source) {
     size_t size;
@@ -460,7 +475,7 @@ ADDRESS ensureRegister(ADDRESS valueAddress) {
         return valueAddress;
     }
 
-    destination = makeRegisterAddress(tempCounter++);
+    destination = makeTempRegisterAddress();
 
     if (valueAddress.type == String && valueAddress.name != NULL) {
         emitInstruction("LOAD", destination, valueAddress, makeEmptyAddress());
@@ -538,7 +553,7 @@ ADDRESS generateExpression(TreeNode *tree, Item *symbolTable[], const char *scop
 
     switch (tree->expKind) {
         case ConstK:
-            destination = makeRegisterAddress(tempCounter++);
+            destination = makeTempRegisterAddress();
             emitInstruction("LOADI", destination, makeConstAddress(atoi(tree->lexeme)), makeEmptyAddress());
             return destination;
 
@@ -547,7 +562,7 @@ ADDRESS generateExpression(TreeNode *tree, Item *symbolTable[], const char *scop
             if (resolvedName == NULL) {
                 return makeEmptyAddress();
             }
-            destination = makeRegisterAddress(tempCounter++);
+            destination = makeTempRegisterAddress();
             symbolAddress = makeStringAddress(resolvedName, 0);
             emitInstruction("LOAD", destination, symbolAddress, makeEmptyAddress());
             free(resolvedName);
@@ -564,7 +579,7 @@ ADDRESS generateExpression(TreeNode *tree, Item *symbolTable[], const char *scop
                 indexAddress = ensureRegister(generateExpression(tree->child[0], symbolTable, scope));
             }
 
-            destination = makeRegisterAddress(tempCounter++);
+            destination = makeTempRegisterAddress();
             symbolAddress = makeStringAddress(resolvedName, 0);
             emitInstruction("LOAD", destination, symbolAddress, indexAddress);
             free(resolvedName);
@@ -579,7 +594,7 @@ ADDRESS generateExpression(TreeNode *tree, Item *symbolTable[], const char *scop
             leftAddress = ensureRegister(generateExpression(tree->child[0], symbolTable, scope));
             rightAddress = ensureRegister(generateExpression(tree->child[1], symbolTable, scope));
 
-            destination = makeRegisterAddress(tempCounter++);
+            destination = makeTempRegisterAddress();
             emitInstruction(mappedOperator, leftAddress, rightAddress, destination);
             return destination;
 
@@ -592,7 +607,7 @@ ADDRESS generateExpression(TreeNode *tree, Item *symbolTable[], const char *scop
             leftAddress = ensureRegister(generateExpression(tree->child[0], symbolTable, scope));
             rightAddress = ensureRegister(generateExpression(tree->child[1], symbolTable, scope));
 
-            destination = makeRegisterAddress(tempCounter++);
+            destination = makeTempRegisterAddress();
             emitInstruction(mappedOperator, leftAddress, rightAddress, destination);
             return destination;
 
@@ -609,7 +624,7 @@ ADDRESS generateExpression(TreeNode *tree, Item *symbolTable[], const char *scop
                     return rightAddress;
                 }
 
-                destination = makeRegisterAddress(tempCounter++);
+                destination = makeTempRegisterAddress();
                 emitInstruction("ASSIGN", destination, rightAddress, makeEmptyAddress());
                 emitInstruction("STORE", makeStringAddress(resolvedName, 0), destination, makeEmptyAddress());
                 free(resolvedName);
@@ -627,7 +642,7 @@ ADDRESS generateExpression(TreeNode *tree, Item *symbolTable[], const char *scop
                     indexAddress = ensureRegister(generateExpression(tree->child[0]->child[0], symbolTable, scope));
                 }
 
-                destination = makeRegisterAddress(tempCounter++);
+                destination = makeTempRegisterAddress();
                 emitInstruction("ASSIGN", destination, rightAddress, makeEmptyAddress());
                 emitInstruction("STORE", makeStringAddress(resolvedName, 0), destination, indexAddress);
                 free(resolvedName);
@@ -644,7 +659,7 @@ ADDRESS generateExpression(TreeNode *tree, Item *symbolTable[], const char *scop
             while (argumentNode != NULL) {
                 if (argumentNode->expKind == IdK && isArraySymbol(symbolTable, argumentNode->lexeme, scope)) {
                     resolvedName = resolveSymbolName(symbolTable, argumentNode->lexeme, scope);
-                    argumentAddress = makeRegisterAddress(tempCounter++);
+                    argumentAddress = makeTempRegisterAddress();
                     emitInstruction("PARAM",
                                     argumentAddress,
                                     makeStringAddress("VET", 0),
@@ -664,7 +679,7 @@ ADDRESS generateExpression(TreeNode *tree, Item *symbolTable[], const char *scop
                 return makeEmptyAddress();
             }
 
-            destination = makeRegisterAddress(tempCounter++);
+            destination = makeTempRegisterAddress();
             emitInstruction("CALL", makeStringAddress(tree->lexeme, 0), makeConstAddress(argumentCount), destination);
             return destination;
         }
@@ -690,6 +705,7 @@ void generateFunction(TreeNode *tree, Item *symbolTable[]) {
 
     functionName = tree->child[1]->lexeme;
     functionType = (strcmp(tree->lexeme, "VOID") == 0) ? "VOID" : "INT";
+    tempCounter = 0;
     parameter = tree->child[0];
 
     if (parameter != NULL && !(parameter->nodeKind == StmtK && parameter->stmtKind == ParamVoid)) {

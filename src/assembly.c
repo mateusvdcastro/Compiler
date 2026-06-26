@@ -44,6 +44,10 @@ static void formatLabelName(char *buffer, size_t size, int labelId) {
     snprintf(buffer, size, "Label %d", labelId);
 }
 
+static int getFrameBaseRegister(VARIABLE *var) {
+    return (var != NULL && var->bool_global) ? $zero : $fp;
+}
+
 void assembly (){
     initializeAssembly();
 
@@ -372,16 +376,47 @@ void generateAssembly(INSTRUCTION *instruction){
     } else if (!strcmp(instruction->operator, "LOAD")){
         char *variableName = getLocalName(instruction->arg2->name);
         VARIABLE *var = get_variable(currentFunction, variableName);
+        int baseRegister;
 
         if (var == NULL) {
             return;
         }
 
-        newInstruction = createAssemblyNode(typeI, "lw");
-        newInstruction->type_i->rt = instruction->arg1->val;
-        newInstruction->type_i->rs = $fp;
-        newInstruction->type_i->immediate = get_fp_relation(currentFunction, var);
-        assemblyInstructions[assemblyCount++] = newInstruction;
+        baseRegister = getFrameBaseRegister(var);
+
+        if (instruction->arg3 != NULL && instruction->arg3->type != Empty) {
+            if (var->type == vectorArg) {
+                newInstruction = createAssemblyNode(typeI, "lw");
+                newInstruction->type_i->rt = $temp;
+                newInstruction->type_i->rs = $fp;
+                newInstruction->type_i->immediate = get_fp_relation(currentFunction, var);
+                assemblyInstructions[assemblyCount++] = newInstruction;
+            } else {
+                newInstruction = createAssemblyNode(typeI, "addi");
+                newInstruction->type_i->rt = $temp;
+                newInstruction->type_i->rs = baseRegister;
+                newInstruction->type_i->immediate = get_fp_relation(currentFunction, var);
+                assemblyInstructions[assemblyCount++] = newInstruction;
+            }
+
+            newInstruction = createAssemblyNode(typeR, "add");
+            newInstruction->type_r->rd = $temp;
+            newInstruction->type_r->rs = $temp;
+            newInstruction->type_r->rt = instruction->arg3->val;
+            assemblyInstructions[assemblyCount++] = newInstruction;
+
+            newInstruction = createAssemblyNode(typeI, "lw");
+            newInstruction->type_i->rt = instruction->arg1->val;
+            newInstruction->type_i->rs = $temp;
+            newInstruction->type_i->immediate = 0;
+            assemblyInstructions[assemblyCount++] = newInstruction;
+        } else {
+            newInstruction = createAssemblyNode(typeI, "lw");
+            newInstruction->type_i->rt = instruction->arg1->val;
+            newInstruction->type_i->rs = baseRegister;
+            newInstruction->type_i->immediate = get_fp_relation(currentFunction, var);
+            assemblyInstructions[assemblyCount++] = newInstruction;
+        }
     } else if (!strcmp(instruction->operator, "PARAM")){
         FUNCTION_MEMORY *parameters = findFunction(&memoryVector, "parameters");
 
@@ -391,10 +426,13 @@ void generateAssembly(INSTRUCTION *instruction){
 
         if (instruction->arg2->type == String && !strcmp(instruction->arg2->name, "VET")) {
             VARIABLE *var = get_variable(currentFunction, getLocalName(instruction->arg3->name));
+            int baseRegister;
 
             if (var == NULL) {
                 return;
             }
+
+            baseRegister = getFrameBaseRegister(var);
 
             if (var->type == vectorArg) {
                 newInstruction = createAssemblyNode(typeI, "lw");
@@ -405,7 +443,7 @@ void generateAssembly(INSTRUCTION *instruction){
             } else {
                 newInstruction = createAssemblyNode(typeI, "addi");
                 newInstruction->type_i->rt = instruction->arg1->val;
-                newInstruction->type_i->rs = $fp;
+                newInstruction->type_i->rs = baseRegister;
                 newInstruction->type_i->immediate = get_fp_relation(currentFunction, var);
                 assemblyInstructions[assemblyCount++] = newInstruction;
             }
@@ -466,57 +504,48 @@ void generateAssembly(INSTRUCTION *instruction){
 
         char *variableName = getLocalName(instruction->arg1->name);
         VARIABLE *var = get_variable(currentFunction, variableName);
+        int baseRegister;
 
         if (var == NULL) {
             return;
         }
 
+        baseRegister = getFrameBaseRegister(var);
+
         if (instruction->arg3->type != Empty){
             //Store de um valor em um vetor
 
-            if (var->type == vector){
-                newInstruction = createAssemblyNode(typeI, "addi");
-                newInstruction->type_i->rt = $temp;
-                newInstruction->type_i->rs = $fp;
-                newInstruction->type_i->immediate = get_fp_relation(currentFunction, var);
-                assemblyInstructions[assemblyCount++] = newInstruction;
-
-                newInstruction = createAssemblyNode(typeR, "add");
-                newInstruction->type_r->rd = $temp;
-                newInstruction->type_r->rs = $temp;
-                newInstruction->type_r->rt = instruction->arg3->val;
-                assemblyInstructions[assemblyCount++] = newInstruction;
-
-                newInstruction = createAssemblyNode(typeI, "sw");
-                newInstruction->type_i->rt = instruction->arg2->val;
-                newInstruction->type_i->rs = $temp;
-                newInstruction->type_i->immediate = 0;
-                assemblyInstructions[assemblyCount++] = newInstruction;
-            } else {
+            if (var->type == vectorArg){
                 newInstruction = createAssemblyNode(typeI, "lw");
                 newInstruction->type_i->rt = $temp;
                 newInstruction->type_i->rs = $fp;
                 newInstruction->type_i->immediate = get_fp_relation(currentFunction, var);
                 assemblyInstructions[assemblyCount++] = newInstruction;
-
-                newInstruction = createAssemblyNode(typeR, "add");
-                newInstruction->type_r->rd = $temp;
-                newInstruction->type_r->rs = $temp;
-                newInstruction->type_r->rt = instruction->arg3->val;
-                assemblyInstructions[assemblyCount++] = newInstruction;
-
-                newInstruction = createAssemblyNode(typeI, "sw");
-                newInstruction->type_i->rt = instruction->arg2->val;
-                newInstruction->type_i->rs = $temp;
-                newInstruction->type_i->immediate = 0;
+            } else {
+                newInstruction = createAssemblyNode(typeI, "addi");
+                newInstruction->type_i->rt = $temp;
+                newInstruction->type_i->rs = baseRegister;
+                newInstruction->type_i->immediate = get_fp_relation(currentFunction, var);
                 assemblyInstructions[assemblyCount++] = newInstruction;
             }
+
+            newInstruction = createAssemblyNode(typeR, "add");
+            newInstruction->type_r->rd = $temp;
+            newInstruction->type_r->rs = $temp;
+            newInstruction->type_r->rt = instruction->arg3->val;
+            assemblyInstructions[assemblyCount++] = newInstruction;
+
+            newInstruction = createAssemblyNode(typeI, "sw");
+            newInstruction->type_i->rt = instruction->arg2->val;
+            newInstruction->type_i->rs = $temp;
+            newInstruction->type_i->immediate = 0;
+            assemblyInstructions[assemblyCount++] = newInstruction;
         } else {
             //Store de um valor em uma variavel
 
             newInstruction = createAssemblyNode(typeI, "sw");
             newInstruction->type_i->rt = instruction->arg2->val;
-            newInstruction->type_i->rs = $fp;
+            newInstruction->type_i->rs = baseRegister;
             newInstruction->type_i->immediate = get_fp_relation(currentFunction, var);
             assemblyInstructions[assemblyCount++] = newInstruction;
         }
