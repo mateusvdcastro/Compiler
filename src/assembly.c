@@ -555,6 +555,36 @@ void generateAssembly(INSTRUCTION *instruction){
             return;
         }
 
+        if (!strcmp(instruction->arg1->name, "setLcd")) {
+            FUNCTION_MEMORY *parameters =
+                findFunction(&memoryVector, "parameters");
+
+            if (parameters == NULL || parameters->size < 1) {
+                fprintf(stderr, "Erro: setLcd requer um parametro.\n");
+                exit(EXIT_FAILURE);
+            }
+
+            // Retira o parametro da estrutura usada pelo compilador.
+            delete_temp(parameters);
+
+            // Carrega o argumento em $temp.
+            newInstruction = createAssemblyNode(typeI, "lw");
+            newInstruction->type_i->rt = $temp;
+            newInstruction->type_i->rs = $pilha;
+            newInstruction->type_i->immediate = parameters->size;
+            assemblyInstructions[assemblyCount++] = newInstruction;
+
+
+            // Set_LCD usa rs como fonte da mensagem.
+            newInstruction = createAssemblyNode(typeI, "Set_LCD");
+            newInstruction->type_i->rs = $temp;
+            newInstruction->type_i->rt = $zero;
+            newInstruction->type_i->immediate = 0;
+            assemblyInstructions[assemblyCount++] = newInstruction;
+
+            return;
+        }
+
         if (!strcmp(instruction->arg1->name, "output")){
             delete_temp(findFunction(&memoryVector, "parameters"));
 

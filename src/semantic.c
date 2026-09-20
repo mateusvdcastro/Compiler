@@ -378,6 +378,10 @@ void analyzeTree(TreeNode *tree, Item *table[], char *scope) {
     insertableWithParams(table, FunDeclK, Type_int, "input", "global", 0, 0);
     // void output(int x) - 1 parâmetro
     insertableWithParams(table, FunDeclK, Type_void, "output", "global", 0, 1);
+
+
+    // void setLcd(int msg) - 1 parâmetro
+    insertableWithParams(table, FunDeclK, Type_void, "setLcd", "global", 0, 1);
     
     // Primeira passagem: coletar todas as declarações globais (sem duplicatas)
     insertGlobalDeclarations(tree, table);

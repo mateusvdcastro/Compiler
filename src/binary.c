@@ -11,6 +11,10 @@
 unsigned int get_opcode(char * name, instruction_type_t type){
     int opcode = -1;
 
+    if (type == typeI && !strcmp(name, "Set_LCD")) {
+        return 0b010011;
+    }
+
     if (type == typeR) {
         opcode = 0b000000;
     } else if (!strcmp(name, "lw")) {
@@ -43,7 +47,7 @@ unsigned int get_opcode(char * name, instruction_type_t type){
         opcode = 0b111111;
     } else if (!strcmp(name, "xori")){
         opcode = 0b010010;
-    }
+    } 
     return opcode;
 }
 
