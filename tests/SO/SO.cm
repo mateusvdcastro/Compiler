@@ -1,0 +1,158 @@
+int CURRENT_PROCESS;
+
+int START_IM;
+int PROG_INTERVAL_IM;
+int START_DM;
+int PROG_INTERVAL_DM;
+
+int START_IM_COMPLEX;
+int PROG_INTERVAL_IM_COMPLEX;
+int START_DM_COMPLEX;
+int PROG_INTERVAL_DM_COMPLEX;
+int COMPLEX_PROG_ID;
+
+int instruction_memory_procs[12];
+int data_memory_procs[12];
+
+void init_constants(void) {
+    int i;
+
+    CURRENT_PROCESS = 0;
+
+    START_IM = 2048;
+    PROG_INTERVAL_IM = 256;
+
+    START_DM = 512;
+    PROG_INTERVAL_DM = 512;
+
+    START_IM_COMPLEX = 4608;
+    PROG_INTERVAL_IM_COMPLEX = 3584;
+
+    START_DM_COMPLEX = 5632;
+    PROG_INTERVAL_DM_COMPLEX = 2560;
+
+    COMPLEX_PROG_ID = 11;
+
+    instruction_memory_procs[0] = 0;
+    data_memory_procs[0] = 0;
+
+    i = 1;
+
+    while (i <= 10) {
+        instruction_memory_procs[i] =
+            START_IM + (i - 1) * PROG_INTERVAL_IM;
+
+        data_memory_procs[i] =
+            START_DM + (i - 1) * PROG_INTERVAL_DM;
+
+        i = i + 1;
+    }
+
+    instruction_memory_procs[11] = START_IM_COMPLEX;
+    data_memory_procs[11] = START_DM_COMPLEX;
+}
+
+
+/* Reservada para a futura etapa preemptiva. */
+void preemp_choice(void) {
+    output(90);
+}
+
+
+/* Seleciona um programa simples entre 1 e 10. */
+void on_preemp_choice_simples(void) {
+    int chosen_program;
+
+    CURRENT_PROCESS = 0;
+    chosen_program = input();
+
+    if (chosen_program >= 1) {
+        if (chosen_program <= 10) {
+            CURRENT_PROCESS = chosen_program;
+        }
+    }
+}
+
+
+/* O programa complexo ocupa o ID 11. */
+void non_preemp_choice_complexo(void) {
+    CURRENT_PROCESS = COMPLEX_PROG_ID;
+}
+
+
+void run_non_preemptive_mode(int prog_num) {
+    int offset_im;
+    int offset_dm;
+
+    /* Consultar as variaveis do SO antes de trocar as bases. */
+    offset_im = instruction_memory_procs[prog_num];
+    offset_dm = data_memory_procs[prog_num];
+
+    os_save_context();
+
+    os_set_pc(offset_im);
+    os_set_im_base(offset_im);
+    os_set_dm_base(offset_dm);
+
+    os_jump_to();
+
+    /*
+     * O HALT do usuario retorna para este ponto.
+     * Antes da restauracao, usar somente estas operacoes
+     * com constantes; nao acessar variaveis do SO.
+     */
+    os_set_dm_base(0);
+    os_set_im_base(0);
+    os_restore_context();
+
+    CURRENT_PROCESS = 0;
+}
+            
+void main(void) {
+    int running_shell;
+    int mode_choice;
+    int sc_choice;
+
+    init_constants();
+
+    running_shell = 1;
+
+    while (running_shell == 1) {
+        /*
+         * Primeira entrada:
+         * 0 = encerrar
+         * 1 = preemptivo, ainda indisponivel
+         * 2 = nao preemptivo
+         */
+        mode_choice = input();
+
+        if (mode_choice == 0) {
+            running_shell = 0;
+        } else if (mode_choice == 1) {
+            preemp_choice();
+        } else if (mode_choice == 2) {
+            /*
+             * Segunda entrada:
+             * 1 = programa simples
+             * 2 = programa complexo
+             */
+            sc_choice = input();
+            CURRENT_PROCESS = 0;
+
+            if (sc_choice == 1) {
+                /* Terceira entrada: ID entre 1 e 10. */
+                on_preemp_choice_simples();
+            } else if (sc_choice == 2) {
+                non_preemp_choice_complexo();
+            }
+
+            if (CURRENT_PROCESS != 0) {
+                run_non_preemptive_mode(CURRENT_PROCESS);
+            } else {
+                output(99);
+            }
+        } else {
+            output(99);
+        }
+    }
+}

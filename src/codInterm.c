@@ -8,8 +8,6 @@
 
 #define LABEL_PREFIX "L"
 #define LOCAL_SCOPE_SEP "::"
-#define FIRST_TEMP_REGISTER 0
-#define TEMP_REGISTER_COUNT 26
 
 INSTRUCTION **intermediateCode = NULL;
 int intermediateCodeCount = 0;
@@ -821,6 +819,8 @@ void generateNode(TreeNode *tree, Item *symbolTable[], const char *scope, int tr
     if (tree == NULL) {
         return;
     }
+
+    tempCounter = 0;
 
     if (tree->nodeKind == StmtK) {
         generateStatement(tree, symbolTable, scope);

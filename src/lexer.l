@@ -70,7 +70,7 @@ int isEmpty(Stack *lexStack) {
 DIGIT    [0-9]
 NUMBER    {DIGIT}+
 LETTER     [a-zA-Z]
-IDENT     {LETTER}({LETTER}|{DIGIT})*
+IDENT     [a-zA-Z_][a-zA-Z0-9_]*
 NEWLINE   \r?\n
 WHITESPACE [ \t]+
 

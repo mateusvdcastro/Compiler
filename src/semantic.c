@@ -373,6 +373,13 @@ void analyzeTreeSecondPass(TreeNode *tree, Item *table[], char *scope) {
 
 // Entrada principal de análise semântica
 void analyzeTree(TreeNode *tree, Item *table[], char *scope) {
+    insertableWithParams(table, FunDeclK, Type_void, "os_set_pc", "global", 0, 1);
+    insertableWithParams(table, FunDeclK, Type_void, "os_set_im_base", "global", 0, 1);
+    insertableWithParams(table, FunDeclK, Type_void, "os_set_dm_base", "global", 0, 1);
+    insertableWithParams(table, FunDeclK, Type_void, "os_save_context", "global", 0, 0);
+    insertableWithParams(table, FunDeclK, Type_void, "os_restore_context", "global", 0, 0);
+    insertableWithParams(table, FunDeclK, Type_void, "os_jump_to", "global", 0, 0);
+
     // Inserir funções pré-definidas (input, output)
     // int input(void) - 0 parâmetros
     insertableWithParams(table, FunDeclK, Type_int, "input", "global", 0, 0);

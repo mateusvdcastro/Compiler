@@ -45,7 +45,7 @@ static void formatLabelName(char *buffer, size_t size, int labelId) {
 }
 
 static int getFrameBaseRegister(VARIABLE *var) {
-    return (var != NULL && var->bool_global) ? $zero : $fp;
+    return (var != NULL && var->bool_global) ? $s0 : $fp;
 }
 
 void assembly (){
@@ -229,6 +229,59 @@ int relationalOp(INSTRUCTION * instruction, ASSEMBLY ** newInstruction){
     return 1;
 }
 
+static void emitI(const char *name, int rt, int rs, int immediate) {
+    ASSEMBLY *a = createAssemblyNode(typeI, (char *)name);
+    a->type_i->rt = rt;
+    a->type_i->rs = rs;
+    a->type_i->immediate = immediate;
+    assemblyInstructions[assemblyCount++] = a;
+}
+
+static void emitMove(int destination, int source) {
+    ASSEMBLY *a = createAssemblyNode(typeR, "add");
+    a->type_r->rd = destination;
+    a->type_r->rs = source;
+    a->type_r->rt = $zero;
+    assemblyInstructions[assemblyCount++] = a;
+}
+
+static int generateOSCall(INSTRUCTION *instruction) {
+    const char *name = instruction->arg1->name;
+    int destination = -1;
+
+    if (!strcmp(name, "os_set_pc")) destination = $k0;
+    else if (!strcmp(name, "os_set_im_base")) destination = $s1;
+    else if (!strcmp(name, "os_set_dm_base")) destination = $s0;
+
+    if (destination != -1) {
+        FUNCTION_MEMORY *parameters = findFunction(&memoryVector, "parameters");
+        if (parameters == NULL || parameters->size < 1) {
+            fprintf(stderr, "Erro: %s requer um argumento.\n", name);
+            exit(EXIT_FAILURE);
+        }
+        delete_temp(parameters);
+        emitI("lw", $temp, $pilha, parameters->size);
+        emitMove(destination, $temp);
+        return 1;
+    }
+
+    if (!strcmp(name, "os_save_context") || !strcmp(name, "os_restore_context")) {
+        const char *operation = !strcmp(name, "os_save_context") ? "sw" : "lw";
+        for (int reg = 0; reg < 31; reg++) {
+            if (reg != $k0) {
+                emitI(operation, reg, $zero, INIT_CONTEXT_SWITCH + reg);
+            }
+        }
+        return 1;
+    }
+
+    if (!strcmp(name, "os_jump_to")) {
+        emitI("os_jump_to", $zero, $k0, 0);
+        return 1;
+    }
+    return 0;
+}
+
 void generateAssembly(INSTRUCTION *instruction){
     ASSEMBLY * newInstruction = NULL;
 
@@ -316,35 +369,29 @@ void generateAssembly(INSTRUCTION *instruction){
         currentFunction = insertFunction(&memoryVector, functionName);
 
         if (!strcmp(functionName, "main")){
-            newInstruction = createAssemblyNode(typeI, "ori");
-            newInstruction->type_i->rt = $fp;
-            newInstruction->type_i->rs = $zero;
-            newInstruction->type_i->immediate = findFunction(&memoryVector, "global")->size + get_fp(currentFunction);
-            assemblyInstructions[assemblyCount++] = newInstruction;
+            int globalSize = findFunction(&memoryVector, "global")->size;
+            int stackReady = nextLabelId();
+            char labelName[32];
 
-            newInstruction = createAssemblyNode(typeR, "add");
-            newInstruction->type_r->rd = $fp;
-            newInstruction->type_r->rs = $fp;
-            newInstruction->type_r->rt = $zero;
-            assemblyInstructions[assemblyCount++] = newInstruction;
+            emitI("addi", $fp, $s0, globalSize + get_fp(currentFunction));
+            emitI("addi", $sp, $s0, globalSize + get_sp(currentFunction));
+            emitI("addi", $pilha, $s0, INIT_STACK_PARAMS);
+            emitI("ori", $temp, $zero, START_DM_COMPLEX);
 
-            newInstruction = createAssemblyNode(typeI, "ori");
-            newInstruction->type_i->rt = $sp;
-            newInstruction->type_i->rs = $zero;
-            newInstruction->type_i->immediate = findFunction(&memoryVector, "global")->size + get_sp(currentFunction);
-            assemblyInstructions[assemblyCount++] = newInstruction;
+            ASSEMBLY *branch = createAssemblyNode(typeI, "bne");
+            branch->type_i->rs = $s0;
+            branch->type_i->rt = $temp;
+            branch->type_i->label = stackReady;
+            assemblyInstructions[assemblyCount++] = branch;
 
-            newInstruction = createAssemblyNode(typeR, "add");
-            newInstruction->type_r->rd = $sp;
-            newInstruction->type_r->rs = $sp;
-            newInstruction->type_r->rt = $zero;
-            assemblyInstructions[assemblyCount++] = newInstruction;
+            emitI("addi", $pilha, $s0, INIT_STACK_PARAMS_COMPLEX);
+            formatLabelName(labelName, sizeof(labelName), stackReady);
 
-            newInstruction = createAssemblyNode(typeI, "addi");
-            newInstruction->type_i->rt = $pilha;
-            newInstruction->type_i->rs = $zero;
-            newInstruction->type_i->immediate = 4000;
-            assemblyInstructions[assemblyCount++] = newInstruction;
+            ASSEMBLY *label = createAssemblyNode(typeLabel, labelName);
+            label->type_label->is_dynamic = 1;
+            label->type_label->endereco = assemblyCount;
+            insertLabel(labelName, assemblyCount);
+            assemblyInstructions[assemblyCount++] = label;
         } else {
             newInstruction = createAssemblyNode(typeI, "sw");
             newInstruction->type_i->rt = $ra;
@@ -449,6 +496,10 @@ void generateAssembly(INSTRUCTION *instruction){
             }
         }
 
+        if (parameters->size >= PARAM_AREA_WORDS) {
+            fprintf(stderr, "Erro: area de parametros excedida.\n");
+            exit(EXIT_FAILURE);
+        }
         newInstruction = createAssemblyNode(typeI, "sw");
         newInstruction->type_i->rt = instruction->arg1->val;
         newInstruction->type_i->rs = $pilha;
@@ -552,6 +603,10 @@ void generateAssembly(INSTRUCTION *instruction){
     } else if (!strcmp(instruction->operator, "CALL")){
         if (!instruction->arg3){
             printf("Erro: Chamada sem registrador de destino.\n");
+            return;
+        }
+
+        if (generateOSCall(instruction)) {
             return;
         }
 
@@ -724,6 +779,15 @@ void type_reg(int reg){
             break;
         case $pilha:
             fprintf(outputFile_Assembly, "$pilha");
+            break;
+        case $k0:
+            fprintf(outputFile_Assembly, "$k0");
+            break;
+        case $s1:
+            fprintf(outputFile_Assembly, "$s1");
+            break;
+        case $s0:
+            fprintf(outputFile_Assembly, "$s0");
             break;
         default:
             fprintf(outputFile_Assembly, "$t%d", reg);

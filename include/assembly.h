@@ -1,6 +1,8 @@
 #ifndef ASSEMBLY_H
 #define ASSEMBLY_H 1
 
+#include "memory_layout.h"
+
 // Capacidade maxima para o vetor dos nomes das instrucoes
 #define MAX_CHAR_NAME 5 /* Maximum characters in mnemonic */
 #define MAX_ASSEMBLY 10000 /* Maximum number of assembly instructions */
@@ -11,6 +13,9 @@
 #define $sp 28 // Stack Pointer (endereco do topo da pilha de ativacao da funcao atual)
 #define $temp 27 // Registrador para instruções que exigem registradores temporarios
 #define $pilha 26 // Parametros da pilha (endereço das pilhas dos parametros)
+#define $k0 25           /* Kernel register 0 */
+#define $s1 24           /* Saved register 1 */
+#define $s0 23           /* Saved register 0 */
 
 typedef enum{
     typeR, // Instrucoes do tipo R

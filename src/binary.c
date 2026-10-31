@@ -11,6 +11,10 @@
 unsigned int get_opcode(char * name, instruction_type_t type){
     int opcode = -1;
 
+    if (type == typeI && !strcmp(name, "os_jump_to")) {
+        return 0b010100;
+    }
+
     if (type == typeI && !strcmp(name, "Set_LCD")) {
         return 0b010011;
     }

@@ -7,6 +7,9 @@
 
 #define MAX_INSTRUCTIONS 1000
 
+#define FIRST_TEMP_REGISTER 0
+#define TEMP_REGISTER_COUNT 23   /* r0..r22 */
+
 /*
  * booldReg field in ADDRESS:
  * 0 = literal/symbol
