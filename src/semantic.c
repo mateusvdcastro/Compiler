@@ -379,6 +379,12 @@ void analyzeTree(TreeNode *tree, Item *table[], char *scope) {
     insertableWithParams(table, FunDeclK, Type_void, "os_save_context", "global", 0, 0);
     insertableWithParams(table, FunDeclK, Type_void, "os_restore_context", "global", 0, 0);
     insertableWithParams(table, FunDeclK, Type_void, "os_jump_to", "global", 0, 0);
+    insertableWithParams(table, FunDeclK, Type_void,
+                         "set_interr_timer", "global", 0, 1);
+    insertableWithParams(table, FunDeclK, Type_int,
+                         "get_pc", "global", 0, 0);
+    insertableWithParams(table, FunDeclK, Type_int,
+                         "get_interr_type", "global", 0, 0);
 
     // Inserir funções pré-definidas (input, output)
     // int input(void) - 0 parâmetros
@@ -389,6 +395,8 @@ void analyzeTree(TreeNode *tree, Item *table[], char *scope) {
 
     // void setLcd(int msg) - 1 parâmetro
     insertableWithParams(table, FunDeclK, Type_void, "setLcd", "global", 0, 1);
+    insertableWithParams(table, FunDeclK, Type_void,
+                         "show_lcd", "global", 0, 1);
     
     // Primeira passagem: coletar todas as declarações globais (sem duplicatas)
     insertGlobalDeclarations(tree, table);

@@ -247,34 +247,27 @@ static void emitMove(int destination, int source) {
 
 static int generateOSCall(INSTRUCTION *instruction) {
     const char *name = instruction->arg1->name;
-    int destination = -1;
 
-    if (!strcmp(name, "os_set_pc")) destination = $k0;
-    else if (!strcmp(name, "os_set_im_base")) destination = $s1;
-    else if (!strcmp(name, "os_set_dm_base")) destination = $s0;
-
-    if (destination != -1) {
-        FUNCTION_MEMORY *parameters = findFunction(&memoryVector, "parameters");
-        if (parameters == NULL || parameters->size < 1) {
-            fprintf(stderr, "Erro: %s requer um argumento.\n", name);
-            exit(EXIT_FAILURE);
-        }
-        delete_temp(parameters);
-        emitI("lw", $temp, $pilha, parameters->size);
-        emitMove(destination, $temp);
-        return 1;
-    }
-
-    if (!strcmp(name, "os_save_context") || !strcmp(name, "os_restore_context")) {
-        const char *operation = !strcmp(name, "os_save_context") ? "sw" : "lw";
+    if (!strcmp(name, "os_save_context")) {
         for (int reg = 0; reg < 31; reg++) {
-            if (reg != $k0) {
-                emitI(operation, reg, $zero, INIT_CONTEXT_SWITCH + reg);
-            }
+            if (reg != $k0)
+                emitI("sw", reg, $s0, INIT_CONTEXT_SWITCH + reg);
         }
         return 1;
     }
-
+    if (!strcmp(name, "os_restore_context")) {
+        for (int reg = 0; reg < 31; reg++) {
+            if (reg != $k0 && reg != $s0)
+                emitI("lw", reg, $s0, INIT_CONTEXT_SWITCH + reg);
+        }
+        // Restaurar a base por último, depois de todos os demais loads.
+        emitI("lw", $s0, $s0, INIT_CONTEXT_SWITCH + $s0);
+        return 1;
+    }
+    if (!strcmp(name, "get_pc") || !strcmp(name, "get_interr_type")) {
+        emitI(name, instruction->arg3->val, $zero, 0);
+        return 1;
+    }
     if (!strcmp(name, "os_jump_to")) {
         emitI("os_jump_to", $zero, $k0, 0);
         return 1;
@@ -284,6 +277,28 @@ static int generateOSCall(INSTRUCTION *instruction) {
 
 void generateAssembly(INSTRUCTION *instruction){
     ASSEMBLY * newInstruction = NULL;
+
+    if (!strcmp(instruction->operator, "SHOW_LCD")) {
+        emitI("Set_LCD", $zero, $zero, instruction->arg1->val);
+        return;
+    }
+
+    if (!strcmp(instruction->operator, "OS_SET_PC")) {
+        emitMove($k0, instruction->arg1->val);
+        return;
+    }
+    if (!strcmp(instruction->operator, "OS_SET_IM_BASE")) {
+        emitMove($s1, instruction->arg1->val);
+        return;
+    }
+    if (!strcmp(instruction->operator, "OS_SET_DM_BASE")) {
+        emitMove($s0, instruction->arg1->val);
+        return;
+    }
+    if (!strcmp(instruction->operator, "SET_INTERR_TIMER")) {
+        emitI("set_interr_timer", $zero, $zero, instruction->arg1->val);
+        return;
+    }
 
     if (aritmeticOp(instruction, &newInstruction)){
         assemblyInstructions[assemblyCount++] = newInstruction;

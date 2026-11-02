@@ -11,6 +11,10 @@
 unsigned int get_opcode(char * name, instruction_type_t type){
     int opcode = -1;
 
+    if (type == typeI && !strcmp(name, "set_interr_timer")) return 0b010101;
+    if (type == typeI && !strcmp(name, "get_pc")) return 0b010110;
+    if (type == typeI && !strcmp(name, "get_interr_type")) return 0b010111;
+
     if (type == typeI && !strcmp(name, "os_jump_to")) {
         return 0b010100;
     }

@@ -653,6 +653,57 @@ ADDRESS generateExpression(TreeNode *tree, Item *symbolTable[], const char *scop
         {
             int argumentCount = 0;
             TreeNode *argumentNode = tree->child[0];
+            const char *osOperation = NULL;
+
+            if (!strcmp(tree->lexeme, "show_lcd")) {
+                long message;
+                if (argumentNode == NULL || argumentNode->sibling != NULL ||
+                    argumentNode->expKind != ConstK) {
+                    fprintf(stderr, "Erro: show_lcd requer constante de 1 a 32.\n");
+                    exit(EXIT_FAILURE);
+                }
+                message = strtol(argumentNode->lexeme, NULL, 10);
+                if (message < 1 || message > 32) {
+                    fprintf(stderr, "Erro: mensagem fora de 1 a 32.\n");
+                    exit(EXIT_FAILURE);
+                }
+                emitInstruction("SHOW_LCD", makeConstAddress((int)message),
+                                makeEmptyAddress(), makeEmptyAddress());
+                return makeEmptyAddress();
+            }
+
+            if (!strcmp(tree->lexeme, "os_set_pc")) osOperation = "OS_SET_PC";
+            else if (!strcmp(tree->lexeme, "os_set_im_base")) osOperation = "OS_SET_IM_BASE";
+            else if (!strcmp(tree->lexeme, "os_set_dm_base")) osOperation = "OS_SET_DM_BASE";
+
+            if (osOperation != NULL) {
+                if (argumentNode == NULL || argumentNode->sibling != NULL) {
+                    fprintf(stderr, "Erro: %s requer um argumento.\n", tree->lexeme);
+                    exit(EXIT_FAILURE);
+                }
+                argumentAddress = ensureRegister(
+                    generateExpression(argumentNode, symbolTable, scope));
+                emitInstruction(osOperation, argumentAddress,
+                                makeEmptyAddress(), makeEmptyAddress());
+                return makeEmptyAddress();
+            }
+
+            if (!strcmp(tree->lexeme, "set_interr_timer")) {
+                long quantum;
+                if (argumentNode == NULL || argumentNode->sibling != NULL ||
+                    argumentNode->expKind != ConstK) {
+                    fprintf(stderr, "Erro: timer requer constante de 0 a 65535.\n");
+                    exit(EXIT_FAILURE);
+                }
+                quantum = strtol(argumentNode->lexeme, NULL, 10);
+                if (quantum < 0 || quantum > 65535) {
+                    fprintf(stderr, "Erro: quantum fora de 0 a 65535.\n");
+                    exit(EXIT_FAILURE);
+                }
+                emitInstruction("SET_INTERR_TIMER", makeConstAddress((int)quantum),
+                                makeEmptyAddress(), makeEmptyAddress());
+                return makeEmptyAddress();
+            }
 
             while (argumentNode != NULL) {
                 if (argumentNode->expKind == IdK && isArraySymbol(symbolTable, argumentNode->lexeme, scope)) {

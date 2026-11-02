@@ -14,9 +14,17 @@ int COMPLEX_PROG_ID;
 int instruction_memory_procs[12];
 int data_memory_procs[12];
 
+int STATE_PROCESS[12];        /* 0 ausente, 1 pronto, 2 executando, 4 finalizado */
+int PROCESS_QUEUE[12];
+int PROC_PC_SALVO[12];
+int FIRST_EXECUTION_PROC[12];
+int NUMBER_OF_PROCS;
+int ACTIVE_PROCESSES;
+
 void init_constants(void) {
     int i;
 
+    show_lcd(10);
     CURRENT_PROCESS = 0;
 
     START_IM = 2048;
@@ -53,9 +61,148 @@ void init_constants(void) {
 }
 
 
-/* Reservada para a futura etapa preemptiva. */
+void reset_process_flags(void) {
+    int i;
+    show_lcd(28);
+    i = 0;
+    while (i <= 11) {
+        STATE_PROCESS[i] = 0;
+        PROCESS_QUEUE[i] = 0;
+        PROC_PC_SALVO[i] = 0;
+        FIRST_EXECUTION_PROC[i] = 1;
+        i = i + 1;
+    }
+    NUMBER_OF_PROCS = 0;
+    ACTIVE_PROCESSES = 0;
+}
+
 void preemp_choice(void) {
-    output(90);
+    int requested;
+    int i;
+    int id;
+    int valid;
+
+    reset_process_flags();
+    show_lcd(11);
+    requested = input();
+    if (requested >= 1) {
+        if (requested <= 10) {
+            NUMBER_OF_PROCS = requested;
+        }
+    }
+    if (NUMBER_OF_PROCS == 0) {
+        show_lcd(29);
+        output(99);
+    } else {
+        i = 0;
+        while (i < NUMBER_OF_PROCS) {
+            show_lcd(12);
+            id = input();
+            valid = 0;
+            if (id >= 1) {
+                if (id <= 10) {
+                    if (STATE_PROCESS[id] == 0) {
+                        valid = 1;
+                    }
+                }
+            }
+            if (valid == 1) {
+                PROCESS_QUEUE[i] = id;
+                STATE_PROCESS[id] = 1;
+                PROC_PC_SALVO[id] = instruction_memory_procs[id];
+                FIRST_EXECUTION_PROC[id] = 1;
+                ACTIVE_PROCESSES = ACTIVE_PROCESSES + 1;
+                i = i + 1;
+            } else {
+                show_lcd(13);
+                output(99);
+            }
+        }
+    }
+}
+
+void run_preemptive_mode(void) {
+    int idx;
+    int proc;
+    int cause;
+    int first;
+    int base_im;
+    int base_dm;
+    int pc_resume;
+
+    idx = 0;
+    show_lcd(17);
+    while (ACTIVE_PROCESSES > 0) {
+        proc = PROCESS_QUEUE[idx];
+        if (STATE_PROCESS[proc] != 4) {
+            CURRENT_PROCESS = proc;
+            STATE_PROCESS[proc] = 2;
+            first = FIRST_EXECUTION_PROC[proc];
+            FIRST_EXECUTION_PROC[proc] = 0;
+            base_im = instruction_memory_procs[proc];
+            base_dm = data_memory_procs[proc];
+            pc_resume = PROC_PC_SALVO[proc];
+
+            if (first == 1) {
+                show_lcd(27);
+                show_lcd(18);
+                os_save_context();
+                show_lcd(19);
+                os_set_pc(pc_resume);
+                os_set_im_base(base_im);
+                os_set_dm_base(base_dm);
+                show_lcd(16);
+                set_interr_timer(50);
+                show_lcd(21);
+                os_jump_to();
+
+                os_save_context();
+                os_set_dm_base(0);
+                os_set_im_base(0);
+                os_restore_context();
+            } else {
+                show_lcd(26);
+                show_lcd(18);
+                os_save_context();
+                show_lcd(19);
+                os_set_pc(pc_resume);
+                os_set_im_base(base_im);
+                os_set_dm_base(base_dm);
+                show_lcd(20);
+                os_restore_context();
+                show_lcd(16);
+                set_interr_timer(50);
+                show_lcd(21);
+                os_jump_to();
+
+                os_save_context();
+                os_set_dm_base(0);
+                os_set_im_base(0);
+                os_restore_context();
+            }
+
+            show_lcd(22);
+            cause = get_interr_type();
+            if (cause == 1) {
+                show_lcd(23);
+                PROC_PC_SALVO[proc] = get_pc();
+                STATE_PROCESS[proc] = 1;
+            } else if (cause == 2) {
+                show_lcd(24);
+                STATE_PROCESS[proc] = 4;
+                ACTIVE_PROCESSES = ACTIVE_PROCESSES - 1;
+            }
+        }
+        show_lcd(25);
+        idx = idx + 1;
+        if (idx >= NUMBER_OF_PROCS) {
+            idx = 0;
+        }
+    }
+    set_interr_timer(0);
+    show_lcd(15);
+    reset_process_flags();
+    CURRENT_PROCESS = 0;
 }
 
 
@@ -64,6 +211,7 @@ void on_preemp_choice_simples(void) {
     int chosen_program;
 
     CURRENT_PROCESS = 0;
+    show_lcd(3);
     chosen_program = input();
 
     if (chosen_program >= 1) {
@@ -84,27 +232,22 @@ void run_non_preemptive_mode(int prog_num) {
     int offset_im;
     int offset_dm;
 
-    /* Consultar as variaveis do SO antes de trocar as bases. */
     offset_im = instruction_memory_procs[prog_num];
     offset_dm = data_memory_procs[prog_num];
-
+    set_interr_timer(0);
+    show_lcd(18);
     os_save_context();
-
+    show_lcd(19);
     os_set_pc(offset_im);
     os_set_im_base(offset_im);
     os_set_dm_base(offset_dm);
-
+    show_lcd(21);
     os_jump_to();
 
-    /*
-     * O HALT do usuario retorna para este ponto.
-     * Antes da restauracao, usar somente estas operacoes
-     * com constantes; nao acessar variaveis do SO.
-     */
     os_set_dm_base(0);
     os_set_im_base(0);
     os_restore_context();
-
+    show_lcd(22);
     CURRENT_PROCESS = 0;
 }
             
@@ -113,45 +256,42 @@ void main(void) {
     int mode_choice;
     int sc_choice;
 
+    show_lcd(1);
     init_constants();
-
+    set_interr_timer(0);
+    reset_process_flags();
     running_shell = 1;
 
     while (running_shell == 1) {
-        /*
-         * Primeira entrada:
-         * 0 = encerrar
-         * 1 = preemptivo, ainda indisponivel
-         * 2 = nao preemptivo
-         */
+        show_lcd(6);
         mode_choice = input();
-
         if (mode_choice == 0) {
+            show_lcd(15);
             running_shell = 0;
         } else if (mode_choice == 1) {
+            show_lcd(7);
             preemp_choice();
+            run_preemptive_mode();
         } else if (mode_choice == 2) {
-            /*
-             * Segunda entrada:
-             * 1 = programa simples
-             * 2 = programa complexo
-             */
+            show_lcd(8);
+            show_lcd(30);
             sc_choice = input();
             CURRENT_PROCESS = 0;
-
             if (sc_choice == 1) {
-                /* Terceira entrada: ID entre 1 e 10. */
+                show_lcd(31);
                 on_preemp_choice_simples();
             } else if (sc_choice == 2) {
+                show_lcd(32);
                 non_preemp_choice_complexo();
             }
-
             if (CURRENT_PROCESS != 0) {
                 run_non_preemptive_mode(CURRENT_PROCESS);
             } else {
+                show_lcd(29);
                 output(99);
             }
         } else {
+            show_lcd(29);
             output(99);
         }
     }
