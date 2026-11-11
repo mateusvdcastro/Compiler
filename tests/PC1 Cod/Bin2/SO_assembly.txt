@@ -1,0 +1,970 @@
+============== Assembly ============== 
+0:  	j main
+1:  init_constants:
+2:  	sw $ra 1($fp)
+3:  	Set_LCD $zero $zero 10
+4:  	ori $t0 $zero 0
+5:  	add $t1 $zero $t0
+6:  	sw $t1 0($s0)
+7:  	ori $t0 $zero 2048
+8:  	add $t1 $zero $t0
+9:  	sw $t1 1($s0)
+10: 	ori $t0 $zero 256
+11: 	add $t1 $zero $t0
+12: 	sw $t1 2($s0)
+13: 	ori $t0 $zero 512
+14: 	add $t1 $zero $t0
+15: 	sw $t1 3($s0)
+16: 	ori $t0 $zero 512
+17: 	add $t1 $zero $t0
+18: 	sw $t1 4($s0)
+19: 	ori $t0 $zero 4608
+20: 	add $t1 $zero $t0
+21: 	sw $t1 5($s0)
+22: 	ori $t0 $zero 3584
+23: 	add $t1 $zero $t0
+24: 	sw $t1 6($s0)
+25: 	ori $t0 $zero 5632
+26: 	add $t1 $zero $t0
+27: 	sw $t1 7($s0)
+28: 	ori $t0 $zero 2560
+29: 	add $t1 $zero $t0
+30: 	sw $t1 8($s0)
+31: 	ori $t0 $zero 11
+32: 	add $t1 $zero $t0
+33: 	sw $t1 9($s0)
+34: 	ori $t0 $zero 0
+35: 	ori $t1 $zero 0
+36: 	add $t2 $zero $t0
+37: 	addi $temp $s0 10
+38: 	add $temp $temp $t1
+39: 	sw $t2 0($temp)
+40: 	ori $t0 $zero 0
+41: 	ori $t1 $zero 0
+42: 	add $t2 $zero $t0
+43: 	addi $temp $s0 22
+44: 	add $temp $temp $t1
+45: 	sw $t2 0($temp)
+46: 	ori $t0 $zero 1
+47: 	add $t1 $zero $t0
+48: 	sw $t1 6($fp)
+49: Label 0:
+50: 	lw $t0 6($fp)
+51: 	ori $t1 $zero 10
+52: 	slt $t2 $t1 $t0
+53: 	xori $t2 $t2 1
+54: 	beq $t2 $zero Label 1
+55: 	lw $t0 1($s0)
+56: 	lw $t1 6($fp)
+57: 	ori $t2 $zero 1
+58: 	sub $t3 $t1 $t2
+59: 	lw $t4 2($s0)
+60: 	mult $t5 $t3 $t4
+61: 	add $t6 $t0 $t5
+62: 	lw $t7 6($fp)
+63: 	add $t8 $zero $t6
+64: 	addi $temp $s0 10
+65: 	add $temp $temp $t7
+66: 	sw $t8 0($temp)
+67: 	lw $t0 3($s0)
+68: 	lw $t1 6($fp)
+69: 	ori $t2 $zero 1
+70: 	sub $t3 $t1 $t2
+71: 	lw $t4 4($s0)
+72: 	mult $t5 $t3 $t4
+73: 	add $t6 $t0 $t5
+74: 	lw $t7 6($fp)
+75: 	add $t8 $zero $t6
+76: 	addi $temp $s0 22
+77: 	add $temp $temp $t7
+78: 	sw $t8 0($temp)
+79: 	lw $t0 6($fp)
+80: 	ori $t1 $zero 1
+81: 	add $t2 $t0 $t1
+82: 	add $t3 $zero $t2
+83: 	sw $t3 6($fp)
+84: 	j Label 0
+85: Label 1:
+86: 	lw $t0 5($s0)
+87: 	ori $t1 $zero 11
+88: 	add $t2 $zero $t0
+89: 	addi $temp $s0 10
+90: 	add $temp $temp $t1
+91: 	sw $t2 0($temp)
+92: 	lw $t0 7($s0)
+93: 	ori $t1 $zero 11
+94: 	add $t2 $zero $t0
+95: 	addi $temp $s0 22
+96: 	add $temp $temp $t1
+97: 	sw $t2 0($temp)
+98: 	lw $ra 1($fp)
+99: 	jr $zero $ra $zero
+100: reset_process_flags:
+101: 	sw $ra 1($fp)
+102: 	Set_LCD $zero $zero 28
+103: 	ori $t0 $zero 0
+104: 	add $t1 $zero $t0
+105: 	sw $t1 6($fp)
+106: Label 2:
+107: 	lw $t0 6($fp)
+108: 	ori $t1 $zero 11
+109: 	slt $t2 $t1 $t0
+110: 	xori $t2 $t2 1
+111: 	beq $t2 $zero Label 3
+112: 	ori $t0 $zero 0
+113: 	lw $t1 6($fp)
+114: 	add $t2 $zero $t0
+115: 	addi $temp $s0 34
+116: 	add $temp $temp $t1
+117: 	sw $t2 0($temp)
+118: 	ori $t0 $zero 0
+119: 	lw $t1 6($fp)
+120: 	add $t2 $zero $t0
+121: 	addi $temp $s0 46
+122: 	add $temp $temp $t1
+123: 	sw $t2 0($temp)
+124: 	ori $t0 $zero 0
+125: 	lw $t1 6($fp)
+126: 	add $t2 $zero $t0
+127: 	addi $temp $s0 58
+128: 	add $temp $temp $t1
+129: 	sw $t2 0($temp)
+130: 	ori $t0 $zero 1
+131: 	lw $t1 6($fp)
+132: 	add $t2 $zero $t0
+133: 	addi $temp $s0 70
+134: 	add $temp $temp $t1
+135: 	sw $t2 0($temp)
+136: 	lw $t0 6($fp)
+137: 	ori $t1 $zero 1
+138: 	add $t2 $t0 $t1
+139: 	add $t3 $zero $t2
+140: 	sw $t3 6($fp)
+141: 	j Label 2
+142: Label 3:
+143: 	ori $t0 $zero 0
+144: 	add $t1 $zero $t0
+145: 	sw $t1 82($s0)
+146: 	ori $t0 $zero 0
+147: 	add $t1 $zero $t0
+148: 	sw $t1 83($s0)
+149: 	lw $ra 1($fp)
+150: 	jr $zero $ra $zero
+151: preemp_choice:
+152: 	sw $ra 1($fp)
+153: 	add $temp $fp $zero
+154: 	addi $temp $temp 0
+155: 	sw $temp 1($sp)
+156: 	addi $fp $fp 10
+157: 	addi $sp $sp 7
+158: 	jal reset_process_flags
+159: 	subi $fp $fp 10
+160: 	subi $sp $sp 7
+161: 	Set_LCD $zero $zero 11
+162: 	in $t0 $zero 0
+163: 	add $t1 $zero $t0
+164: 	sw $t1 6($fp)
+165: 	lw $t0 6($fp)
+166: 	ori $t1 $zero 1
+167: 	slt $t2 $t0 $t1
+168: 	xori $t2 $t2 1
+169: 	beq $t2 $zero Label 4
+170: 	lw $t0 6($fp)
+171: 	ori $t1 $zero 10
+172: 	slt $t2 $t1 $t0
+173: 	xori $t2 $t2 1
+174: 	beq $t2 $zero Label 5
+175: 	lw $t0 6($fp)
+176: 	add $t1 $zero $t0
+177: 	sw $t1 82($s0)
+178: Label 5:
+179: Label 4:
+180: 	lw $t0 82($s0)
+181: 	ori $t1 $zero 0
+182: 	xor $t2 $t0 $t1
+183: 	slti $t2 $t2 1
+184: 	beq $t2 $zero Label 6
+185: 	Set_LCD $zero $zero 29
+186: 	ori $t0 $zero 99
+187: 	sw $t0 0($pilha)
+188: 	lw $temp 0($pilha)
+189: 	out $temp $zero 0
+190: 	j Label 7
+191: Label 6:
+192: 	ori $t0 $zero 0
+193: 	add $t1 $zero $t0
+194: 	sw $t1 7($fp)
+195: Label 8:
+196: 	lw $t0 7($fp)
+197: 	lw $t1 82($s0)
+198: 	slt $t2 $t0 $t1
+199: 	beq $t2 $zero Label 9
+200: 	Set_LCD $zero $zero 12
+201: 	in $t0 $zero 0
+202: 	add $t1 $zero $t0
+203: 	sw $t1 8($fp)
+204: 	ori $t0 $zero 0
+205: 	add $t1 $zero $t0
+206: 	sw $t1 9($fp)
+207: 	lw $t0 8($fp)
+208: 	ori $t1 $zero 1
+209: 	slt $t2 $t0 $t1
+210: 	xori $t2 $t2 1
+211: 	beq $t2 $zero Label 10
+212: 	lw $t0 8($fp)
+213: 	ori $t1 $zero 10
+214: 	slt $t2 $t1 $t0
+215: 	xori $t2 $t2 1
+216: 	beq $t2 $zero Label 11
+217: 	lw $t0 8($fp)
+218: 	addi $temp $s0 34
+219: 	add $temp $temp $t0
+220: 	lw $t1 0($temp)
+221: 	ori $t2 $zero 0
+222: 	xor $t3 $t1 $t2
+223: 	slti $t3 $t3 1
+224: 	beq $t3 $zero Label 12
+225: 	ori $t0 $zero 1
+226: 	add $t1 $zero $t0
+227: 	sw $t1 9($fp)
+228: Label 12:
+229: Label 11:
+230: Label 10:
+231: 	lw $t0 9($fp)
+232: 	ori $t1 $zero 1
+233: 	xor $t2 $t0 $t1
+234: 	slti $t2 $t2 1
+235: 	beq $t2 $zero Label 13
+236: 	lw $t0 8($fp)
+237: 	lw $t1 7($fp)
+238: 	add $t2 $zero $t0
+239: 	addi $temp $s0 46
+240: 	add $temp $temp $t1
+241: 	sw $t2 0($temp)
+242: 	ori $t0 $zero 1
+243: 	lw $t1 8($fp)
+244: 	add $t2 $zero $t0
+245: 	addi $temp $s0 34
+246: 	add $temp $temp $t1
+247: 	sw $t2 0($temp)
+248: 	lw $t0 8($fp)
+249: 	addi $temp $s0 10
+250: 	add $temp $temp $t0
+251: 	lw $t1 0($temp)
+252: 	lw $t2 8($fp)
+253: 	add $t3 $zero $t1
+254: 	addi $temp $s0 58
+255: 	add $temp $temp $t2
+256: 	sw $t3 0($temp)
+257: 	ori $t0 $zero 1
+258: 	lw $t1 8($fp)
+259: 	add $t2 $zero $t0
+260: 	addi $temp $s0 70
+261: 	add $temp $temp $t1
+262: 	sw $t2 0($temp)
+263: 	lw $t0 83($s0)
+264: 	ori $t1 $zero 1
+265: 	add $t2 $t0 $t1
+266: 	add $t3 $zero $t2
+267: 	sw $t3 83($s0)
+268: 	lw $t0 7($fp)
+269: 	ori $t1 $zero 1
+270: 	add $t2 $t0 $t1
+271: 	add $t3 $zero $t2
+272: 	sw $t3 7($fp)
+273: 	j Label 14
+274: Label 13:
+275: 	Set_LCD $zero $zero 13
+276: 	ori $t0 $zero 99
+277: 	sw $t0 0($pilha)
+278: 	lw $temp 0($pilha)
+279: 	out $temp $zero 0
+280: Label 14:
+281: 	j Label 8
+282: Label 9:
+283: Label 7:
+284: 	lw $ra 1($fp)
+285: 	jr $zero $ra $zero
+286: run_preemptive_mode:
+287: 	sw $ra 1($fp)
+288: 	ori $t0 $zero 0
+289: 	add $t1 $zero $t0
+290: 	sw $t1 6($fp)
+291: 	Set_LCD $zero $zero 17
+292: Label 15:
+293: 	lw $t0 83($s0)
+294: 	ori $t1 $zero 0
+295: 	slt $t2 $t1 $t0
+296: 	beq $t2 $zero Label 16
+297: 	lw $t0 6($fp)
+298: 	addi $temp $s0 46
+299: 	add $temp $temp $t0
+300: 	lw $t1 0($temp)
+301: 	add $t2 $zero $t1
+302: 	sw $t2 7($fp)
+303: 	lw $t0 7($fp)
+304: 	addi $temp $s0 34
+305: 	add $temp $temp $t0
+306: 	lw $t1 0($temp)
+307: 	ori $t2 $zero 4
+308: 	slt $temp $t1 $t2
+309: 	slt $t3 $t2 $t1
+310: 	or $t3 $temp $t3
+311: 	beq $t3 $zero Label 17
+312: 	lw $t0 7($fp)
+313: 	add $t1 $zero $t0
+314: 	sw $t1 0($s0)
+315: 	ori $t0 $zero 2
+316: 	lw $t1 7($fp)
+317: 	add $t2 $zero $t0
+318: 	addi $temp $s0 34
+319: 	add $temp $temp $t1
+320: 	sw $t2 0($temp)
+321: 	lw $t0 7($fp)
+322: 	addi $temp $s0 70
+323: 	add $temp $temp $t0
+324: 	lw $t1 0($temp)
+325: 	add $t2 $zero $t1
+326: 	sw $t2 9($fp)
+327: 	ori $t0 $zero 0
+328: 	lw $t1 7($fp)
+329: 	add $t2 $zero $t0
+330: 	addi $temp $s0 70
+331: 	add $temp $temp $t1
+332: 	sw $t2 0($temp)
+333: 	lw $t0 7($fp)
+334: 	addi $temp $s0 10
+335: 	add $temp $temp $t0
+336: 	lw $t1 0($temp)
+337: 	add $t2 $zero $t1
+338: 	sw $t2 10($fp)
+339: 	lw $t0 7($fp)
+340: 	addi $temp $s0 22
+341: 	add $temp $temp $t0
+342: 	lw $t1 0($temp)
+343: 	add $t2 $zero $t1
+344: 	sw $t2 11($fp)
+345: 	lw $t0 7($fp)
+346: 	addi $temp $s0 58
+347: 	add $temp $temp $t0
+348: 	lw $t1 0($temp)
+349: 	add $t2 $zero $t1
+350: 	sw $t2 12($fp)
+351: 	lw $t0 9($fp)
+352: 	ori $t1 $zero 1
+353: 	xor $t2 $t0 $t1
+354: 	slti $t2 $t2 1
+355: 	beq $t2 $zero Label 18
+356: 	Set_LCD $zero $zero 27
+357: 	Set_LCD $zero $zero 18
+358: 	sw $t0 480($s0)
+359: 	sw $t1 481($s0)
+360: 	sw $t2 482($s0)
+361: 	sw $t3 483($s0)
+362: 	sw $t4 484($s0)
+363: 	sw $t5 485($s0)
+364: 	sw $t6 486($s0)
+365: 	sw $t7 487($s0)
+366: 	sw $t8 488($s0)
+367: 	sw $t9 489($s0)
+368: 	sw $t10 490($s0)
+369: 	sw $t11 491($s0)
+370: 	sw $t12 492($s0)
+371: 	sw $t13 493($s0)
+372: 	sw $t14 494($s0)
+373: 	sw $t15 495($s0)
+374: 	sw $t16 496($s0)
+375: 	sw $t17 497($s0)
+376: 	sw $t18 498($s0)
+377: 	sw $t19 499($s0)
+378: 	sw $t20 500($s0)
+379: 	sw $t21 501($s0)
+380: 	sw $t22 502($s0)
+381: 	sw $s0 503($s0)
+382: 	sw $s1 504($s0)
+383: 	sw $pilha 506($s0)
+384: 	sw $temp 507($s0)
+385: 	sw $sp 508($s0)
+386: 	sw $fp 509($s0)
+387: 	sw $ra 510($s0)
+388: 	Set_LCD $zero $zero 19
+389: 	lw $t0 12($fp)
+390: 	add $k0 $t0 $zero
+391: 	lw $t0 10($fp)
+392: 	add $s1 $t0 $zero
+393: 	lw $t0 11($fp)
+394: 	add $s0 $t0 $zero
+395: 	Set_LCD $zero $zero 16
+396: 	set_interr_timer $zero $zero 50
+397: 	Set_LCD $zero $zero 21
+398: 	os_jump_to $zero $k0 0
+399: 	sw $t0 480($s0)
+400: 	sw $t1 481($s0)
+401: 	sw $t2 482($s0)
+402: 	sw $t3 483($s0)
+403: 	sw $t4 484($s0)
+404: 	sw $t5 485($s0)
+405: 	sw $t6 486($s0)
+406: 	sw $t7 487($s0)
+407: 	sw $t8 488($s0)
+408: 	sw $t9 489($s0)
+409: 	sw $t10 490($s0)
+410: 	sw $t11 491($s0)
+411: 	sw $t12 492($s0)
+412: 	sw $t13 493($s0)
+413: 	sw $t14 494($s0)
+414: 	sw $t15 495($s0)
+415: 	sw $t16 496($s0)
+416: 	sw $t17 497($s0)
+417: 	sw $t18 498($s0)
+418: 	sw $t19 499($s0)
+419: 	sw $t20 500($s0)
+420: 	sw $t21 501($s0)
+421: 	sw $t22 502($s0)
+422: 	sw $s0 503($s0)
+423: 	sw $s1 504($s0)
+424: 	sw $pilha 506($s0)
+425: 	sw $temp 507($s0)
+426: 	sw $sp 508($s0)
+427: 	sw $fp 509($s0)
+428: 	sw $ra 510($s0)
+429: 	ori $t0 $zero 0
+430: 	add $s0 $t0 $zero
+431: 	ori $t0 $zero 0
+432: 	add $s1 $t0 $zero
+433: 	lw $t0 480($s0)
+434: 	lw $t1 481($s0)
+435: 	lw $t2 482($s0)
+436: 	lw $t3 483($s0)
+437: 	lw $t4 484($s0)
+438: 	lw $t5 485($s0)
+439: 	lw $t6 486($s0)
+440: 	lw $t7 487($s0)
+441: 	lw $t8 488($s0)
+442: 	lw $t9 489($s0)
+443: 	lw $t10 490($s0)
+444: 	lw $t11 491($s0)
+445: 	lw $t12 492($s0)
+446: 	lw $t13 493($s0)
+447: 	lw $t14 494($s0)
+448: 	lw $t15 495($s0)
+449: 	lw $t16 496($s0)
+450: 	lw $t17 497($s0)
+451: 	lw $t18 498($s0)
+452: 	lw $t19 499($s0)
+453: 	lw $t20 500($s0)
+454: 	lw $t21 501($s0)
+455: 	lw $t22 502($s0)
+456: 	lw $s1 504($s0)
+457: 	lw $pilha 506($s0)
+458: 	lw $temp 507($s0)
+459: 	lw $sp 508($s0)
+460: 	lw $fp 509($s0)
+461: 	lw $ra 510($s0)
+462: 	lw $s0 503($s0)
+463: 	j Label 19
+464: Label 18:
+465: 	Set_LCD $zero $zero 26
+466: 	Set_LCD $zero $zero 18
+467: 	sw $t0 480($s0)
+468: 	sw $t1 481($s0)
+469: 	sw $t2 482($s0)
+470: 	sw $t3 483($s0)
+471: 	sw $t4 484($s0)
+472: 	sw $t5 485($s0)
+473: 	sw $t6 486($s0)
+474: 	sw $t7 487($s0)
+475: 	sw $t8 488($s0)
+476: 	sw $t9 489($s0)
+477: 	sw $t10 490($s0)
+478: 	sw $t11 491($s0)
+479: 	sw $t12 492($s0)
+480: 	sw $t13 493($s0)
+481: 	sw $t14 494($s0)
+482: 	sw $t15 495($s0)
+483: 	sw $t16 496($s0)
+484: 	sw $t17 497($s0)
+485: 	sw $t18 498($s0)
+486: 	sw $t19 499($s0)
+487: 	sw $t20 500($s0)
+488: 	sw $t21 501($s0)
+489: 	sw $t22 502($s0)
+490: 	sw $s0 503($s0)
+491: 	sw $s1 504($s0)
+492: 	sw $pilha 506($s0)
+493: 	sw $temp 507($s0)
+494: 	sw $sp 508($s0)
+495: 	sw $fp 509($s0)
+496: 	sw $ra 510($s0)
+497: 	Set_LCD $zero $zero 19
+498: 	lw $t0 12($fp)
+499: 	add $k0 $t0 $zero
+500: 	lw $t0 10($fp)
+501: 	add $s1 $t0 $zero
+502: 	lw $t0 11($fp)
+503: 	add $s0 $t0 $zero
+504: 	Set_LCD $zero $zero 20
+505: 	lw $t0 480($s0)
+506: 	lw $t1 481($s0)
+507: 	lw $t2 482($s0)
+508: 	lw $t3 483($s0)
+509: 	lw $t4 484($s0)
+510: 	lw $t5 485($s0)
+511: 	lw $t6 486($s0)
+512: 	lw $t7 487($s0)
+513: 	lw $t8 488($s0)
+514: 	lw $t9 489($s0)
+515: 	lw $t10 490($s0)
+516: 	lw $t11 491($s0)
+517: 	lw $t12 492($s0)
+518: 	lw $t13 493($s0)
+519: 	lw $t14 494($s0)
+520: 	lw $t15 495($s0)
+521: 	lw $t16 496($s0)
+522: 	lw $t17 497($s0)
+523: 	lw $t18 498($s0)
+524: 	lw $t19 499($s0)
+525: 	lw $t20 500($s0)
+526: 	lw $t21 501($s0)
+527: 	lw $t22 502($s0)
+528: 	lw $s1 504($s0)
+529: 	lw $pilha 506($s0)
+530: 	lw $temp 507($s0)
+531: 	lw $sp 508($s0)
+532: 	lw $fp 509($s0)
+533: 	lw $ra 510($s0)
+534: 	lw $s0 503($s0)
+535: 	Set_LCD $zero $zero 16
+536: 	set_interr_timer $zero $zero 50
+537: 	Set_LCD $zero $zero 21
+538: 	os_jump_to $zero $k0 0
+539: 	sw $t0 480($s0)
+540: 	sw $t1 481($s0)
+541: 	sw $t2 482($s0)
+542: 	sw $t3 483($s0)
+543: 	sw $t4 484($s0)
+544: 	sw $t5 485($s0)
+545: 	sw $t6 486($s0)
+546: 	sw $t7 487($s0)
+547: 	sw $t8 488($s0)
+548: 	sw $t9 489($s0)
+549: 	sw $t10 490($s0)
+550: 	sw $t11 491($s0)
+551: 	sw $t12 492($s0)
+552: 	sw $t13 493($s0)
+553: 	sw $t14 494($s0)
+554: 	sw $t15 495($s0)
+555: 	sw $t16 496($s0)
+556: 	sw $t17 497($s0)
+557: 	sw $t18 498($s0)
+558: 	sw $t19 499($s0)
+559: 	sw $t20 500($s0)
+560: 	sw $t21 501($s0)
+561: 	sw $t22 502($s0)
+562: 	sw $s0 503($s0)
+563: 	sw $s1 504($s0)
+564: 	sw $pilha 506($s0)
+565: 	sw $temp 507($s0)
+566: 	sw $sp 508($s0)
+567: 	sw $fp 509($s0)
+568: 	sw $ra 510($s0)
+569: 	ori $t0 $zero 0
+570: 	add $s0 $t0 $zero
+571: 	ori $t0 $zero 0
+572: 	add $s1 $t0 $zero
+573: 	lw $t0 480($s0)
+574: 	lw $t1 481($s0)
+575: 	lw $t2 482($s0)
+576: 	lw $t3 483($s0)
+577: 	lw $t4 484($s0)
+578: 	lw $t5 485($s0)
+579: 	lw $t6 486($s0)
+580: 	lw $t7 487($s0)
+581: 	lw $t8 488($s0)
+582: 	lw $t9 489($s0)
+583: 	lw $t10 490($s0)
+584: 	lw $t11 491($s0)
+585: 	lw $t12 492($s0)
+586: 	lw $t13 493($s0)
+587: 	lw $t14 494($s0)
+588: 	lw $t15 495($s0)
+589: 	lw $t16 496($s0)
+590: 	lw $t17 497($s0)
+591: 	lw $t18 498($s0)
+592: 	lw $t19 499($s0)
+593: 	lw $t20 500($s0)
+594: 	lw $t21 501($s0)
+595: 	lw $t22 502($s0)
+596: 	lw $s1 504($s0)
+597: 	lw $pilha 506($s0)
+598: 	lw $temp 507($s0)
+599: 	lw $sp 508($s0)
+600: 	lw $fp 509($s0)
+601: 	lw $ra 510($s0)
+602: 	lw $s0 503($s0)
+603: Label 19:
+604: 	Set_LCD $zero $zero 22
+605: 	get_interr_type $t0 $zero 0
+606: 	add $t1 $zero $t0
+607: 	sw $t1 8($fp)
+608: 	lw $t0 8($fp)
+609: 	ori $t1 $zero 1
+610: 	xor $t2 $t0 $t1
+611: 	slti $t2 $t2 1
+612: 	beq $t2 $zero Label 20
+613: 	Set_LCD $zero $zero 23
+614: 	get_pc $t0 $zero 0
+615: 	lw $t1 7($fp)
+616: 	add $t2 $zero $t0
+617: 	addi $temp $s0 58
+618: 	add $temp $temp $t1
+619: 	sw $t2 0($temp)
+620: 	ori $t0 $zero 1
+621: 	lw $t1 7($fp)
+622: 	add $t2 $zero $t0
+623: 	addi $temp $s0 34
+624: 	add $temp $temp $t1
+625: 	sw $t2 0($temp)
+626: 	j Label 21
+627: Label 20:
+628: 	lw $t0 8($fp)
+629: 	ori $t1 $zero 2
+630: 	xor $t2 $t0 $t1
+631: 	slti $t2 $t2 1
+632: 	beq $t2 $zero Label 22
+633: 	Set_LCD $zero $zero 24
+634: 	ori $t0 $zero 4
+635: 	lw $t1 7($fp)
+636: 	add $t2 $zero $t0
+637: 	addi $temp $s0 34
+638: 	add $temp $temp $t1
+639: 	sw $t2 0($temp)
+640: 	lw $t0 83($s0)
+641: 	ori $t1 $zero 1
+642: 	sub $t2 $t0 $t1
+643: 	add $t3 $zero $t2
+644: 	sw $t3 83($s0)
+645: Label 22:
+646: Label 21:
+647: Label 17:
+648: 	Set_LCD $zero $zero 25
+649: 	lw $t0 6($fp)
+650: 	ori $t1 $zero 1
+651: 	add $t2 $t0 $t1
+652: 	add $t3 $zero $t2
+653: 	sw $t3 6($fp)
+654: 	lw $t0 6($fp)
+655: 	lw $t1 82($s0)
+656: 	slt $t2 $t0 $t1
+657: 	xori $t2 $t2 1
+658: 	beq $t2 $zero Label 23
+659: 	ori $t0 $zero 0
+660: 	add $t1 $zero $t0
+661: 	sw $t1 6($fp)
+662: Label 23:
+663: 	j Label 15
+664: Label 16:
+665: 	set_interr_timer $zero $zero 0
+666: 	Set_LCD $zero $zero 15
+667: 	add $temp $fp $zero
+668: 	addi $temp $temp 0
+669: 	sw $temp 1($sp)
+670: 	addi $fp $fp 13
+671: 	addi $sp $sp 7
+672: 	jal reset_process_flags
+673: 	subi $fp $fp 13
+674: 	subi $sp $sp 7
+675: 	ori $t0 $zero 0
+676: 	add $t1 $zero $t0
+677: 	sw $t1 0($s0)
+678: 	lw $ra 1($fp)
+679: 	jr $zero $ra $zero
+680: on_preemp_choice_sim:
+681: 	sw $ra 1($fp)
+682: 	ori $t0 $zero 0
+683: 	add $t1 $zero $t0
+684: 	sw $t1 0($s0)
+685: 	Set_LCD $zero $zero 3
+686: 	in $t0 $zero 0
+687: 	add $t1 $zero $t0
+688: 	sw $t1 6($fp)
+689: 	lw $t0 6($fp)
+690: 	ori $t1 $zero 1
+691: 	slt $t2 $t0 $t1
+692: 	xori $t2 $t2 1
+693: 	beq $t2 $zero Label 24
+694: 	lw $t0 6($fp)
+695: 	ori $t1 $zero 10
+696: 	slt $t2 $t1 $t0
+697: 	xori $t2 $t2 1
+698: 	beq $t2 $zero Label 25
+699: 	lw $t0 6($fp)
+700: 	add $t1 $zero $t0
+701: 	sw $t1 0($s0)
+702: Label 25:
+703: Label 24:
+704: 	lw $ra 1($fp)
+705: 	jr $zero $ra $zero
+706: non_preemp_choice_co:
+707: 	sw $ra 1($fp)
+708: 	lw $t0 9($s0)
+709: 	add $t1 $zero $t0
+710: 	sw $t1 0($s0)
+711: 	lw $ra 1($fp)
+712: 	jr $zero $ra $zero
+713: run_non_preemptive_m:
+714: 	sw $ra 2($fp)
+715: 	lw $t0 0($fp)
+716: 	addi $temp $s0 10
+717: 	add $temp $temp $t0
+718: 	lw $t1 0($temp)
+719: 	add $t2 $zero $t1
+720: 	sw $t2 7($fp)
+721: 	lw $t0 0($fp)
+722: 	addi $temp $s0 22
+723: 	add $temp $temp $t0
+724: 	lw $t1 0($temp)
+725: 	add $t2 $zero $t1
+726: 	sw $t2 8($fp)
+727: 	set_interr_timer $zero $zero 0
+728: 	Set_LCD $zero $zero 18
+729: 	sw $t0 480($s0)
+730: 	sw $t1 481($s0)
+731: 	sw $t2 482($s0)
+732: 	sw $t3 483($s0)
+733: 	sw $t4 484($s0)
+734: 	sw $t5 485($s0)
+735: 	sw $t6 486($s0)
+736: 	sw $t7 487($s0)
+737: 	sw $t8 488($s0)
+738: 	sw $t9 489($s0)
+739: 	sw $t10 490($s0)
+740: 	sw $t11 491($s0)
+741: 	sw $t12 492($s0)
+742: 	sw $t13 493($s0)
+743: 	sw $t14 494($s0)
+744: 	sw $t15 495($s0)
+745: 	sw $t16 496($s0)
+746: 	sw $t17 497($s0)
+747: 	sw $t18 498($s0)
+748: 	sw $t19 499($s0)
+749: 	sw $t20 500($s0)
+750: 	sw $t21 501($s0)
+751: 	sw $t22 502($s0)
+752: 	sw $s0 503($s0)
+753: 	sw $s1 504($s0)
+754: 	sw $pilha 506($s0)
+755: 	sw $temp 507($s0)
+756: 	sw $sp 508($s0)
+757: 	sw $fp 509($s0)
+758: 	sw $ra 510($s0)
+759: 	Set_LCD $zero $zero 19
+760: 	lw $t0 7($fp)
+761: 	add $k0 $t0 $zero
+762: 	lw $t0 7($fp)
+763: 	add $s1 $t0 $zero
+764: 	lw $t0 8($fp)
+765: 	add $s0 $t0 $zero
+766: 	Set_LCD $zero $zero 21
+767: 	os_jump_to $zero $k0 0
+768: 	ori $t0 $zero 0
+769: 	add $s0 $t0 $zero
+770: 	ori $t0 $zero 0
+771: 	add $s1 $t0 $zero
+772: 	lw $t0 480($s0)
+773: 	lw $t1 481($s0)
+774: 	lw $t2 482($s0)
+775: 	lw $t3 483($s0)
+776: 	lw $t4 484($s0)
+777: 	lw $t5 485($s0)
+778: 	lw $t6 486($s0)
+779: 	lw $t7 487($s0)
+780: 	lw $t8 488($s0)
+781: 	lw $t9 489($s0)
+782: 	lw $t10 490($s0)
+783: 	lw $t11 491($s0)
+784: 	lw $t12 492($s0)
+785: 	lw $t13 493($s0)
+786: 	lw $t14 494($s0)
+787: 	lw $t15 495($s0)
+788: 	lw $t16 496($s0)
+789: 	lw $t17 497($s0)
+790: 	lw $t18 498($s0)
+791: 	lw $t19 499($s0)
+792: 	lw $t20 500($s0)
+793: 	lw $t21 501($s0)
+794: 	lw $t22 502($s0)
+795: 	lw $s1 504($s0)
+796: 	lw $pilha 506($s0)
+797: 	lw $temp 507($s0)
+798: 	lw $sp 508($s0)
+799: 	lw $fp 509($s0)
+800: 	lw $ra 510($s0)
+801: 	lw $s0 503($s0)
+802: 	Set_LCD $zero $zero 22
+803: 	ori $t0 $zero 0
+804: 	add $t1 $zero $t0
+805: 	sw $t1 0($s0)
+806: 	lw $ra 2($fp)
+807: 	jr $zero $ra $zero
+808: main:
+809: 	addi $fp $s0 84
+810: 	addi $sp $s0 89
+811: 	addi $pilha $s0 448
+812: 	ori $temp $zero 5632
+813: 	bne $temp $s0 Label 39
+814: 	addi $pilha $s0 2496
+815: Label 39:
+816: 	addi $sp $sp 1
+817: 	addi $sp $sp 1
+818: 	addi $sp $sp 1
+819: 	Set_LCD $zero $zero 1
+820: 	add $temp $fp $zero
+821: 	addi $temp $temp 0
+822: 	sw $temp 1($sp)
+823: 	addi $fp $fp 9
+824: 	addi $sp $sp 7
+825: 	jal init_constants
+826: 	subi $fp $fp 9
+827: 	subi $sp $sp 7
+828: 	set_interr_timer $zero $zero 0
+829: 	add $temp $fp $zero
+830: 	addi $temp $temp 0
+831: 	sw $temp 1($sp)
+832: 	addi $fp $fp 9
+833: 	addi $sp $sp 7
+834: 	jal reset_process_flags
+835: 	subi $fp $fp 9
+836: 	subi $sp $sp 7
+837: 	ori $t0 $zero 1
+838: 	add $t1 $zero $t0
+839: 	sw $t1 6($fp)
+840: Label 26:
+841: 	lw $t0 6($fp)
+842: 	ori $t1 $zero 1
+843: 	xor $t2 $t0 $t1
+844: 	slti $t2 $t2 1
+845: 	beq $t2 $zero Label 27
+846: 	Set_LCD $zero $zero 6
+847: 	in $t0 $zero 0
+848: 	add $t1 $zero $t0
+849: 	sw $t1 7($fp)
+850: 	lw $t0 7($fp)
+851: 	ori $t1 $zero 0
+852: 	xor $t2 $t0 $t1
+853: 	slti $t2 $t2 1
+854: 	beq $t2 $zero Label 28
+855: 	Set_LCD $zero $zero 15
+856: 	ori $t0 $zero 0
+857: 	add $t1 $zero $t0
+858: 	sw $t1 6($fp)
+859: 	j Label 29
+860: Label 28:
+861: 	lw $t0 7($fp)
+862: 	ori $t1 $zero 1
+863: 	xor $t2 $t0 $t1
+864: 	slti $t2 $t2 1
+865: 	beq $t2 $zero Label 30
+866: 	Set_LCD $zero $zero 7
+867: 	add $temp $fp $zero
+868: 	addi $temp $temp 0
+869: 	sw $temp 1($sp)
+870: 	addi $fp $fp 9
+871: 	addi $sp $sp 10
+872: 	jal preemp_choice
+873: 	subi $fp $fp 9
+874: 	subi $sp $sp 10
+875: 	add $temp $fp $zero
+876: 	addi $temp $temp 0
+877: 	sw $temp 1($sp)
+878: 	addi $fp $fp 9
+879: 	addi $sp $sp 13
+880: 	jal run_preemptive_mode
+881: 	subi $fp $fp 9
+882: 	subi $sp $sp 13
+883: 	j Label 31
+884: Label 30:
+885: 	lw $t0 7($fp)
+886: 	ori $t1 $zero 2
+887: 	xor $t2 $t0 $t1
+888: 	slti $t2 $t2 1
+889: 	beq $t2 $zero Label 32
+890: 	Set_LCD $zero $zero 8
+891: 	Set_LCD $zero $zero 30
+892: 	in $t0 $zero 0
+893: 	add $t1 $zero $t0
+894: 	sw $t1 8($fp)
+895: 	ori $t0 $zero 0
+896: 	add $t1 $zero $t0
+897: 	sw $t1 0($s0)
+898: 	lw $t0 8($fp)
+899: 	ori $t1 $zero 1
+900: 	xor $t2 $t0 $t1
+901: 	slti $t2 $t2 1
+902: 	beq $t2 $zero Label 34
+903: 	Set_LCD $zero $zero 31
+904: 	add $temp $fp $zero
+905: 	addi $temp $temp 0
+906: 	sw $temp 1($sp)
+907: 	addi $fp $fp 9
+908: 	addi $sp $sp 7
+909: 	jal on_preemp_choice_sim
+910: 	subi $fp $fp 9
+911: 	subi $sp $sp 7
+912: 	j Label 35
+913: Label 34:
+914: 	lw $t0 8($fp)
+915: 	ori $t1 $zero 2
+916: 	xor $t2 $t0 $t1
+917: 	slti $t2 $t2 1
+918: 	beq $t2 $zero Label 36
+919: 	Set_LCD $zero $zero 32
+920: 	add $temp $fp $zero
+921: 	addi $temp $temp 0
+922: 	sw $temp 1($sp)
+923: 	addi $fp $fp 9
+924: 	addi $sp $sp 6
+925: 	jal non_preemp_choice_co
+926: 	subi $fp $fp 9
+927: 	subi $sp $sp 6
+928: Label 36:
+929: Label 35:
+930: 	lw $t0 0($s0)
+931: 	ori $t1 $zero 0
+932: 	slt $temp $t0 $t1
+933: 	slt $t2 $t1 $t0
+934: 	or $t2 $temp $t2
+935: 	beq $t2 $zero Label 37
+936: 	lw $t0 0($s0)
+937: 	sw $t0 0($pilha)
+938: 	lw $temp 0($pilha)
+939: 	sw $temp 1($sp)
+940: 	add $temp $fp $zero
+941: 	addi $temp $temp 0
+942: 	sw $temp 2($sp)
+943: 	addi $fp $fp 9
+944: 	addi $sp $sp 9
+945: 	jal run_non_preemptive_m
+946: 	subi $fp $fp 9
+947: 	subi $sp $sp 9
+948: 	j Label 38
+949: Label 37:
+950: 	Set_LCD $zero $zero 29
+951: 	ori $t0 $zero 99
+952: 	sw $t0 0($pilha)
+953: 	lw $temp 0($pilha)
+954: 	out $temp $zero 0
+955: Label 38:
+956: 	j Label 33
+957: Label 32:
+958: 	Set_LCD $zero $zero 29
+959: 	ori $t0 $zero 99
+960: 	sw $t0 0($pilha)
+961: 	lw $temp 0($pilha)
+962: 	out $temp $zero 0
+963: Label 33:
+964: Label 31:
+965: Label 29:
+966: 	j Label 26
+967: Label 27:
+968: 	halt $zero

@@ -1,0 +1,37 @@
+============== Assembly ============== 
+0:  	j main
+1:  main:
+2:  	addi $fp $s0 0
+3:  	addi $sp $s0 5
+4:  	addi $pilha $s0 448
+5:  	ori $temp $zero 5632
+6:  	bne $temp $s0 Label 2
+7:  	addi $pilha $s0 2496
+8:  Label 2:
+9:  	addi $sp $sp 1
+10: 	addi $sp $sp 1
+11: 	addi $sp $sp 1
+12: 	in $t0 $zero 0
+13: 	add $t1 $zero $t0
+14: 	sw $t1 6($fp)
+15: 	in $t0 $zero 0
+16: 	add $t1 $zero $t0
+17: 	sw $t1 7($fp)
+18: 	lw $t0 6($fp)
+19: 	lw $t1 7($fp)
+20: 	slt $t2 $t1 $t0
+21: 	beq $t2 $zero Label 0
+22: 	lw $t0 6($fp)
+23: 	add $t1 $zero $t0
+24: 	sw $t1 8($fp)
+25: 	j Label 1
+26: Label 0:
+27: 	lw $t0 7($fp)
+28: 	add $t1 $zero $t0
+29: 	sw $t1 8($fp)
+30: Label 1:
+31: 	lw $t0 8($fp)
+32: 	sw $t0 0($pilha)
+33: 	lw $temp 0($pilha)
+34: 	out $temp $zero 0
+35: 	halt $zero

@@ -296,6 +296,13 @@ void generateAssembly(INSTRUCTION *instruction){
         return;
     }
     if (!strcmp(instruction->operator, "SET_INTERR_TIMER")) {
+#if defined(TEST_TIMER_ZERO_AS_NOP) && TEST_TIMER_ZERO_AS_NOP
+        // Test only: preserve the instruction slot without changing the timer.
+        if (instruction->arg1->val == 0) {
+            emitMove($zero, $zero); // add $zero $zero $zero = NOP
+            return;
+        }
+#endif
         emitI("set_interr_timer", $zero, $zero, instruction->arg1->val);
         return;
     }
